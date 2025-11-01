@@ -2,6 +2,7 @@
 require_once("config.php");
 require_once("functions.php");
 checkApiKey();
+session_start();
 
 $data = json_decode(file_get_contents("php://input"), true);
 $username = clean($data["username"], $conn);
@@ -22,5 +23,9 @@ if (!password_verify($password, $user["password_hash"])) {
     echo json_encode(["error" => "Pogrešna lozinka"]);
     exit;
 }
+
+$_SESSION['user_id'] = $user['id'];
+$_SESSION['user_role'] = $user['role'];
+
 unset($user["password_hash"]);
 echo json_encode(["success" => true, "user" => $user]);

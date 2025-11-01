@@ -70,7 +70,7 @@
         const rowStyle = isCanceled ? 'background-color:#e2e3e5;color:#6c757d;' : '';
 
         out.innerHTML += `
-          <li class='list-group-item ticket-item d-flex justify-content-between align-items-start flex-wrap' 
+          <li class='list-group-item ticket-item d-flex justify-content-between align-items-start flex-wrap'
               style="${rowStyle}" onclick="openDetails(${t.id})">
             <div>
               <b>#${t.id}</b> - ${t.title}<br>
@@ -149,8 +149,11 @@
 
       const imgMap = {
         "Ulrich CT Motion Spicy": "../img/serial_ctmotion.jpg",
+        "Ulrich MAX2/3": "../img/serial_max.jpg",
         "Vernacare Vortex AIR": "../img/serial_vortex.jpg",
-        "Ecodas T100": "../img/serial_ecodas.jpg"
+        "Vernacare Vortex+": "../img/serial_vortex.jpg",
+		"ACIST CVi": "../img/serial_acist.jpg",
+        "Eurosets ECMOLIFE": "../img/serial_ecmolife.jpg"
       };
       const imgSrc = imgMap[select.value] || "../img/serial_location.jpg";
       tooltipSpan.setAttribute("data-bs-toggle", "tooltip");
@@ -197,8 +200,11 @@
         <select id="device_name" class="form-select mb-2" onchange="onDeviceChange()">
           <option value="">Odaberite uređaj...</option>
           <option>Ulrich CT Motion Spicy</option>
+          <option>Ulrich MAX2/3</option>
           <option>Vernacare Vortex AIR</option>
-          <option>Ecodas T100</option>
+          <option>Vernacare Vortex+</option>
+          <option>ACIST CVi</option>
+          <option>Eurosets ECMOLIFE</option>
         </select>
 
         <div class="input-group mb-2">
