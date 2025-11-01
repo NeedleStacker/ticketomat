@@ -1,3 +1,10 @@
+<?php
+session_start();
+if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
+    header("Location: admin.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="hr">
 <head>
@@ -203,10 +210,22 @@
       }
     }
 
+    async function loadDevices() {
+        const res = await fetch(API + "getDevices.php", {
+            headers: { "X-API-KEY": API_KEY }
+        });
+        const devices = await res.json();
+        const select = document.getElementById("device_name");
+        devices.forEach(d => {
+            select.innerHTML += `<option>${d.name}</option>`;
+        });
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
       disableTooltip();
       getTickets();
       populateClientInfo();
+      loadDevices();
     });
   </script>
 </head>
@@ -236,12 +255,6 @@
         <input id="creator_contact" class="form-control mb-2" placeholder="Kontakt (telefon ili email)" />
         <select id="device_name" class="form-select mb-2" onchange="onDeviceChange()">
           <option value="">Odaberite uređaj...</option>
-          <option>Ulrich CT Motion</option>
-          <option>Ulrich MAX2/3</option>
-          <option>Vernacare Vortex AIR</option>
-          <option>Vernacare Vortex+</option>
-          <option>ACIST CVi</option>
-          <option>Eurosets ECMOLIFE</option>
         </select>
 
         <div class="input-group mb-2">
