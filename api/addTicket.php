@@ -12,6 +12,7 @@ $serial_number = isset($data["serial_number"]) ? clean(stripslashes($data["seria
 $user_id = isset($data["user_id"]) ? intval($data["user_id"]) : 0;
 $request_creator = isset($data["request_creator"]) ? clean(stripslashes($data["request_creator"]), $conn) : "";
 $creator_contact = isset($data["creator_contact"]) ? clean(stripslashes($data["creator_contact"]), $conn) : "";
+$status = isset($data["status"]) ? clean($data["status"], $conn) : "Otvoren";
 
 if ($title == "" || $device_name == "" || $serial_number == "" || $user_id <= 0) {
   echo json_encode(array("error" => "Nedostaju obavezni podaci."));
@@ -20,9 +21,9 @@ if ($title == "" || $device_name == "" || $serial_number == "" || $user_id <= 0)
 
 $q = $conn->prepare("
   INSERT INTO tickets (title, description, device_name, serial_number, user_id, status, priority, created_at, request_creator, creator_contact)
-  VALUES (?, ?, ?, ?, ?, 'Otvoren', 'medium', NOW(), ?, ?)
+  VALUES (?, ?, ?, ?, ?, ?, 'medium', NOW(), ?, ?)
 ");
-$q->bind_param("ssssiss", $title, $description, $device_name, $serial_number, $user_id, $request_creator, $creator_contact);
+$q->bind_param("ssssisss", $title, $description, $device_name, $serial_number, $user_id, $status, $request_creator, $creator_contact);
 
 if ($q->execute()) {
   echo json_encode(array("success" => true, "id" => $q->insert_id));
