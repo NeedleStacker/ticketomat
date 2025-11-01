@@ -33,18 +33,6 @@
       window.location = "index.php";
     }
 
-    // Mapiranje engleskih statusa na hrvatske
-    function translateStatus(status) {
-      const map = {
-        "open": "Otvoren",
-        "in_progress": "U tijeku",
-        "resolved": "Riješen",
-        "closed": "Zatvoren",
-        "otkazan": "Otkazan"
-      };
-      return map[status] || "Nepoznato";
-    }
-
     async function getTickets() {
       const res = await fetch(API + `getTickets.php?user_id=${user.id}&role=${user.role}`, {
         headers: { "X-API-KEY": API_KEY }
@@ -64,8 +52,7 @@
 
       data.forEach(t => {
         const created = t.created_at ? new Date(t.created_at).toLocaleString('hr-HR') : '-';
-        const statusText = translateStatus(t.status);
-        const isCanceled = t.status === 'otkazan';
+        const isCanceled = t.status === 'Otkazan';
         const badgeClass = isCanceled ? 'status-otkazan' : 'bg-secondary';
         const rowStyle = isCanceled ? 'background-color:#e2e3e5;color:#6c757d;' : '';
 
@@ -79,7 +66,7 @@
               <small class="text-secondary">📅 Kreirano: ${created}</small>
             </div>
             <div class="text-end">
-              <span class='badge ${badgeClass} status-badge mt-2 mt-sm-0'>${statusText}</span>
+              <span class='badge ${badgeClass} status-badge mt-2 mt-sm-0'>${t.status}</span>
             </div>
           </li>`;
       });
@@ -92,26 +79,25 @@
       const t = await res.json();
       if (t.error) { alert(t.error); return; }
 
-      const statusText = translateStatus(t.status);
       const modal = document.getElementById('ticketModal');
       document.getElementById("modalTitle").textContent = `Ticket #${t.id} – ${t.title}`;
       document.getElementById("modalDevice").textContent = t.device_name || "-";
       document.getElementById("modalSerial").textContent = t.serial_number || "-";
       document.getElementById("modalDesc").textContent = t.description || "-";
-      document.getElementById("modalStatus").textContent = statusText;
+      document.getElementById("modalStatus").textContent = t.status;
       document.getElementById("modalDate").textContent = new Date(t.created_at).toLocaleString('hr-HR');
       document.getElementById("modalCanceledAt").textContent = t.canceled_at ? new Date(t.canceled_at).toLocaleString('hr-HR') : "-";
       document.getElementById("modalCancelReason").textContent = t.cancel_reason || "-";
       document.getElementById("ticket_id").value = t.id;
 
       const btnCancel = document.getElementById("cancelTicketBtn");
-      if (t.status === 'otkazan' || t.status === 'closed' || t.status === 'resolved') {
+      if (t.status === 'Otkazan' || t.status === 'Zatvoren' || t.status === 'Riješen') {
         btnCancel.style.display = 'none';
       } else {
         btnCancel.style.display = 'inline-block';
       }
 
-      if (t.status === 'otkazan') {
+      if (t.status === 'Otkazan') {
         modal.querySelector('.modal-header').classList.remove('bg-primary');
         modal.querySelector('.modal-header').classList.add('bg-secondary');
       } else {
@@ -141,6 +127,36 @@
       } else alert("❌ " + (data.error || "Greška prilikom otkazivanja."));
     }
 
+    async function addTicket() {
+      const title = document.getElementById("title").value.trim();
+      const description = document.getElementById("desc").value.trim();
+      const device_name = document.getElementById("device_name").value;
+      const serial_number = document.getElementById("serial_number").value.trim();
+      const request_creator = document.getElementById("request_creator").value.trim();
+      const creator_contact = document.getElementById("creator_contact").value.trim();
+
+      const res = await fetch(API + "addTicket.php", {
+        method: "POST",
+        headers: { "Content-Type": "application/json", "X-API-KEY": API_KEY },
+        body: JSON.stringify({
+          title,
+          description,
+          device_name,
+          serial_number,
+          user_id: user.id,
+          request_creator,
+          creator_contact
+        })
+      });
+      const data = await res.json();
+      if (data.success) {
+        alert("✅ Ticket uspješno dodan.");
+        getTickets();
+      } else {
+        alert("❌ " + (data.error || "Greška prilikom dodavanja ticketa."));
+      }
+    }
+
     // Tooltip logika (ostaje ista)
     function onDeviceChange() {
       const select = document.getElementById("device_name");
@@ -148,7 +164,7 @@
       if (select.value === "") { disableTooltip(); return; }
 
       const imgMap = {
-        "Ulrich CT Motion Spicy": "../img/serial_ctmotion.jpg",
+        "Ulrich CT Motion": "../img/serial_ctmotion.jpg",
         "Ulrich MAX2/3": "../img/serial_max.jpg",
         "Vernacare Vortex AIR": "../img/serial_vortex.jpg",
         "Vernacare Vortex+": "../img/serial_vortex.jpg",
@@ -179,9 +195,17 @@
       tooltipSpan.style.opacity = "0.5";
     }
 
+    function populateClientInfo() {
+      if (user) {
+        document.getElementById("clientName").textContent = `${user.first_name} ${user.last_name}`;
+        document.getElementById("clientUsername").textContent = user.username;
+      }
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
       disableTooltip();
       getTickets();
+      populateClientInfo();
     });
   </script>
 </head>
@@ -196,14 +220,22 @@
 
   <div class="container py-3">
     <div class="card p-3 p-sm-4 mb-4">
+      <h1 class="mb-3 fs-4 text-center text-sm-start">Podaci o klijentu</h1>
+      <p class="mb-1"><b>Ime i prezime:</b> <span id="clientName"></span></p>
+      <p class="mb-1"><b>Korisničko ime:</b> <span id="clientUsername"></span></p>
+    </div>
+
+    <div class="card p-3 p-sm-4 mb-4">
       <h1 class="mb-3 fs-4 text-center text-sm-start">Prijava problema</h1>
       <div id="alertBox" class="mb-2"></div>
 
       <div class="mb-3">
         <input id="title" class="form-control mb-2" placeholder="Naslov ticketa (kratko opisati problem)" />
+        <input id="request_creator" class="form-control mb-2" placeholder="Osoba koja kreira zahtjev" />
+        <input id="creator_contact" class="form-control mb-2" placeholder="Kontakt (telefon ili email)" />
         <select id="device_name" class="form-select mb-2" onchange="onDeviceChange()">
           <option value="">Odaberite uređaj...</option>
-          <option>Ulrich CT Motion Spicy</option>
+          <option>Ulrich CT Motion</option>
           <option>Ulrich MAX2/3</option>
           <option>Vernacare Vortex AIR</option>
           <option>Vernacare Vortex+</option>

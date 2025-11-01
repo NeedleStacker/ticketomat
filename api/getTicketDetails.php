@@ -10,7 +10,7 @@ if (!$id) {
 }
 
 $q = $conn->prepare("
-  SELECT t.*, 
+  SELECT t.*,
          u.first_name, u.last_name, u.email, u.phone
     FROM tickets t
     LEFT JOIN users u ON u.id = t.user_id
@@ -42,6 +42,8 @@ echo json_encode(array(
   "first_name"    => $ticket["first_name"],
   "last_name"     => $ticket["last_name"],
   "email"         => $ticket["email"],
-  "phone"         => $ticket["phone"]
+  "phone"         => $ticket["phone"],
+  "request_creator" => $ticket["request_creator"],
+  "creator_contact" => $ticket["creator_contact"]
 ));
 ?>
