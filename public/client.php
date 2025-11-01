@@ -145,7 +145,8 @@
           serial_number,
           user_id: user.id,
           request_creator,
-          creator_contact
+          creator_contact,
+          status: "Otvoren"
         })
       });
       const data = await res.json();
