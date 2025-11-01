@@ -48,18 +48,6 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
       window.location = "index.php";
     }
 
-    // Prevod statusa
-    function translateStatus(status) {
-      const map = {
-        "open": "Otvoren",
-        "in_progress": "U tijeku",
-        "resolved": "Riješen",
-        "closed": "Zatvoren",
-        "otkazan": "Otkazan"
-      };
-      return map[status] || "Nepoznato";
-    }
-
     async function loadTickets() {
       if (!user) return;
       const res = await fetch(API + `getTickets.php?role=${user.role}&user_id=${user.id}`, {
@@ -81,7 +69,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
       tickets.forEach(t => {
         const prioClass = t.priority === 'high' ? 'priority-high' : (t.priority === 'medium' ? 'priority-medium' : 'priority-low');
         const rowClass =
-          t.status === 'otkazan' ? 'status-otkazan-row' :
+          t.status === 'Otkazan' ? 'status-otkazan-row' :
           t.priority === 'high' ? 'priority-high-row' :
           t.priority === 'medium' ? 'priority-medium-row' :
           'priority-low-row';
@@ -92,7 +80,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
             <td>${t.title}</td>
             <td>${t.username || 'N/A'}</td>
             <td><span class="${prioClass}">${t.priority || 'medium'}</span></td>
-            <td>${translateStatus(t.status)}</td>
+            <td>${t.status}</td>
             <td>${t.created_at || ''}</td>
             <td>
               <button class="btn btn-sm btn-outline-primary" onclick="openDetails(${t.id})">Detalji</button>
@@ -109,7 +97,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
       const modal = document.getElementById('ticketModal');
       modal.className = 'modal fade';
 
-      if (t.status === 'otkazan') modal.classList.add('modal-status-otkazan');
+      if (t.status === 'Otkazan') modal.classList.add('modal-status-otkazan');
       else if (t.priority === 'high') modal.classList.add('modal-priority-high');
       else if (t.priority === 'medium') modal.classList.add('modal-priority-medium');
       else modal.classList.add('modal-priority-low');
@@ -119,12 +107,16 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
       document.getElementById("ticket_status").value = t.status;
       document.getElementById("ticket_priority").value = t.priority || "medium";
       document.getElementById("ticket_description").value = t.description || "";
+      document.getElementById("ticket_device_name").value = t.device_name || "";
+      document.getElementById("ticket_serial_number").value = t.serial_number || "";
       document.getElementById("ticket_user").textContent = `${t.first_name || ''} ${t.last_name || ''}`;
       document.getElementById("ticket_email").textContent = t.email || '';
       document.getElementById("ticket_phone").textContent = t.phone || '';
       document.getElementById("ticket_created").textContent = t.created_at || '-';
       document.getElementById("ticket_canceled_at").textContent = t.canceled_at || '-';
       document.getElementById("ticket_cancel_reason").textContent = t.cancel_reason || '-';
+      document.getElementById("ticket_request_creator").textContent = t.request_creator || '-';
+      document.getElementById("ticket_creator_contact").textContent = t.creator_contact || '-';
 
       new bootstrap.Modal(modal).show();
     }
@@ -134,10 +126,12 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
       const status = document.getElementById("ticket_status").value;
       const priority = document.getElementById("ticket_priority").value;
       const description = document.getElementById("ticket_description").value;
+      const device_name = document.getElementById("ticket_device_name").value;
+      const serial_number = document.getElementById("ticket_serial_number").value;
       const cancel_reason = document.getElementById("cancel_reason_input").value;
 
-      const body = { id, status, priority, description };
-      if (status === 'otkazan') {
+      const body = { id, status, priority, description, device_name, serial_number };
+      if (status === 'Otkazan') {
         body.cancel_reason = cancel_reason;
       }
 
@@ -201,12 +195,12 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
           <div class="row mb-3">
             <div class="col-md-6">
               <label class="form-label">Status</label>
-              <select id="ticket_status" class="form-select" onchange="const cancelDiv = document.getElementById('cancel_reason_div'); if (this.value === 'otkazan') {cancelDiv.style.display = 'block';} else {cancelDiv.style.display = 'none';}">
-                <option value="open">Otvoren</option>
-                <option value="in_progress">U tijeku</option>
-                <option value="resolved">Riješen</option>
-                <option value="closed">Zatvoren</option>
-                <option value="otkazan">Otkazan</option>
+              <select id="ticket_status" class="form-select" onchange="const cancelDiv = document.getElementById('cancel_reason_div'); if (this.value === 'Otkazan') {cancelDiv.style.display = 'block';} else {cancelDiv.style.display = 'none';}">
+                <option value="Otvoren">Otvoren</option>
+                <option value="U tijeku">U tijeku</option>
+                <option value="Riješen">Riješen</option>
+                <option value="Zatvoren">Zatvoren</option>
+                <option value="Otkazan">Otkazan</option>
               </select>
             </div>
             <div class="col-md-6">
@@ -216,6 +210,16 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
                 <option value="medium">Srednji</option>
                 <option value="high">Visok</option>
               </select>
+            </div>
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label class="form-label">Ime aparata</label>
+              <input type="text" id="ticket_device_name" class="form-control">
+            </div>
+            <div class="col-md-6">
+              <label class="form-label">Serijski broj</label>
+              <input type="text" id="ticket_serial_number" class="form-control">
             </div>
           </div>
           <div class="mb-3">
@@ -230,6 +234,11 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
             <p class="mb-1"><b>Kreirano:</b> <span id="ticket_created"></span></p>
             <p class="mb-1"><b>Otkazano:</b> <span id="ticket_canceled_at"></span></p>
             <p class="mb-0"><b>Razlog otkazivanja:</b> <span id="ticket_cancel_reason"></span></p>
+          </div>
+          <h6 class="mt-4">👤 Podaci o kreatoru zahtjeva</h6>
+          <div class="bg-light border rounded p-2">
+            <p class="mb-1"><b>Osoba koja kreira zahtjev:</b> <span id="ticket_request_creator"></span></p>
+            <p class="mb-0"><b>Kontakt:</b> <span id="ticket_creator_contact"></span></p>
           </div>
           <div id="cancel_reason_div" class="mt-3" style="display:none;">
             <label class="form-label">Razlog otkazivanja:</label>
