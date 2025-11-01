@@ -1,6 +1,0 @@
-[01-Nov-2025 02:02:49 Europe/Zagreb] PHP Fatal error:  Call to a member function bind_param() on boolean in /home/liveinsb/public_html/ticketomat/api/addTicket.php on line 20
-[01-Nov-2025 02:02:52 Europe/Zagreb] PHP Fatal error:  Call to a member function bind_param() on boolean in /home/liveinsb/public_html/ticketomat/api/addTicket.php on line 20
-[01-Nov-2025 02:02:57 Europe/Zagreb] PHP Fatal error:  Call to a member function bind_param() on boolean in /home/liveinsb/public_html/ticketomat/api/addTicket.php on line 20
-[01-Nov-2025 02:03:11 Europe/Zagreb] PHP Fatal error:  Call to a member function bind_param() on boolean in /home/liveinsb/public_html/ticketomat/api/addTicket.php on line 20
-[01-Nov-2025 03:21:12 Europe/Zagreb] PHP Notice:  Undefined index: device_name in /home/liveinsb/public_html/ticketomat/api/getTicketDetails.php on line 35
-[01-Nov-2025 03:21:12 Europe/Zagreb] PHP Notice:  Undefined index: serial_number in /home/liveinsb/public_html/ticketomat/api/getTicketDetails.php on line 36
