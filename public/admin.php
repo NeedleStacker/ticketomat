@@ -49,44 +49,49 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     }
 
     async function loadTickets() {
-      if (!user) return;
-      const res = await fetch(API + `getTickets.php?role=${user.role}&user_id=${user.id}`, {
-        headers: { "X-API-KEY": API_KEY }
-      });
-      const tickets = await res.json();
-      const body = document.getElementById("ticketsBody");
-      body.innerHTML = "";
+        const showCanceled = document.getElementById("showCanceled").checked;
+        const statusFilter = document.getElementById("statusFilter").value;
+        const clientFilter = document.getElementById("clientFilter").value;
 
-      if (tickets.error) {
-        body.innerHTML = `<tr><td colspan='8' class='text-danger text-center'>Greška: ${tickets.error}</td></tr>`;
-        return;
-      }
-      if (tickets.length === 0) {
-        body.innerHTML = `<tr><td colspan='8' class='text-center text-muted'>Nema ticketa za prikaz.</td></tr>`;
-        return;
-      }
+        let url = API + `getTickets.php?role=admin&show_canceled=${showCanceled}`;
+        if (statusFilter) url += `&status=${statusFilter}`;
+        if (clientFilter) url += `&user_id=${clientFilter}`;
 
-      tickets.forEach(t => {
-        const prioClass = t.priority === 'high' ? 'priority-high' : (t.priority === 'medium' ? 'priority-medium' : 'priority-low');
-        const rowClass =
-          t.status === 'Otkazan' ? 'status-otkazan-row' :
-          t.priority === 'high' ? 'priority-high-row' :
-          t.priority === 'medium' ? 'priority-medium-row' :
-          'priority-low-row';
+        const res = await fetch(url, { headers: { "X-API-KEY": API_KEY } });
+        const tickets = await res.json();
+        const body = document.getElementById("ticketsBody");
+        body.innerHTML = "";
 
-        body.innerHTML += `
-          <tr class="${rowClass}">
-            <td>${t.id}</td>
-            <td>${t.title}</td>
-            <td>${t.username || 'N/A'}</td>
-            <td><span class="${prioClass}">${t.priority || 'medium'}</span></td>
-            <td>${t.status}</td>
-            <td>${t.created_at || ''}</td>
-            <td>
-              <button class="btn btn-sm btn-outline-primary" onclick="openDetails(${t.id})">Detalji</button>
-            </td>
-          </tr>`;
-      });
+        if (tickets.error) {
+            body.innerHTML = `<tr><td colspan='8' class='text-danger text-center'>Greška: ${tickets.error}</td></tr>`;
+            return;
+        }
+        if (tickets.length === 0) {
+            body.innerHTML = `<tr><td colspan='8' class='text-center text-muted'>Nema ticketa za prikaz.</td></tr>`;
+            return;
+        }
+
+        tickets.forEach(t => {
+            const prioClass = t.priority === 'high' ? 'priority-high' : (t.priority === 'medium' ? 'priority-medium' : 'priority-low');
+            const rowClass =
+              t.status === 'Otkazan' ? 'status-otkazan-row' :
+              t.priority === 'high' ? 'priority-high-row' :
+              t.priority === 'medium' ? 'priority-medium-row' :
+              'priority-low-row';
+
+            body.innerHTML += `
+              <tr class="${rowClass}">
+                <td>${t.id}</td>
+                <td>${t.title}</td>
+                <td>${t.username || 'N/A'}</td>
+                <td><span class="${prioClass}">${t.priority || 'medium'}</span></td>
+                <td>${t.status}</td>
+                <td>${t.created_at || ''}</td>
+                <td>
+                  <button class="btn btn-sm btn-outline-primary" onclick="openDetails(${t.id})">Detalji</button>
+                </td>
+              </tr>`;
+        });
     }
 
     async function openDetails(id) {
@@ -149,20 +154,74 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         alert("Greška: " + (data.error || JSON.stringify(data)));
       }
     }
+
+    async function loadDevices() {
+        const res = await fetch(API + "getDevices.php", {
+            headers: { "X-API-KEY": API_KEY }
+        });
+        const devices = await res.json();
+        const select = document.getElementById("ticket_device_name");
+        select.innerHTML = '<option value="">Odaberite uređaj...</option>';
+        devices.forEach(d => {
+            select.innerHTML += `<option>${d.name}</option>`;
+        });
+    }
+
+    async function loadClients() {
+        const res = await fetch(API + "getClients.php", {
+            headers: { "X-API-KEY": API_KEY }
+        });
+        const clients = await res.json();
+        const select = document.getElementById("clientFilter");
+        clients.forEach(c => {
+            select.innerHTML += `<option value="${c.id}">${c.username}</option>`;
+        });
+    }
+
+    document.addEventListener("DOMContentLoaded", function() {
+        loadTickets();
+        loadDevices();
+        loadClients();
+    });
   </script>
 </head>
 
-<body class="bg-light" onload="loadTickets()">
+<body class="bg-light">
   <nav class="navbar navbar-dark bg-dark mb-3">
-    <div class="container-fluid d-flex justify-content-between align-items-center">
-      <span class="navbar-brand"><img src="favicon.png" width="50" height="50" type="image/png" /> Admin - Ticketomat</span>
-      <button class="btn btn-outline-light btn-sm" onclick="logout()">Odjava</button>
+    <div class="container-fluid">
+      <a class="navbar-brand" href="admin.php">Admin - Ticketomat</a>
+      <div>
+        <a href="devices.php" class="btn btn-outline-light btn-sm">Upravljanje aparatima</a>
+        <button class="btn btn-outline-light btn-sm" onclick="logout()">Odjava</button>
+      </div>
     </div>
   </nav>
 
   <div class="container py-3">
     <div class="card p-3 p-sm-4">
       <h1 class="mb-4 fs-4 text-center text-sm-start">Administracija ticketa</h1>
+      <div class="row mb-3">
+        <div class="col-md-4">
+          <div class="form-check">
+            <input class="form-check-input" type="checkbox" id="showCanceled" onchange="loadTickets()" checked>
+            <label class="form-check-label" for="showCanceled">Prikaži i otkazane</label>
+          </div>
+        </div>
+        <div class="col-md-4">
+          <select id="statusFilter" class="form-select" onchange="loadTickets()">
+            <option value="">Svi statusi</option>
+            <option>Otvoren</option>
+            <option>U tijeku</option>
+            <option>Riješen</option>
+            <option>Zatvoren</option>
+          </select>
+        </div>
+        <div class="col-md-4">
+          <select id="clientFilter" class="form-select" onchange="loadTickets()">
+            <option value="">Svi klijenti</option>
+          </select>
+        </div>
+      </div>
       <div class="table-responsive">
         <table class="table table-striped table-hover align-middle">
           <thead class="table-dark">
@@ -215,7 +274,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
           <div class="row mb-3">
             <div class="col-md-6">
               <label class="form-label">Ime aparata</label>
-              <input type="text" id="ticket_device_name" class="form-control">
+              <select id="ticket_device_name" class="form-select"></select>
             </div>
             <div class="col-md-6">
               <label class="form-label">Serijski broj</label>
