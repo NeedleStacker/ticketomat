@@ -5,10 +5,10 @@ checkApiKey();
 
 $data = json_decode(file_get_contents("php://input"), true);
 
-$title = isset($data["title"]) ? clean($data["title"], $conn) : "";
-$description = isset($data["description"]) ? clean($data["description"], $conn) : "";
-$device_name = isset($data["device_name"]) ? clean($data["device_name"], $conn) : "";
-$serial_number = isset($data["serial_number"]) ? clean($data["serial_number"], $conn) : "";
+$title = isset($data["title"]) ? clean(stripslashes($data["title"]), $conn) : "";
+$description = isset($data["description"]) ? clean(stripslashes($data["description"]), $conn) : "";
+$device_name = isset($data["device_name"]) ? clean(stripslashes($data["device_name"]), $conn) : "";
+$serial_number = isset($data["serial_number"]) ? clean(stripslashes($data["serial_number"]), $conn) : "";
 $user_id = isset($data["user_id"]) ? intval($data["user_id"]) : 0;
 
 if ($title == "" || $device_name == "" || $serial_number == "" || $user_id <= 0) {

@@ -105,10 +105,11 @@
       document.getElementById("ticket_id").value = t.id;
 
       const btnCancel = document.getElementById("cancelTicketBtn");
-      if (t.status === 'otkazan' || t.status === 'closed' || t.status === 'resolved')
+      if (t.status === 'otkazan' || t.status === 'closed' || t.status === 'resolved') {
         btnCancel.style.display = 'none';
-      else
+      } else {
         btnCancel.style.display = 'inline-block';
+      }
 
       if (t.status === 'otkazan') {
         modal.querySelector('.modal-header').classList.remove('bg-primary');
