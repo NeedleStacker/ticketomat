@@ -1,3 +1,11 @@
+<?php
+// Provjera je li korisnik prijavljen kao administrator
+session_start();
+if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
+    header("Location: index.php");
+    exit();
+}
+?>
 <!DOCTYPE html>
 <html lang="hr">
 <head>
@@ -53,6 +61,7 @@
     }
 
     async function loadTickets() {
+      if (!user) return;
       const res = await fetch(API + `getTickets.php?role=${user.role}&user_id=${user.id}`, {
         headers: { "X-API-KEY": API_KEY }
       });
@@ -125,11 +134,17 @@
       const status = document.getElementById("ticket_status").value;
       const priority = document.getElementById("ticket_priority").value;
       const description = document.getElementById("ticket_description").value;
+      const cancel_reason = document.getElementById("cancel_reason_input").value;
+
+      const body = { id, status, priority, description };
+      if (status === 'otkazan') {
+        body.cancel_reason = cancel_reason;
+      }
 
       const res = await fetch(API + "updateTicket.php", {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-API-KEY": API_KEY },
-        body: JSON.stringify({ id, status, priority, description })
+        body: JSON.stringify(body)
       });
 
       const data = await res.json();
@@ -186,7 +201,7 @@
           <div class="row mb-3">
             <div class="col-md-6">
               <label class="form-label">Status</label>
-              <select id="ticket_status" class="form-select">
+              <select id="ticket_status" class="form-select" onchange="const cancelDiv = document.getElementById('cancel_reason_div'); if (this.value === 'otkazan') {cancelDiv.style.display = 'block';} else {cancelDiv.style.display = 'none';}">
                 <option value="open">Otvoren</option>
                 <option value="in_progress">U tijeku</option>
                 <option value="resolved">Riješen</option>
@@ -215,6 +230,10 @@
             <p class="mb-1"><b>Kreirano:</b> <span id="ticket_created"></span></p>
             <p class="mb-1"><b>Otkazano:</b> <span id="ticket_canceled_at"></span></p>
             <p class="mb-0"><b>Razlog otkazivanja:</b> <span id="ticket_cancel_reason"></span></p>
+          </div>
+          <div id="cancel_reason_div" class="mt-3" style="display:none;">
+            <label class="form-label">Razlog otkazivanja:</label>
+            <textarea id="cancel_reason_input" class="form-control" rows="2"></textarea>
           </div>
         </div>
         <div class="modal-footer">
