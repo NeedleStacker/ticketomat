@@ -42,7 +42,7 @@
         "closed": "Zatvoren",
         "otkazan": "Otkazan"
       };
-      return map[status] || status;
+      return map[status] || "Nepoznato";
     }
 
     async function getTickets() {
@@ -160,8 +160,12 @@
       tooltipSpan.setAttribute("data-bs-placement", "top");
       tooltipSpan.setAttribute("title", `<img src='${imgSrc}' alt='Gdje pronaći serijski broj'>`);
       tooltipSpan.style.opacity = "1";
-      if (tooltipSpan._tooltipInstance) tooltipSpan._tooltipInstance.dispose();
-      tooltipSpan._tooltipInstance = new bootstrap.Tooltip(tooltipSpan, { html: true });
+
+      var tooltip = bootstrap.Tooltip.getInstance(tooltipSpan);
+      if (tooltip) {
+        tooltip.dispose();
+      }
+      new bootstrap.Tooltip(tooltipSpan, { html: true });
     }
 
     function disableTooltip() {

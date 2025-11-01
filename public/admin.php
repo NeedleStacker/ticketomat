@@ -57,7 +57,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         "closed": "Zatvoren",
         "otkazan": "Otkazan"
       };
-      return map[status] || status;
+      return map[status] || "Nepoznato";
     }
 
     async function loadTickets() {
