@@ -19,6 +19,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
     .card { background-color: #f0ffff; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
     textarea { resize: vertical; }
     .tooltip-inner img { width: 300px; height: auto; }
+    .ticket-item { position: relative; }
     .ticket-item:hover { background-color: #f1f1f1; cursor: pointer; transition: background 0.2s; }
     .status-badge { font-size: 0.85rem; }
     .status-otvoren { background-color: #cfe2ff !important; color: #0d6efd !important; }
@@ -119,8 +120,8 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
         li.appendChild(div);
 
         const badgeDiv = document.createElement('div');
-        badgeDiv.className = 'text-end';
-        badgeDiv.innerHTML = `<span class='badge ${badgeClass} status-badge mt-2 mt-sm-0'>${t.status}</span>`;
+        badgeDiv.className = 'position-absolute top-0 end-0 p-2';
+        badgeDiv.innerHTML = `<span class='badge ${badgeClass} status-badge'>${t.status}</span>`;
         li.appendChild(badgeDiv);
 
         out.appendChild(li);
