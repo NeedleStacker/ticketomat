@@ -63,16 +63,15 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         body.innerHTML = "";
 
         if (tickets.error) {
-            body.innerHTML = `<tr><td colspan='8' class='text-danger text-center'>Greška: ${tickets.error}</td></tr>`;
+            body.innerHTML = `<tr><td colspan='5' class='text-danger text-center'>Greška: ${tickets.error}</td></tr>`;
             return;
         }
         if (tickets.length === 0) {
-            body.innerHTML = `<tr><td colspan='8' class='text-center text-muted'>Nema ticketa za prikaz.</td></tr>`;
+            body.innerHTML = `<tr><td colspan='5' class='text-center text-muted'>Nema ticketa za prikaz.</td></tr>`;
             return;
         }
 
         tickets.forEach(t => {
-            const prioClass = t.priority === 'high' ? 'priority-high' : (t.priority === 'medium' ? 'priority-medium' : 'priority-low');
             const rowClass =
               t.status === 'Otkazan' ? 'status-otkazan-row' :
               t.priority === 'high' ? 'priority-high-row' :
@@ -81,10 +80,8 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
 
             body.innerHTML += `
               <tr class="${rowClass}">
-                <td>${t.id}</td>
                 <td>${t.title}</td>
                 <td>${t.username || 'N/A'}</td>
-                <td><span class="${prioClass}">${t.priority || 'medium'}</span></td>
                 <td>${t.status}</td>
                 <td>${t.created_at || ''}</td>
                 <td>
@@ -122,6 +119,15 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
       document.getElementById("ticket_cancel_reason").textContent = t.cancel_reason || '-';
       document.getElementById("ticket_request_creator").textContent = t.request_creator || '-';
       document.getElementById("ticket_creator_contact").textContent = t.creator_contact || '-';
+
+      const attachmentLink = document.getElementById("attachmentLink");
+      if (t.attachment_name) {
+          attachmentLink.href = `${API}getAttachment.php?id=${t.id}`;
+          attachmentLink.textContent = t.attachment_name;
+          attachmentLink.style.display = 'block';
+      } else {
+          attachmentLink.style.display = 'none';
+      }
 
       new bootstrap.Modal(modal).show();
     }
@@ -226,10 +232,8 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         <table class="table table-striped table-hover align-middle">
           <thead class="table-dark">
             <tr>
-              <th>ID</th>
               <th>Naslov</th>
               <th>Korisnik</th>
-              <th>Prioritet</th>
               <th>Status</th>
               <th>Datum kreiranja</th>
               <th>Akcija</th>
@@ -296,9 +300,10 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
           </div>
           <h6 class="mt-4">👤 Podaci o kreatoru zahtjeva</h6>
           <div class="bg-light border rounded p-2">
-            <p class="mb-1"><b>Osoba koja kreira zahtjev:</b> <span id="ticket_request_creator"></span></p>
+            <p class="mb-1"><b>Osoba:</b> <span id="ticket_request_creator"></span></p>
             <p class="mb-0"><b>Kontakt:</b> <span id="ticket_creator_contact"></span></p>
           </div>
+          <p class="mt-3"><b>Datoteka:</b> <a href="#" id="attachmentLink" target="_blank" style="display:none;"></a></p>
           <div id="cancel_reason_div" class="mt-3" style="display:none;">
             <label class="form-label">Razlog otkazivanja:</label>
             <textarea id="cancel_reason_input" class="form-control" rows="2"></textarea>
