@@ -26,10 +26,10 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     .priority-medium { color: #ffc107; font-weight: 600; }
     .priority-high { color: #dc3545; font-weight: 600; }
 
-    .priority-high-row { background-color: #f8d7da !important; }
-    .priority-medium-row { background-color: #fff3cd !important; }
-    .priority-low-row { background-color: #d1e7dd !important; }
-    .status-otkazan-row { background-color: #e2e3e5 !important; }
+    .priority-high-row { --bs-table-bg: #f8d7da; }
+    .priority-medium-row { --bs-table-bg: #fff3cd; }
+    .priority-low-row { --bs-table-bg: #d1e7dd; }
+    .status-otkazan-row { --bs-table-bg: #e2e3e5; }
 
     .modal-priority-high .modal-header { background-color: #dc3545 !important; color: #fff; }
     .modal-priority-medium .modal-header { background-color: #ffc107 !important; color: #000; }

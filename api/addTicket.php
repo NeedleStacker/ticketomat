@@ -1,4 +1,5 @@
 <?php
+error_reporting(0);
 require_once("config.php");
 require_once("functions.php");
 checkApiKey();
@@ -35,7 +36,7 @@ $q = $conn->prepare("
   INSERT INTO tickets (title, description, device_name, serial_number, user_id, status, priority, created_at, request_creator, creator_contact, attachment, attachment_name, attachment_type)
   VALUES (?, ?, ?, ?, ?, ?, 'medium', NOW(), ?, ?, ?, ?, ?)
 ");
-$q->bind_param("ssssisssbsss", $title, $description, $device_name, $serial_number, $user_id, $status, $request_creator, $creator_contact, $attachment, $attachment_name, $attachment_type);
+$q->bind_param("ssssisssbss", $title, $description, $device_name, $serial_number, $user_id, $status, $request_creator, $creator_contact, $attachment, $attachment_name, $attachment_type);
 
 if ($q->execute()) {
   echo json_encode(array("success" => true, "id" => $q->insert_id));

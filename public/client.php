@@ -106,6 +106,13 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
           attachmentLink.style.display = 'none';
       }
 
+      const addAttachmentSection = document.getElementById("addAttachmentSection");
+      if (t.status === 'Otvoren' || t.status === 'U tijeku') {
+        addAttachmentSection.style.display = 'block';
+      } else {
+        addAttachmentSection.style.display = 'none';
+      }
+
       const btnCancel = document.getElementById("cancelTicketBtn");
       if (t.status === 'Otkazan' || t.status === 'Zatvoren' || t.status === 'Riješen') {
         btnCancel.style.display = 'none';
@@ -171,6 +178,34 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
             getTickets();
         } else {
             alert("❌ " + (data.error || "Greška prilikom dodavanja ticketa."));
+        }
+    }
+
+    async function addAttachment() {
+        const ticket_id = document.getElementById("ticket_id").value;
+        const attachment = document.getElementById("new_attachment").files[0];
+        if (!attachment) {
+            alert("Molimo odaberite datoteku.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('ticket_id', ticket_id);
+        formData.append('attachment', attachment);
+
+        const res = await fetch(API + "addAttachment.php", {
+            method: "POST",
+            headers: { "X-API-KEY": API_KEY },
+            body: formData
+        });
+
+        const data = await res.json();
+        if (data.success) {
+            alert("✅ Datoteka uspješno dodana.");
+            bootstrap.Modal.getInstance(document.getElementById('ticketModal')).hide();
+            getTickets();
+        } else {
+            alert("❌ " + (data.error || "Greška prilikom dodavanja datoteke."));
         }
     }
 
@@ -307,6 +342,14 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
           <p><b>Otkazano:</b> <span id="modalCanceledAt"></span></p>
           <p><b>Razlog otkazivanja:</b> <span id="modalCancelReason"></span></p>
           <p><b>Datoteka:</b> <a href="#" id="attachmentLink" target="_blank" style="display:none;"></a></p>
+          <div id="addAttachmentSection" style="display:none;">
+            <hr>
+            <h6>Dodaj datoteku</h6>
+            <div class="input-group">
+                <input class="form-control" type="file" id="new_attachment">
+                <button class="btn btn-outline-secondary" type="button" onclick="addAttachment()">Dodaj</button>
+            </div>
+          </div>
         </div>
         <div class="modal-footer">
           <button class="btn btn-danger me-auto" id="cancelTicketBtn" data-bs-toggle="modal" data-bs-target="#cancelModal">Otkaži zahtjev</button>
