@@ -16,7 +16,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
   <style>
     body { background-color: #f8f9fa; }
     .navbar-brand { font-weight: 600; letter-spacing: 0.5px; }
-    .card { border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+    .card { background-color: #f0ffff; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
     textarea { resize: vertical; }
     .tooltip-inner img { width: 300px; height: auto; }
     .ticket-item:hover { background-color: #f1f1f1; cursor: pointer; transition: background 0.2s; }
@@ -270,6 +270,18 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
       getTickets();
       populateClientInfo();
       loadDevices();
+
+      const ticketModal = document.getElementById('ticketModal');
+      ticketModal.addEventListener('hidden.bs.modal', function () {
+          document.getElementById('new_attachment').value = '';
+      });
+
+      const addTicketForm = document.querySelector('.card:has(#addTicket)');
+      addTicketForm.addEventListener('submit', function() {
+          setTimeout(() => {
+              document.getElementById('attachment').value = '';
+          }, 500);
+      });
     });
   </script>
 </head>
