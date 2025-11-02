@@ -18,7 +18,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
   <style>
     body { background-color: #f8f9fa; }
     .navbar-brand { font-weight: 600; }
-    .card { border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+    .card { background-color: #f0ffff; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
     table { background-color: #fff; border-radius: 8px; overflow: hidden; }
     td, th { vertical-align: middle !important; }
 
@@ -49,13 +49,19 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     }
 
     async function loadTickets() {
-        const showCanceled = document.getElementById("showCanceled").checked;
         const statusFilter = document.getElementById("statusFilter").value;
         const clientFilter = document.getElementById("clientFilter").value;
+        const searchTerm = document.getElementById("searchInput").value;
 
-        let url = API + `getTickets.php?role=admin&show_canceled=${showCanceled}`;
-        if (statusFilter) url += `&status=${statusFilter}`;
-        if (clientFilter) url += `&user_id=${clientFilter}`;
+        let url = API + `getTickets.php?role=admin`;
+        const params = new URLSearchParams();
+        if (statusFilter) params.append('status', statusFilter);
+        if (clientFilter) params.append('user_id', clientFilter);
+        if (searchTerm) params.append('search', searchTerm);
+
+        if (params.toString()) {
+            url += '?' + params.toString();
+        }
 
         const res = await fetch(url, { headers: { "X-API-KEY": API_KEY } });
         const tickets = await res.json();
@@ -63,11 +69,11 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         body.innerHTML = "";
 
         if (tickets.error) {
-            body.innerHTML = `<tr><td colspan='5' class='text-danger text-center'>Greška: ${tickets.error}</td></tr>`;
+            body.innerHTML = `<tr><td colspan='7' class='text-danger text-center'>Greška: ${tickets.error}</td></tr>`;
             return;
         }
         if (tickets.length === 0) {
-            body.innerHTML = `<tr><td colspan='5' class='text-center text-muted'>Nema ticketa za prikaz.</td></tr>`;
+            body.innerHTML = `<tr><td colspan='7' class='text-center text-muted'>Nema ticketa za prikaz.</td></tr>`;
             return;
         }
 
@@ -82,6 +88,8 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
               <tr class="${rowClass}">
                 <td>${t.title}</td>
                 <td>${t.username || 'N/A'}</td>
+                <td>${t.device_name || ''}</td>
+                <td>${t.serial_number || ''}</td>
                 <td>${t.status}</td>
                 <td>${t.created_at || ''}</td>
                 <td>
@@ -188,6 +196,14 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         loadTickets();
         loadDevices();
         loadClients();
+
+        const ticketModal = document.getElementById('ticketModal');
+        ticketModal.addEventListener('hidden.bs.modal', function () {
+            const fileInput = document.getElementById('attachment');
+            if (fileInput) {
+                fileInput.value = '';
+            }
+        });
     });
   </script>
 </head>
@@ -206,12 +222,9 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
   <div class="container py-3">
     <div class="card p-3 p-sm-4">
       <h1 class="mb-4 fs-4 text-center text-sm-start">Administracija ticketa</h1>
-      <div class="row mb-3">
+      <div class="row mb-3 g-2">
         <div class="col-md-4">
-          <div class="form-check">
-            <input class="form-check-input" type="checkbox" id="showCanceled" onchange="loadTickets()" checked>
-            <label class="form-check-label" for="showCanceled">Prikaži i otkazane</label>
-          </div>
+            <input type="text" id="searchInput" class="form-control" placeholder="Pretraži..." onkeyup="loadTickets()">
         </div>
         <div class="col-md-4">
           <select id="statusFilter" class="form-select" onchange="loadTickets()">
@@ -220,6 +233,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
             <option>U tijeku</option>
             <option>Riješen</option>
             <option>Zatvoren</option>
+            <option>Otkazan</option>
           </select>
         </div>
         <div class="col-md-4">
@@ -234,6 +248,8 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
             <tr>
               <th>Naslov</th>
               <th>Korisnik</th>
+              <th>Ime aparata</th>
+              <th>Serijski broj</th>
               <th>Status</th>
               <th>Datum kreiranja</th>
               <th>Akcija</th>

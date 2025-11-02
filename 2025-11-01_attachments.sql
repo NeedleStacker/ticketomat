@@ -1,4 +1,0 @@
-ALTER TABLE tickets
-ADD COLUMN attachment LONGBLOB NULL,
-ADD COLUMN attachment_name VARCHAR(255) NULL,
-ADD COLUMN attachment_type VARCHAR(255) NULL;

@@ -13,6 +13,9 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Upravljanje aparatima - Ticketomat</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .card { background-color: #f0ffff; }
+    </style>
 </head>
 <body class="bg-light">
     <nav class="navbar navbar-dark bg-dark mb-3">

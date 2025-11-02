@@ -7,19 +7,14 @@ $user_id = isset($_GET["user_id"]) ? intval($_GET["user_id"]) : 0;
 $role = isset($_GET["role"]) ? $_GET["role"] : "client";
 
 if ($role === "admin") {
-    $show_canceled = isset($_GET["show_canceled"]) && $_GET["show_canceled"] === 'true';
     $status = isset($_GET["status"]) ? clean($_GET["status"], $conn) : '';
+    $search = isset($_GET["search"]) ? $_GET["search"] : '';
 
-    $sql = "SELECT t.id, t.title, t.status, t.created_at, u.username FROM tickets t LEFT JOIN users u ON u.id = t.user_id";
+    $sql = "SELECT t.id, t.title, t.status, t.created_at, t.device_name, t.serial_number, u.username FROM tickets t LEFT JOIN users u ON u.id = t.user_id";
     $where = [];
     $params = [];
     $types = '';
 
-    if (!$show_canceled) {
-        $where[] = "t.status != ?";
-        $params[] = 'Otkazan';
-        $types .= 's';
-    }
     if (!empty($status)) {
         $where[] = "t.status = ?";
         $params[] = $status;
@@ -29,6 +24,15 @@ if ($role === "admin") {
         $where[] = "t.user_id = ?";
         $params[] = $user_id;
         $types .= 'i';
+    }
+
+    if (!empty($search)) {
+        $search_term = "%" . $search . "%";
+        $where[] = "(t.title LIKE ? OR t.description LIKE ? OR t.device_name LIKE ? OR t.serial_number LIKE ? OR u.username LIKE ?)";
+        for ($i = 0; $i < 5; $i++) {
+            $params[] = $search_term;
+            $types .= 's';
+        }
     }
 
     if (!empty($where)) {
@@ -44,7 +48,7 @@ if ($role === "admin") {
     $q->execute();
     $result = $q->get_result();
 } else {
-    $q = $conn->prepare("SELECT id, title, status, created_at, attachment_name FROM tickets WHERE user_id = ? ORDER BY id DESC");
+    $q = $conn->prepare("SELECT id, title, status, created_at, attachment_name, device_name, serial_number FROM tickets WHERE user_id = ? ORDER BY id DESC");
     $q->bind_param("i", $user_id);
     $q->execute();
     $result = $q->get_result();
