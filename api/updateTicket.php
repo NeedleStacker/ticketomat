@@ -8,10 +8,10 @@ $data = json_decode(file_get_contents("php://input"), true);
 $id = isset($data["id"]) ? intval($data["id"]) : 0;
 $status = isset($data["status"]) ? clean($data["status"], $conn) : "";
 $priority = isset($data["priority"]) ? clean($data["priority"], $conn) : "";
-$description = isset($data["description"]) ? clean(stripslashes($data["description"]), $conn) : "";
-$device_name = isset($data["device_name"]) ? clean(stripslashes($data["device_name"]), $conn) : "";
-$serial_number = isset($data["serial_number"]) ? clean(stripslashes($data["serial_number"]), $conn) : "";
-$cancel_reason = isset($data["cancel_reason"]) ? clean(stripslashes($data["cancel_reason"]), $conn) : null;
+$description = isset($data["description"]) ? clean($data["description"], $conn) : "";
+$device_name = isset($data["device_name"]) ? clean($data["device_name"], $conn) : "";
+$serial_number = isset($data["serial_number"]) ? clean($data["serial_number"], $conn) : "";
+$cancel_reason = isset($data["cancel_reason"]) ? clean($data["cancel_reason"], $conn) : null;
 
 if ($id <= 0) {
     echo json_encode(array("error" => "Neispravan ID ticketa."));
