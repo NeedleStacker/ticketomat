@@ -69,7 +69,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
             <div>
               <b>#${t.id}</b> - ${t.title}<br>
               <small class="text-muted">${t.device_name || ''} (${t.serial_number || '-'})</small><br>
-              <small class="text-muted">${t.description || ""}</small><br>
+              <small class="text-muted" style="word-wrap: break-word;">${t.description || ""}</small><br>
               <small class="text-secondary">📅 Kreirano: ${created}</small>
             </div>
             <div class="text-end">
@@ -218,17 +218,17 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
 
     function onDeviceChange() {
         const select = document.getElementById("device_name");
-        const tooltipSpan = document.getElementById("serialTooltip");
+        const tooltipBtn = document.getElementById("serialTooltipBtn");
+        tooltipBtn.disabled = select.value === "";
+    }
 
-        // Always dispose of the old tooltip first
-        var existingTooltip = bootstrap.Tooltip.getInstance(tooltipSpan);
+    function showTooltip() {
+        const select = document.getElementById("device_name");
+        const tooltipBtn = document.getElementById("serialTooltipBtn");
+
+        var existingTooltip = bootstrap.Tooltip.getInstance(tooltipBtn);
         if (existingTooltip) {
             existingTooltip.dispose();
-        }
-
-        if (select.value === "") {
-            disableTooltip();
-            return;
         }
 
         const imgMap = {
@@ -241,23 +241,12 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
         };
         const imgSrc = imgMap[select.value] || "../img/serial_location.jpg";
 
-        tooltipSpan.setAttribute("data-bs-toggle", "tooltip");
-        tooltipSpan.setAttribute("data-bs-placement", "top");
-        tooltipSpan.setAttribute("data-bs-original-title", `<img src='${imgSrc}' alt='Gdje pronaći serijski broj'>`);
-        tooltipSpan.style.opacity = "1";
+        tooltipBtn.setAttribute("data-bs-toggle", "tooltip");
+        tooltipBtn.setAttribute("data-bs-placement", "top");
+        tooltipBtn.setAttribute("data-bs-original-title", `<img src='${imgSrc}' alt='Gdje pronaći serijski broj'>`);
 
-        new bootstrap.Tooltip(tooltipSpan, { html: true });
-    }
-
-    function disableTooltip() {
-      const tooltipSpan = document.getElementById("serialTooltip");
-      if (tooltipSpan._tooltipInstance) {
-        tooltipSpan._tooltipInstance.dispose();
-        tooltipSpan._tooltipInstance = null;
-      }
-      tooltipSpan.removeAttribute("data-bs-toggle");
-      tooltipSpan.removeAttribute("title");
-      tooltipSpan.style.opacity = "0.5";
+        const tooltip = new bootstrap.Tooltip(tooltipBtn, { html: true });
+        tooltip.show();
     }
 
     function populateClientInfo() {
@@ -279,7 +268,6 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
     }
 
     document.addEventListener("DOMContentLoaded", function() {
-      disableTooltip();
       getTickets();
       populateClientInfo();
       loadDevices();
@@ -295,7 +283,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
 <body class="bg-light">
   <nav class="navbar navbar-dark bg-dark mb-3">
     <div class="container-fluid d-flex justify-content-between align-items-center">
-      <span class="navbar-brand mb-0"><img src="favicon.png" width="50" height="50" type="image/png" /> Ticketomat Klijent</span>
+      <span class="navbar-brand mb-0"><img src="favicon.png" width="50" height="50" type="image/png" /> Ticketomat</span>
       <button class="btn btn-outline-light btn-sm" onclick="logout()">Odjava</button>
     </div>
   </nav>
@@ -321,7 +309,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
 
         <div class="input-group mb-2">
           <input id="serial_number" class="form-control" placeholder="Serijski broj uređaja (obavezno)" />
-          <span id="serialTooltip" class="input-group-text" style="opacity:0.5;">Gdje ga pronaći?</span>
+          <button id="serialTooltipBtn" class="btn btn-outline-secondary" type="button" onclick="showTooltip()" disabled>Gdje ga pronaći?</button>
         </div>
 
         <div class="mb-3">
