@@ -29,5 +29,5 @@ function checkApiKey() {
 }
 
 function clean($str, $conn) {
-    return htmlspecialchars(strip_tags($conn->real_escape_string($str)));
+    return $conn->real_escape_string($str);
 }
