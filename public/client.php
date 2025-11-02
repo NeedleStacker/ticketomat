@@ -34,11 +34,27 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
       .navbar-brand { font-size: 1rem; }
       .btn { font-size: 0.9rem; }
     }
+    #serialImageContainer {
+        z-index: 1080;
+        background-color: white;
+        border: 1px solid #ccc;
+        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        border-radius: .3rem;
+    }
+    #serialImageContainer .btn-close {
+        position: absolute;
+        top: 5px;
+        right: 5px;
+        background-color: rgba(255, 255, 255, 0.8);
+        border-radius: 50%;
+        padding: 4px;
+        width: 1em;
+        height: 1em;
+    }
   </style>
 
   <script>
     const API = "../api/";
-    const API_KEY = "ZQjjWaAXsPbKFuahw3TK8LCRE";
     const user = JSON.parse(localStorage.getItem("user") || "null");
     if (!user) window.location = "index.php";
 
@@ -48,9 +64,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
     }
 
     async function getTickets() {
-      const res = await fetch(API + `getTickets.php?user_id=${user.id}&role=${user.role}`, {
-        headers: { "X-API-KEY": API_KEY }
-      });
+      const res = await fetch(API + `getTickets.php?user_id=${user.id}&role=${user.role}`);
       const data = await res.json();
       const out = document.getElementById("tickets");
       out.innerHTML = "";
@@ -99,9 +113,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
     }
 
     async function openDetails(id) {
-      const res = await fetch(API + `getTicketDetails.php?id=${id}`, {
-        headers: { "X-API-KEY": API_KEY }
-      });
+      const res = await fetch(API + `getTicketDetails.php?id=${id}`);
       const t = await res.json();
       if (t.error) { alert(t.error); return; }
 
@@ -156,7 +168,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
 
       const res = await fetch(API + "cancelTicket.php", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-API-KEY": API_KEY },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, reason, user_id: user.id })
       });
       const data = await res.json();
@@ -187,7 +199,6 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
 
         const res = await fetch(API + "addTicket.php", {
             method: "POST",
-            headers: { "X-API-KEY": API_KEY },
             body: formData
         });
 
@@ -221,7 +232,6 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
 
         const res = await fetch(API + "addAttachment.php", {
             method: "POST",
-            headers: { "X-API-KEY": API_KEY },
             body: formData
         });
 
@@ -241,18 +251,12 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
         tooltipBtn.disabled = select.value === "";
     }
 
+    let hideTooltipTimeout;
+
     function showTooltip() {
         const select = document.getElementById("device_name");
-        const tooltipBtn = document.getElementById("serialTooltipBtn");
         const deviceName = select.value;
-
         if (!deviceName) return;
-
-        // Dispose previous tooltip instance to avoid conflicts
-        var existingTooltip = bootstrap.Tooltip.getInstance(tooltipBtn);
-        if (existingTooltip) {
-            existingTooltip.dispose();
-        }
 
         const imgMap = {
             "Ulrich CT Motion": "../img/serial_ctmotion.jpg",
@@ -265,16 +269,26 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
 
         const imgSrc = (imgMap[deviceName] || "../img/serial_location.jpg") + "?v=" + new Date().getTime();
 
-        // Set attributes for the new tooltip
-        tooltipBtn.setAttribute("data-bs-toggle", "tooltip");
-        tooltipBtn.setAttribute("data-bs-placement", "top");
-        tooltipBtn.setAttribute("data-bs-trigger", "click"); // Set trigger to click
-        tooltipBtn.setAttribute("data-bs-html", "true");
-        tooltipBtn.setAttribute("title", `<img src='${imgSrc}' alt='Lokacija serijskog broja'>`);
+        const container = document.getElementById("serialImageContainer");
+        const img = document.getElementById("serialImage");
 
-        // Create and show the new tooltip
-        const tooltip = new bootstrap.Tooltip(tooltipBtn);
-        tooltip.show();
+        img.src = imgSrc;
+        container.classList.remove("d-none");
+
+        container.addEventListener("mouseleave", () => hideTooltip(false));
+        container.addEventListener("mouseenter", () => clearTimeout(hideTooltipTimeout));
+    }
+
+    function hideTooltip(immediate = false) {
+        const container = document.getElementById("serialImageContainer");
+        if (immediate) {
+            container.classList.add("d-none");
+            clearTimeout(hideTooltipTimeout);
+        } else {
+            hideTooltipTimeout = setTimeout(() => {
+                container.classList.add("d-none");
+            }, 5000);
+        }
     }
 
     function populateClientInfo() {
@@ -285,9 +299,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
     }
 
     async function loadDevices() {
-        const res = await fetch(API + "getDevices.php", {
-            headers: { "X-API-KEY": API_KEY }
-        });
+        const res = await fetch(API + "getDevices.php");
         const devices = await res.json();
         const select = document.getElementById("device_name");
         devices.forEach(d => {
@@ -335,9 +347,13 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
           <option value="">Odaberite uređaj...</option>
         </select>
 
-        <div class="input-group mb-2">
+        <div class="input-group mb-2 position-relative">
           <input id="serial_number" class="form-control" placeholder="Serijski broj uređaja (obavezno)" />
           <button id="serialTooltipBtn" class="btn btn-outline-secondary" type="button" onclick="showTooltip()" disabled>Gdje ga pronaći?</button>
+          <div id="serialImageContainer" class="position-absolute d-none p-2" style="top: 100%; right: 0;">
+            <img id="serialImage" src="" style="width: 300px; height: auto;">
+            <button type="button" class="btn-close" onclick="hideTooltip(true)"></button>
+          </div>
         </div>
 
         <div class="mb-3">

@@ -28,6 +28,6 @@ function checkApiKey() {
     }
 }
 
-function clean($str, $conn) {
-    return $conn->real_escape_string($str);
+function clean($str) {
+    return trim($str);
 }

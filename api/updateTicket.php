@@ -6,12 +6,12 @@ checkApiKey();
 $data = json_decode(file_get_contents("php://input"), true);
 
 $id = isset($data["id"]) ? intval($data["id"]) : 0;
-$status = isset($data["status"]) ? clean($data["status"], $conn) : "";
-$priority = isset($data["priority"]) ? clean($data["priority"], $conn) : "";
-$description = isset($data["description"]) ? clean($data["description"], $conn) : "";
-$device_name = isset($data["device_name"]) ? clean($data["device_name"], $conn) : "";
-$serial_number = isset($data["serial_number"]) ? clean($data["serial_number"], $conn) : "";
-$cancel_reason = isset($data["cancel_reason"]) ? clean($data["cancel_reason"], $conn) : null;
+$status = isset($data["status"]) ? $data["status"] : "";
+$priority = isset($data["priority"]) ? $data["priority"] : "";
+$description = isset($data["description"]) ? $data["description"] : "";
+$device_name = isset($data["device_name"]) ? $data["device_name"] : "";
+$serial_number = isset($data["serial_number"]) ? $data["serial_number"] : "";
+$cancel_reason = isset($data["cancel_reason"]) ? $data["cancel_reason"] : null;
 
 if ($id <= 0) {
     echo json_encode(array("error" => "Neispravan ID ticketa."));

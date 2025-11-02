@@ -7,7 +7,7 @@ $user_id = isset($_GET["user_id"]) ? intval($_GET["user_id"]) : 0;
 $role = isset($_GET["role"]) ? $_GET["role"] : "client";
 
 if ($role === "admin") {
-    $status = isset($_GET["status"]) ? clean($_GET["status"], $conn) : '';
+    $status = isset($_GET["status"]) ? clean($_GET["status"]) : '';
     $search = isset($_GET["search"]) ? $_GET["search"] : '';
 
     $sql = "SELECT t.id, t.title, t.status, t.created_at, t.device_name, t.serial_number, t.priority, u.username FROM tickets t LEFT JOIN users u ON u.id = t.user_id";

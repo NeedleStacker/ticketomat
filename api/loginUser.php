@@ -5,7 +5,7 @@ checkApiKey();
 session_start();
 
 $data = json_decode(file_get_contents("php://input"), true);
-$username = clean($data["username"], $conn);
+$username = clean($data["username"]);
 $password = $data["password"];
 
 $q = $conn->prepare("SELECT id, username, password_hash, role, first_name, last_name FROM users WHERE username=? AND is_active=1 LIMIT 1");
