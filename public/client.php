@@ -13,6 +13,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Klijent - Ticketomat</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script data-isso="http://localhost:8080/" src="http://localhost:8080/js/embed.min.js" defer></script>
   <style>
     body { background-color: #f8f9fa; }
     .navbar-brand { font-weight: 600; letter-spacing: 0.5px; }
@@ -175,6 +176,13 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
         modal.querySelector('.modal-header').classList.add('bg-primary');
       }
 
+      const commentsPlaceholder = document.getElementById('comments-placeholder');
+      commentsPlaceholder.innerHTML = '';
+      const issoSection = document.createElement('section');
+      issoSection.id = 'isso-thread';
+      issoSection.setAttribute('data-isso-id', `ticket-${t.id}`);
+      commentsPlaceholder.appendChild(issoSection);
+
       new bootstrap.Modal(modal).show();
     }
 
@@ -328,9 +336,17 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
       populateClientInfo();
       loadDevices();
 
-      const ticketModal = document.getElementById('ticketModal');
-      ticketModal.addEventListener('hidden.bs.modal', function () {
+      const ticketModalEl = document.getElementById('ticketModal');
+      const ticketModal = new bootstrap.Modal(ticketModalEl);
+
+      ticketModalEl.addEventListener('hidden.bs.modal', function () {
           document.getElementById('new_attachment').value = '';
+      });
+
+      ticketModalEl.addEventListener('shown.bs.modal', function () {
+          if (window.isso) {
+              isso.render();
+          }
       });
     });
   </script>
@@ -416,6 +432,9 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
                 <button class="btn btn-outline-secondary" type="button" onclick="addAttachment()">Dodaj</button>
             </div>
           </div>
+          <hr>
+          <h6>Komentari</h6>
+          <div id="comments-placeholder"></div>
         </div>
         <div class="modal-footer">
           <button class="btn btn-danger me-auto" id="cancelTicketBtn" data-bs-toggle="modal" data-bs-target="#cancelModal">Otkaži zahtjev</button>

@@ -14,6 +14,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Admin - Ticketomat</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <script data-isso="http://localhost:8080/" src="http://localhost:8080/js/embed.min.js" defer></script>
 
   <style>
     body { background-color: #f8f9fa; }
@@ -138,7 +139,15 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
           attachmentLink.style.display = 'none';
       }
 
-      new bootstrap.Modal(modal).show();
+      const commentsPlaceholder = document.getElementById('comments-placeholder');
+      commentsPlaceholder.innerHTML = '';
+      const issoSection = document.createElement('section');
+      issoSection.id = 'isso-thread';
+      issoSection.setAttribute('data-isso-id', `ticket-${t.id}`);
+      commentsPlaceholder.appendChild(issoSection);
+
+      const ticketModal = new bootstrap.Modal(modal);
+      ticketModal.show();
     }
 
     async function saveChanges() {
@@ -194,11 +203,19 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         loadDevices();
         loadClients();
 
-        const ticketModal = document.getElementById('ticketModal');
-        ticketModal.addEventListener('hidden.bs.modal', function () {
+        const ticketModalEl = document.getElementById('ticketModal');
+        const ticketModal = new bootstrap.Modal(ticketModalEl);
+
+        ticketModalEl.addEventListener('hidden.bs.modal', function () {
             const fileInput = document.getElementById('attachment');
             if (fileInput) {
                 fileInput.value = '';
+            }
+        });
+
+        ticketModalEl.addEventListener('shown.bs.modal', function () {
+            if (window.isso) {
+                isso.render();
             }
         });
     });
@@ -327,6 +344,9 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
             <label class="form-label">Razlog otkazivanja:</label>
             <textarea id="cancel_reason_input" class="form-control" rows="2"></textarea>
           </div>
+          <hr>
+          <h6>Komentari</h6>
+          <div id="comments-placeholder"></div>
         </div>
         <div class="modal-footer">
           <button class="btn btn-secondary" data-bs-dismiss="modal">Zatvori</button>
