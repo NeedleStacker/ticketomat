@@ -93,7 +93,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
 
             const cell = row.insertCell();
             const btn = document.createElement('button');
-            btn.className = 'btn btn-sm btn-outline-primary';
+            btn.className = 'btn btn-sm btn-primary';
             btn.textContent = 'Detalji';
             btn.onclick = () => showTicketDetails(t.id);
             cell.appendChild(btn);
@@ -238,6 +238,12 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
             <option value="">Svi klijenti</option>
           </select>
         </div>
+      </div>
+      <div class="d-flex justify-content-end gap-2 mb-2">
+        <small><span style="color: #f8d7da;">■</span> Visok prioritet</small>
+        <small><span style="color: #fff3cd;">■</span> Srednji prioritet</small>
+        <small><span style="color: #d1e7dd;">■</span> Nizak prioritet</small>
+        <small><span style="color: #e2e3e5;">■</span> Otkazan</small>
       </div>
       <div class="table-responsive">
         <table class="table table-hover align-middle">
