@@ -97,6 +97,15 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
       document.getElementById("modalCancelReason").textContent = t.cancel_reason || "-";
       document.getElementById("ticket_id").value = t.id;
 
+      const attachmentLink = document.getElementById("attachmentLink");
+      if (t.attachment_name) {
+          attachmentLink.href = `${API}getAttachment.php?id=${t.id}`;
+          attachmentLink.textContent = t.attachment_name;
+          attachmentLink.style.display = 'block';
+      } else {
+          attachmentLink.style.display = 'none';
+      }
+
       const btnCancel = document.getElementById("cancelTicketBtn");
       if (t.status === 'Otkazan' || t.status === 'Zatvoren' || t.status === 'Riješen') {
         btnCancel.style.display = 'none';
@@ -135,34 +144,34 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
     }
 
     async function addTicket() {
-      const title = document.getElementById("title").value.trim();
-      const description = document.getElementById("desc").value.trim();
-      const device_name = document.getElementById("device_name").value;
-      const serial_number = document.getElementById("serial_number").value.trim();
-      const request_creator = document.getElementById("request_creator").value.trim();
-      const creator_contact = document.getElementById("creator_contact").value.trim();
+        const formData = new FormData();
+        formData.append('title', document.getElementById("title").value.trim());
+        formData.append('description', document.getElementById("desc").value.trim());
+        formData.append('device_name', document.getElementById("device_name").value);
+        formData.append('serial_number', document.getElementById("serial_number").value.trim());
+        formData.append('request_creator', document.getElementById("request_creator").value.trim());
+        formData.append('creator_contact', document.getElementById("creator_contact").value.trim());
+        formData.append('user_id', user.id);
+        formData.append('status', "Otvoren");
 
-      const res = await fetch(API + "addTicket.php", {
-        method: "POST",
-        headers: { "Content-Type": "application/json", "X-API-KEY": API_KEY },
-        body: JSON.stringify({
-          title,
-          description,
-          device_name,
-          serial_number,
-          user_id: user.id,
-          request_creator,
-          creator_contact,
-          status: "Otvoren"
-        })
-      });
-      const data = await res.json();
-      if (data.success) {
-        alert("✅ Ticket uspješno dodan.");
-        getTickets();
-      } else {
-        alert("❌ " + (data.error || "Greška prilikom dodavanja ticketa."));
-      }
+        const attachment = document.getElementById("attachment").files[0];
+        if (attachment) {
+            formData.append('attachment', attachment);
+        }
+
+        const res = await fetch(API + "addTicket.php", {
+            method: "POST",
+            headers: { "X-API-KEY": API_KEY },
+            body: formData
+        });
+
+        const data = await res.json();
+        if (data.success) {
+            alert("✅ Ticket uspješno dodan.");
+            getTickets();
+        } else {
+            alert("❌ " + (data.error || "Greška prilikom dodavanja ticketa."));
+        }
     }
 
     // Tooltip logika (ostaje ista)
@@ -251,7 +260,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
 
       <div class="mb-3">
         <input id="title" class="form-control mb-2" placeholder="Naslov ticketa (kratko opisati problem)" />
-        <input id="request_creator" class="form-control mb-2" placeholder="Osoba koja kreira zahtjev" />
+        <input id="request_creator" class="form-control mb-2" placeholder="Osoba" />
         <input id="creator_contact" class="form-control mb-2" placeholder="Kontakt (telefon ili email)" />
         <select id="device_name" class="form-select mb-2" onchange="onDeviceChange()">
           <option value="">Odaberite uređaj...</option>
@@ -260,6 +269,11 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
         <div class="input-group mb-2">
           <input id="serial_number" class="form-control" placeholder="Serijski broj uređaja (obavezno)" />
           <span id="serialTooltip" class="input-group-text" style="opacity:0.5;">Gdje ga pronaći?</span>
+        </div>
+
+        <div class="mb-3">
+            <label for="attachment" class="form-label">Datoteka (Max 5MB)</label>
+            <input class="form-control" type="file" id="attachment">
         </div>
 
         <textarea id="desc" class="form-control mb-2" rows="3" placeholder="Detaljan opis problema (opcionalno)"></textarea>
@@ -292,6 +306,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
           <p><b>Kreirano:</b> <span id="modalDate"></span></p>
           <p><b>Otkazano:</b> <span id="modalCanceledAt"></span></p>
           <p><b>Razlog otkazivanja:</b> <span id="modalCancelReason"></span></p>
+          <p><b>Datoteka:</b> <a href="#" id="attachmentLink" target="_blank" style="display:none;"></a></p>
         </div>
         <div class="modal-footer">
           <button class="btn btn-danger me-auto" id="cancelTicketBtn" data-bs-toggle="modal" data-bs-target="#cancelModal">Otkaži zahtjev</button>

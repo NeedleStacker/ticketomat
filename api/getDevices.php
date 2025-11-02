@@ -3,7 +3,7 @@ require_once("config.php");
 require_once("functions.php");
 checkApiKey();
 
-$sql = "SELECT * FROM devices ORDER BY name";
+$sql = "SELECT * FROM devices ORDER BY id";
 $result = $conn->query($sql);
 
 $devices = [];
