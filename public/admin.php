@@ -38,8 +38,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
   </style>
 
   <script>
-    const API = "../api/";
-    const API_KEY = "ZQjjWaAXsPbKFuahw3TK8LCRE";
+    const API = "api.php/";
     const user = JSON.parse(localStorage.getItem("user") || "null");
     if (!user) window.location = "index.php";
 
@@ -63,7 +62,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
             url += '&' + params.toString();
         }
 
-        const res = await fetch(url, { headers: { "X-API-KEY": API_KEY } });
+        const res = await fetch(url);
         const tickets = await res.json();
         const body = document.getElementById("ticketsBody");
         body.innerHTML = "";
@@ -102,7 +101,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     }
 
     async function showTicketDetails(id) {
-      const res = await fetch(API + `getTicketDetails.php?id=${id}`, { headers: { "X-API-KEY": API_KEY } });
+      const res = await fetch(API + `getTicketDetails.php?id=${id}`);
       const t = await res.json();
       if (t.error) { alert(t.error); return; }
 
@@ -158,7 +157,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
 
       const res = await fetch(API + "updateTicket.php", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-API-KEY": API_KEY },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(body)
       });
 
@@ -172,9 +171,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     }
 
     async function loadDevices() {
-        const res = await fetch(API + "getDevices.php", {
-            headers: { "X-API-KEY": API_KEY }
-        });
+        const res = await fetch(API + "getDevices.php");
         const devices = await res.json();
         const select = document.getElementById("ticket_device_name");
         select.innerHTML = '<option value="">Odaberite uređaj...</option>';
@@ -184,9 +181,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     }
 
     async function loadClients() {
-        const res = await fetch(API + "getClients.php", {
-            headers: { "X-API-KEY": API_KEY }
-        });
+        const res = await fetch(API + "getClients.php");
         const clients = await res.json();
         const select = document.getElementById("clientFilter");
         clients.forEach(c => {

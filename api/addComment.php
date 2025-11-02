@@ -1,7 +1,12 @@
 <?php
 require_once("config.php");
 require_once("functions.php");
-checkApiKey();
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    http_response_code(401);
+    echo json_encode(["error" => "Unauthorized"]);
+    exit;
+}
 
 $ticket_id = intval($_GET["ticket_id"]);
 $q = $conn->prepare("SELECT c.*, u.username FROM ticket_comments c LEFT JOIN users u ON c.user_id=u.id WHERE c.ticket_id=? ORDER BY c.created_at ASC");

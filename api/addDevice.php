@@ -1,7 +1,12 @@
 <?php
 require_once("config.php");
 require_once("functions.php");
-checkApiKey();
+session_start();
+if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
+    http_response_code(403);
+    echo json_encode(["error" => "Forbidden"]);
+    exit;
+}
 
 $data = json_decode(file_get_contents("php://input"), true);
 $name = isset($data["name"]) ? clean($data["name"]) : "";

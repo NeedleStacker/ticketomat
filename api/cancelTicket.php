@@ -1,7 +1,12 @@
 <?php
 require_once("config.php");
 require_once("functions.php");
-checkApiKey();
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    http_response_code(401);
+    echo json_encode(["error" => "Unauthorized"]);
+    exit;
+}
 
 $input = json_decode(file_get_contents("php://input"), true);
 

@@ -54,8 +54,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
   </style>
 
   <script>
-    const API = "../api/";
-    const API_KEY = "ZQjjWaAXsPbKFuahw3TK8LCRE";
+    const API = "api.php/";
     const user = JSON.parse(localStorage.getItem("user") || "null");
     if (!user) window.location = "index.php";
 
@@ -65,9 +64,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
     }
 
     async function getTickets() {
-      const res = await fetch(API + `getTickets.php?user_id=${user.id}&role=${user.role}`, {
-        headers: { "X-API-KEY": API_KEY }
-      });
+      const res = await fetch(API + `getTickets.php?user_id=${user.id}&role=${user.role}`);
       const data = await res.json();
       const out = document.getElementById("tickets");
       out.innerHTML = "";
@@ -116,9 +113,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
     }
 
     async function openDetails(id) {
-      const res = await fetch(API + `getTicketDetails.php?id=${id}`, {
-        headers: { "X-API-KEY": API_KEY }
-      });
+      const res = await fetch(API + `getTicketDetails.php?id=${id}`);
       const t = await res.json();
       if (t.error) { alert(t.error); return; }
 
@@ -173,7 +168,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
 
       const res = await fetch(API + "cancelTicket.php", {
         method: "POST",
-        headers: { "Content-Type": "application/json", "X-API-KEY": API_KEY },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ id, reason, user_id: user.id })
       });
       const data = await res.json();
@@ -204,7 +199,6 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
 
         const res = await fetch(API + "addTicket.php", {
             method: "POST",
-            headers: { "X-API-KEY": API_KEY },
             body: formData
         });
 
@@ -238,7 +232,6 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
 
         const res = await fetch(API + "addAttachment.php", {
             method: "POST",
-            headers: { "X-API-KEY": API_KEY },
             body: formData
         });
 
@@ -306,9 +299,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
     }
 
     async function loadDevices() {
-        const res = await fetch(API + "getDevices.php", {
-            headers: { "X-API-KEY": API_KEY }
-        });
+        const res = await fetch(API + "getDevices.php");
         const devices = await res.json();
         const select = document.getElementById("device_name");
         devices.forEach(d => {

@@ -1,0 +1,20 @@
+[02-Nov-2025 21:15:42 UTC] PHP Fatal error:  Uncaught Error: Class "mysqli" not found in /app/api/config.php:13
+Stack trace:
+#0 /app/api/loginUser.php(2): require_once()
+#1 /app/public/api.php(8): require_once('...')
+#2 {main}
+  thrown in /app/api/config.php on line 13
+[02-Nov-2025 21:18:20 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: No such file or directory in /app/api/config.php:13
+Stack trace:
+#0 /app/api/config.php(13): mysqli->__construct()
+#1 /app/api/loginUser.php(2): require_once('...')
+#2 /app/public/api.php(8): require_once('...')
+#3 {main}
+  thrown in /app/api/config.php on line 13
+[02-Nov-2025 21:24:53 UTC] PHP Fatal error:  Uncaught mysqli_sql_exception: Access denied for user 'root'@'localhost' in /app/api/config.php:13
+Stack trace:
+#0 /app/api/config.php(13): mysqli->__construct()
+#1 /app/api/loginUser.php(2): require_once('...')
+#2 /app/public/api.php(8): require_once('...')
+#3 {main}
+  thrown in /app/api/config.php on line 13
