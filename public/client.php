@@ -22,6 +22,13 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
     .ticket-item:hover { background-color: #f1f1f1; cursor: pointer; transition: background 0.2s; }
     .status-badge { font-size: 0.85rem; }
     .status-otkazan { background-color: #6c757d !important; } /* sivo */
+    #modalDesc {
+      white-space: pre-wrap;
+      word-wrap: break-word;
+    }
+    @media (min-width: 992px) {
+      .modal-lg { max-width: 800px; }
+    }
     @media (max-width: 576px) {
       h1, h2 { font-size: 1.4rem; }
       .navbar-brand { font-size: 1rem; }
@@ -63,19 +70,31 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
         const badgeClass = isCanceled ? 'status-otkazan' : 'bg-secondary';
         const rowStyle = isCanceled ? 'background-color:#e2e3e5;color:#6c757d;' : '';
 
-        out.innerHTML += `
-          <li class='list-group-item ticket-item d-flex justify-content-between align-items-start flex-wrap'
-              style="${rowStyle}" onclick="openDetails(${t.id})">
-            <div>
-              <b>#${t.id}</b> - ${t.title}<br>
-              <small class="text-muted">${t.device_name || ''} (${t.serial_number || '-'})</small><br>
-              <small class="text-muted" style="word-wrap: break-word;">${t.description || ""}</small><br>
-              <small class="text-secondary">📅 Kreirano: ${created}</small>
-            </div>
-            <div class="text-end">
-              <span class='badge ${badgeClass} status-badge mt-2 mt-sm-0'>${t.status}</span>
-            </div>
-          </li>`;
+        const li = document.createElement('li');
+        li.className = 'list-group-item ticket-item d-flex justify-content-between align-items-start flex-wrap';
+        li.style.cssText = rowStyle;
+        li.onclick = () => openDetails(t.id);
+
+        const div = document.createElement('div');
+        div.innerHTML = `<b>#${t.id}</b> - `;
+        div.appendChild(document.createTextNode(t.title));
+        div.innerHTML += `<br><small class="text-muted">${t.device_name || ''} (${t.serial_number || '-'})</small><br>`;
+
+        const desc = document.createElement('small');
+        desc.className = 'text-muted';
+        desc.style.wordWrap = 'break-word';
+        desc.textContent = t.description || "";
+        div.appendChild(desc);
+
+        div.innerHTML += `<br><small class="text-secondary">📅 Kreirano: ${created}</small>`;
+        li.appendChild(div);
+
+        const badgeDiv = document.createElement('div');
+        badgeDiv.className = 'text-end';
+        badgeDiv.innerHTML = `<span class='badge ${badgeClass} status-badge mt-2 mt-sm-0'>${t.status}</span>`;
+        li.appendChild(badgeDiv);
+
+        out.appendChild(li);
       });
     }
 
@@ -225,7 +244,11 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
     function showTooltip() {
         const select = document.getElementById("device_name");
         const tooltipBtn = document.getElementById("serialTooltipBtn");
+        const deviceName = select.value;
 
+        if (!deviceName) return;
+
+        // Dispose previous tooltip instance to avoid conflicts
         var existingTooltip = bootstrap.Tooltip.getInstance(tooltipBtn);
         if (existingTooltip) {
             existingTooltip.dispose();
@@ -239,13 +262,18 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
             "ACIST CVi": "../img/serial_acist.jpg",
             "Eurosets ECMOLIFE": "../img/serial_ecmolife.jpg"
         };
-        const imgSrc = imgMap[select.value] || "../img/serial_location.jpg";
 
+        const imgSrc = (imgMap[deviceName] || "../img/serial_location.jpg") + "?v=" + new Date().getTime();
+
+        // Set attributes for the new tooltip
         tooltipBtn.setAttribute("data-bs-toggle", "tooltip");
         tooltipBtn.setAttribute("data-bs-placement", "top");
-        tooltipBtn.setAttribute("data-bs-original-title", `<img src='${imgSrc}' alt='Gdje pronaći serijski broj'>`);
+        tooltipBtn.setAttribute("data-bs-trigger", "click"); // Set trigger to click
+        tooltipBtn.setAttribute("data-bs-html", "true");
+        tooltipBtn.setAttribute("title", `<img src='${imgSrc}' alt='Lokacija serijskog broja'>`);
 
-        const tooltip = new bootstrap.Tooltip(tooltipBtn, { html: true });
+        // Create and show the new tooltip
+        const tooltip = new bootstrap.Tooltip(tooltipBtn);
         tooltip.show();
     }
 
@@ -332,7 +360,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
 
   <!-- Modal Detalji -->
   <div class="modal fade" id="ticketModal" tabindex="-1">
-    <div class="modal-dialog">
+    <div class="modal-dialog modal-lg">
       <div class="modal-content">
         <div class="modal-header bg-primary text-white">
           <h5 class="modal-title" id="modalTitle">Detalji ticketa</h5>
@@ -342,7 +370,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
           <input type="hidden" id="ticket_id">
           <p><b>Uređaj:</b> <span id="modalDevice"></span></p>
           <p><b>Serijski broj:</b> <span id="modalSerial"></span></p>
-          <p><b>Opis:</b> <span id="modalDesc"></span></p>
+          <p><b>Opis:</b> <span id="modalDesc" style="word-wrap: break-word;"></span></p>
           <p><b>Status:</b> <span id="modalStatus"></span></p>
           <p><b>Kreirano:</b> <span id="modalDate"></span></p>
           <p><b>Otkazano:</b> <span id="modalCanceledAt"></span></p>

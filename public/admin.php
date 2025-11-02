@@ -263,7 +263,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
 
   <!-- Modal -->
   <div class="modal fade" id="ticketModal" tabindex="-1">
-    <div class="modal-dialog modal-lg">
+    <div class="modal-dialog modal-xl">
       <div class="modal-content">
         <div class="modal-header bg-primary text-white">
           <h5 class="modal-title" id="modalTitle">Detalji ticketa</h5>
@@ -303,7 +303,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
           </div>
           <div class="mb-3">
             <label class="form-label">Opis</label>
-            <textarea id="ticket_description" class="form-control" rows="4"></textarea>
+            <textarea id="ticket_description" class="form-control" rows="4" style="word-wrap: break-word;"></textarea>
           </div>
           <h6 class="mt-4">📞 Podaci o korisniku</h6>
           <div class="bg-light border rounded p-2">
