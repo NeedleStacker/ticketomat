@@ -175,6 +175,13 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
         const data = await res.json();
         if (data.success) {
             alert("✅ Ticket uspješno dodan.");
+            document.getElementById("title").value = '';
+            document.getElementById("desc").value = '';
+            document.getElementById("device_name").value = '';
+            document.getElementById("serial_number").value = '';
+            document.getElementById("request_creator").value = '';
+            document.getElementById("creator_contact").value = '';
+            document.getElementById("attachment").value = '';
             getTickets();
         } else {
             alert("❌ " + (data.error || "Greška prilikom dodavanja ticketa."));
@@ -209,31 +216,37 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
         }
     }
 
-    // Tooltip logika (ostaje ista)
     function onDeviceChange() {
-      const select = document.getElementById("device_name");
-      const tooltipSpan = document.getElementById("serialTooltip");
-      if (select.value === "") { disableTooltip(); return; }
+        const select = document.getElementById("device_name");
+        const tooltipSpan = document.getElementById("serialTooltip");
 
-      const imgMap = {
-        "Ulrich CT Motion": "../img/serial_ctmotion.jpg",
-        "Ulrich MAX2/3": "../img/serial_max.jpg",
-        "Vernacare Vortex AIR": "../img/serial_vortex.jpg",
-        "Vernacare Vortex+": "../img/serial_vortex.jpg",
-		"ACIST CVi": "../img/serial_acist.jpg",
-        "Eurosets ECMOLIFE": "../img/serial_ecmolife.jpg"
-      };
-      const imgSrc = imgMap[select.value] || "../img/serial_location.jpg";
-      tooltipSpan.setAttribute("data-bs-toggle", "tooltip");
-      tooltipSpan.setAttribute("data-bs-placement", "top");
-      tooltipSpan.setAttribute("title", `<img src='${imgSrc}' alt='Gdje pronaći serijski broj'>`);
-      tooltipSpan.style.opacity = "1";
+        // Always dispose of the old tooltip first
+        var existingTooltip = bootstrap.Tooltip.getInstance(tooltipSpan);
+        if (existingTooltip) {
+            existingTooltip.dispose();
+        }
 
-      var tooltip = bootstrap.Tooltip.getInstance(tooltipSpan);
-      if (tooltip) {
-        tooltip.dispose();
-      }
-      new bootstrap.Tooltip(tooltipSpan, { html: true });
+        if (select.value === "") {
+            disableTooltip();
+            return;
+        }
+
+        const imgMap = {
+            "Ulrich CT Motion": "../img/serial_ctmotion.jpg",
+            "Ulrich MAX2/3": "../img/serial_max.jpg",
+            "Vernacare Vortex AIR": "../img/serial_vortex.jpg",
+            "Vernacare Vortex+": "../img/serial_vortex.jpg",
+            "ACIST CVi": "../img/serial_acist.jpg",
+            "Eurosets ECMOLIFE": "../img/serial_ecmolife.jpg"
+        };
+        const imgSrc = imgMap[select.value] || "../img/serial_location.jpg";
+
+        tooltipSpan.setAttribute("data-bs-toggle", "tooltip");
+        tooltipSpan.setAttribute("data-bs-placement", "top");
+        tooltipSpan.setAttribute("data-bs-original-title", `<img src='${imgSrc}' alt='Gdje pronaći serijski broj'>`);
+        tooltipSpan.style.opacity = "1";
+
+        new bootstrap.Tooltip(tooltipSpan, { html: true });
     }
 
     function disableTooltip() {
@@ -274,13 +287,6 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
       const ticketModal = document.getElementById('ticketModal');
       ticketModal.addEventListener('hidden.bs.modal', function () {
           document.getElementById('new_attachment').value = '';
-      });
-
-      const addTicketForm = document.querySelector('.card:has(#addTicket)');
-      addTicketForm.addEventListener('submit', function() {
-          setTimeout(() => {
-              document.getElementById('attachment').value = '';
-          }, 500);
       });
     });
   </script>

@@ -19,7 +19,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     body { background-color: #f8f9fa; }
     .navbar-brand { font-weight: 600; }
     .card { background-color: #f0ffff; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
-    table { background-color: #fff; border-radius: 8px; overflow: hidden; }
+    table { background-color: #fff; border-radius: 8px; overflow: hidden; border: 1px solid rgba(0,0,0,0.5); }
     td, th { vertical-align: middle !important; }
 
     .priority-low { color: #198754; font-weight: 600; }
@@ -243,7 +243,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         </div>
       </div>
       <div class="table-responsive">
-        <table class="table table-striped table-hover align-middle">
+        <table class="table table-hover align-middle">
           <thead class="table-dark">
             <tr>
               <th>Naslov</th>

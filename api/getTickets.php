@@ -10,7 +10,7 @@ if ($role === "admin") {
     $status = isset($_GET["status"]) ? clean($_GET["status"], $conn) : '';
     $search = isset($_GET["search"]) ? $_GET["search"] : '';
 
-    $sql = "SELECT t.id, t.title, t.status, t.created_at, t.device_name, t.serial_number, u.username FROM tickets t LEFT JOIN users u ON u.id = t.user_id";
+    $sql = "SELECT t.id, t.title, t.status, t.created_at, t.device_name, t.serial_number, t.priority, u.username FROM tickets t LEFT JOIN users u ON u.id = t.user_id";
     $where = [];
     $params = [];
     $types = '';
@@ -28,7 +28,7 @@ if ($role === "admin") {
 
     if (!empty($search)) {
         $search_term = "%" . $search . "%";
-        $where[] = "(t.title LIKE ? OR t.description LIKE ? OR t.device_name LIKE ? OR t.serial_number LIKE ? OR u.username LIKE ?)";
+        $where[] = "(t.title LIKE ? OR t.device_name LIKE ? OR t.serial_number LIKE ? OR t.description LIKE ? OR t.request_creator LIKE ?)";
         for ($i = 0; $i < 5; $i++) {
             $params[] = $search_term;
             $types .= 's';
