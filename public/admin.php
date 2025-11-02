@@ -85,13 +85,13 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
                 <td>${t.status}</td>
                 <td>${t.created_at || ''}</td>
                 <td>
-                  <button class="btn btn-sm btn-outline-primary" onclick="openDetails(${t.id})">Detalji</button>
+                  <button class="btn btn-sm btn-outline-primary" onclick="showTicketDetails(${t.id})">Detalji</button>
                 </td>
               </tr>`;
         });
     }
 
-    async function openDetails(id) {
+    async function showTicketDetails(id) {
       const res = await fetch(API + `getTicketDetails.php?id=${id}`, { headers: { "X-API-KEY": API_KEY } });
       const t = await res.json();
       if (t.error) { alert(t.error); return; }

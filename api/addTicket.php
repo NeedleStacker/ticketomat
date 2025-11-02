@@ -28,6 +28,10 @@ if (isset($_FILES['attachment']) && $_FILES['attachment']['error'] == 0) {
         exit;
     }
     $attachment = file_get_contents($_FILES['attachment']['tmp_name']);
+    if ($attachment === false) {
+        echo json_encode(["error" => "Nije uspjelo čitanje datoteke."]);
+        exit;
+    }
     $attachment_name = $_FILES['attachment']['name'];
     $attachment_type = $_FILES['attachment']['type'];
 }
