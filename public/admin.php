@@ -38,7 +38,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
   </style>
 
   <script>
-    const API = "api.php/";
+    const API = "../api/";
     const user = JSON.parse(localStorage.getItem("user") || "null");
     if (!user) window.location = "index.php";
 

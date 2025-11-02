@@ -52,7 +52,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     </div>
 
     <script>
-        const API = "api.php/";
+        const API = "../api/";
 
         function logout() {
             localStorage.removeItem("user");
