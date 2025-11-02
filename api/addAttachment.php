@@ -29,17 +29,23 @@ if (isset($_FILES['attachment']) && $_FILES['attachment']['error'] == 0) {
         exit;
     }
     $attachment = file_get_contents($_FILES['attachment']['tmp_name']);
+    if ($attachment === false) {
+        echo json_encode(["error" => "Nije uspjelo čitanje datoteke."]);
+        exit;
+    }
     $attachment_name = $_FILES['attachment']['name'];
     $attachment_type = $_FILES['attachment']['type'];
+    $null = NULL;
 
     $update = $conn->prepare("UPDATE tickets SET attachment = ?, attachment_name = ?, attachment_type = ? WHERE id = ?");
-    $update->bind_param("bssi", $attachment, $attachment_name, $attachment_type, $ticket_id);
+    $update->bind_param("bssi", $null, $attachment_name, $attachment_type, $ticket_id);
+    $update->send_long_data(0, $attachment);
 
     if ($update->execute()) {
         echo json_encode(["success" => true, "message" => "Datoteka uspješno dodana."]);
     } else {
-        echo json_encode(["error" => "Greška prilikom spremanja datoteke."]);
+        echo json_encode(["error" => "Greška prilikom spremanja datoteke.", "sql_error" => $update->error]);
     }
 } else {
-    echo json_encode(["error" => "Nije odabrana datoteka ili je došlo do greške prilikom prijenosa."]);
+    echo json_encode(["error" => "Nije odabrana datoteka ili je došlo do greške prilikom prijenosa.", "file_error" => $_FILES['attachment']['error']]);
 }

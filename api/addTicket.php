@@ -36,11 +36,15 @@ if (isset($_FILES['attachment']) && $_FILES['attachment']['error'] == 0) {
     $attachment_type = $_FILES['attachment']['type'];
 }
 
+$null = NULL;
 $q = $conn->prepare("
   INSERT INTO tickets (title, description, device_name, serial_number, user_id, status, priority, created_at, request_creator, creator_contact, attachment, attachment_name, attachment_type)
   VALUES (?, ?, ?, ?, ?, ?, 'medium', NOW(), ?, ?, ?, ?, ?)
 ");
-$q->bind_param("ssssisssbss", $title, $description, $device_name, $serial_number, $user_id, $status, $request_creator, $creator_contact, $attachment, $attachment_name, $attachment_type);
+$q->bind_param("ssssisssbss", $title, $description, $device_name, $serial_number, $user_id, $status, $request_creator, $creator_contact, $null, $attachment_name, $attachment_type);
+if ($attachment) {
+    $q->send_long_data(8, $attachment);
+}
 
 if ($q->execute()) {
   echo json_encode(array("success" => true, "id" => $q->insert_id));
