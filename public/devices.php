@@ -53,6 +53,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
 
     <script>
         const API = "../api/";
+        const API_KEY = "ZQjjWaAXsPbKFuahw3TK8LCRE";
 
         function logout() {
             localStorage.removeItem("user");
@@ -60,7 +61,9 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         }
 
         async function loadDevices() {
-            const res = await fetch(API + "getDevices.php");
+            const res = await fetch(API + "getDevices.php", {
+                headers: { "X-API-KEY": API_KEY }
+            });
             const devices = await res.json();
             const body = document.getElementById("devicesBody");
             body.innerHTML = "";
@@ -80,7 +83,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
 
             const res = await fetch(API + "addDevice.php", {
                 method: "POST",
-                headers: { "Content-Type": "application/json" },
+                headers: { "Content-Type": "application/json", "X-API-KEY": API_KEY },
                 body: JSON.stringify({ name })
             });
             const data = await res.json();
