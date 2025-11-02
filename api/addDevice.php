@@ -4,7 +4,7 @@ require_once("functions.php");
 checkApiKey();
 
 $data = json_decode(file_get_contents("php://input"), true);
-$name = isset($data["name"]) ? clean(stripslashes($data["name"]), $conn) : "";
+$name = isset($data["name"]) ? clean($data["name"]) : "";
 
 if (empty($name)) {
     echo json_encode(["error" => "Ime aparata ne smije biti prazno."]);
