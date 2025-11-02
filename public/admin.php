@@ -20,7 +20,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     .navbar-brand { font-weight: 600; }
     .card { background-color: #f0ffff; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
     table { background-color: #fff; border-radius: 8px; overflow: hidden; border: 1px solid rgba(0,0,0,0.5); }
-    td, th { vertical-align: middle !important; }
+    td, th { vertical-align: middle !important; border: 1px solid rgba(0,0,0,0.5); }
 
     .priority-low { color: #198754; font-weight: 600; }
     .priority-medium { color: #ffc107; font-weight: 600; }
@@ -60,7 +60,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         if (searchTerm) params.append('search', searchTerm);
 
         if (params.toString()) {
-            url += '?' + params.toString();
+            url += '&' + params.toString();
         }
 
         const res = await fetch(url, { headers: { "X-API-KEY": API_KEY } });
