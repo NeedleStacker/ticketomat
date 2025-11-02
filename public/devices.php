@@ -68,7 +68,9 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
             const body = document.getElementById("devicesBody");
             body.innerHTML = "";
             devices.forEach(d => {
-                body.innerHTML += `<tr><td>${d.id}</td><td>${d.name}</td></tr>`;
+                const row = body.insertRow();
+                row.insertCell().textContent = d.id;
+                row.insertCell().textContent = d.name;
             });
         }
 

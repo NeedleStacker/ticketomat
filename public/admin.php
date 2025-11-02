@@ -78,24 +78,26 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         }
 
         tickets.forEach(t => {
-            const rowClass =
+            const row = body.insertRow();
+            row.className =
               t.status === 'Otkazan' ? 'status-otkazan-row' :
               t.priority === 'high' ? 'priority-high-row' :
               t.priority === 'medium' ? 'priority-medium-row' :
               'priority-low-row';
 
-            body.innerHTML += `
-              <tr class="${rowClass}">
-                <td>${t.title}</td>
-                <td>${t.username || 'N/A'}</td>
-                <td>${t.device_name || ''}</td>
-                <td>${t.serial_number || ''}</td>
-                <td>${t.status}</td>
-                <td>${t.created_at || ''}</td>
-                <td>
-                  <button class="btn btn-sm btn-outline-primary" onclick="showTicketDetails(${t.id})">Detalji</button>
-                </td>
-              </tr>`;
+            row.insertCell().textContent = t.title;
+            row.insertCell().textContent = t.username || 'N/A';
+            row.insertCell().textContent = t.device_name || '';
+            row.insertCell().textContent = t.serial_number || '';
+            row.insertCell().textContent = t.status;
+            row.insertCell().textContent = t.created_at || '';
+
+            const cell = row.insertCell();
+            const btn = document.createElement('button');
+            btn.className = 'btn btn-sm btn-outline-primary';
+            btn.textContent = 'Detalji';
+            btn.onclick = () => showTicketDetails(t.id);
+            cell.appendChild(btn);
         });
     }
 

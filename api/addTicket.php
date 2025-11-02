@@ -4,13 +4,13 @@ require_once("config.php");
 require_once("functions.php");
 checkApiKey();
 
-$title = isset($_POST["title"]) ? clean(stripslashes($_POST["title"]), $conn) : "";
-$description = isset($_POST["description"]) ? clean(stripslashes($_POST["description"]), $conn) : "";
-$device_name = isset($_POST["device_name"]) ? clean(stripslashes($_POST["device_name"]), $conn) : "";
-$serial_number = isset($_POST["serial_number"]) ? clean(stripslashes($_POST["serial_number"]), $conn) : "";
+$title = isset($_POST["title"]) ? clean($_POST["title"], $conn) : "";
+$description = isset($_POST["description"]) ? clean($_POST["description"], $conn) : "";
+$device_name = isset($_POST["device_name"]) ? clean($_POST["device_name"], $conn) : "";
+$serial_number = isset($_POST["serial_number"]) ? clean($_POST["serial_number"], $conn) : "";
 $user_id = isset($_POST["user_id"]) ? intval($_POST["user_id"]) : 0;
-$request_creator = isset($_POST["request_creator"]) ? clean(stripslashes($_POST["request_creator"]), $conn) : "";
-$creator_contact = isset($_POST["creator_contact"]) ? clean(stripslashes($_POST["creator_contact"]), $conn) : "";
+$request_creator = isset($_POST["request_creator"]) ? clean($_POST["request_creator"], $conn) : "";
+$creator_contact = isset($_POST["creator_contact"]) ? clean($_POST["creator_contact"], $conn) : "";
 $status = isset($_POST["status"]) ? clean($_POST["status"], $conn) : "Otvoren";
 
 if ($title == "" || $device_name == "" || $serial_number == "" || $user_id <= 0) {
