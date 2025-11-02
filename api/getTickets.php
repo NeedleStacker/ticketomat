@@ -1,7 +1,12 @@
 <?php
 require_once("config.php");
 require_once("functions.php");
-checkApiKey();
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    http_response_code(401);
+    echo json_encode(["error" => "Unauthorized"]);
+    exit;
+}
 
 $user_id = isset($_GET["user_id"]) ? intval($_GET["user_id"]) : 0;
 $role = isset($_GET["role"]) ? $_GET["role"] : "client";

@@ -29,7 +29,6 @@ body {
 </style>
 <script>
 const API = "../api/";
-const API_KEY = "ZQjjWaAXsPbKFuahw3TK8LCRE";
 
 async function loginUser() {
   const username = document.getElementById("username").value.trim();
@@ -42,7 +41,7 @@ async function loginUser() {
 
   const res = await fetch(API + "loginUser.php", {
     method: "POST",
-    headers: { "Content-Type": "application/json", "X-API-KEY": API_KEY },
+    headers: { "Content-Type": "application/json" },
     body: JSON.stringify({ username, password })
   });
   const data = await res.json();

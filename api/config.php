@@ -16,8 +16,5 @@ if ($conn->connect_error) {
 }
 mysqli_set_charset($conn, "utf8");
 
-// API Key konfiguracija
-define('VALID_API_KEY', 'ZQjjWaAXsPbKFuahw3TK8LCRE'); // promijeni na slučajni string!
-
 header("Content-Type: application/json; charset=utf-8");
 date_default_timezone_set('Europe/Zagreb');

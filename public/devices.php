@@ -22,7 +22,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         <div class="container-fluid">
             <a class="navbar-brand" href="admin.php">Admin - Ticketomat</a>
             <div>
-                <a href="devices.php" class="btn btn-outline-light btn-sm">Upravljanje aparatima</a>
+                <a href="admin.php" class="btn btn-outline-light btn-sm">Administracija ticketa</a>
                 <button class="btn btn-outline-light btn-sm" onclick="logout()">Odjava</button>
             </div>
         </div>
@@ -53,7 +53,6 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
 
     <script>
         const API = "../api/";
-        const API_KEY = "ZQjjWaAXsPbKFuahw3TK8LCRE";
 
         function logout() {
             localStorage.removeItem("user");
@@ -61,9 +60,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         }
 
         async function loadDevices() {
-            const res = await fetch(API + "getDevices.php", {
-                headers: { "X-API-KEY": API_KEY }
-            });
+            const res = await fetch(API + "getDevices.php");
             const devices = await res.json();
             const body = document.getElementById("devicesBody");
             body.innerHTML = "";
@@ -83,7 +80,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
 
             const res = await fetch(API + "addDevice.php", {
                 method: "POST",
-                headers: { "Content-Type": "application/json", "X-API-KEY": API_KEY },
+                headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ name })
             });
             const data = await res.json();

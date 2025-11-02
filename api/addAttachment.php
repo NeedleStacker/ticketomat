@@ -1,7 +1,12 @@
 <?php
 require_once("config.php");
 require_once("functions.php");
-checkApiKey();
+session_start();
+if (!isset($_SESSION['user_id'])) {
+    http_response_code(401);
+    echo json_encode(["error" => "Unauthorized"]);
+    exit;
+}
 
 $ticket_id = isset($_POST['ticket_id']) ? intval($_POST['ticket_id']) : 0;
 
