@@ -22,6 +22,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
     .tooltip-inner img { width: 300px; height: auto; }
     .ticket-item { position: relative; }
     .ticket-item:hover { background-color: #f1f1f1; cursor: pointer; transition: background 0.2s; }
+    .ticket-item-inactive { background-color: #e9ecef; }
     .status-badge { font-size: 0.85rem; }
     .status-otvoren { background-color: #cfe2ff !important; color: #0d6efd !important; }
     .status-u-tijeku { background-color: #fff3cd !important; color: #664d03 !important; }
@@ -105,6 +106,9 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
 
         const li = document.createElement('li');
         li.className = 'list-group-item ticket-item d-flex justify-content-between align-items-start flex-wrap';
+        if (t.status === 'Riješen' || t.status === 'Otkazan') {
+            li.classList.add('ticket-item-inactive');
+        }
         li.onclick = () => openDetails(t.id);
 
         const div = document.createElement('div');
@@ -341,6 +345,9 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
 
       ticketModalEl.addEventListener('hidden.bs.modal', function () {
           document.getElementById('new_attachment').value = '';
+          if (document.activeElement) {
+              document.activeElement.blur();
+          }
       });
 
       ticketModalEl.addEventListener('shown.bs.modal', function () {

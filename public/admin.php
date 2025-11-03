@@ -211,6 +211,9 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
             if (fileInput) {
                 fileInput.value = '';
             }
+            if (document.activeElement) {
+                document.activeElement.blur();
+            }
         });
 
         ticketModalEl.addEventListener('shown.bs.modal', function () {
