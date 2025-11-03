@@ -14,7 +14,6 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Admin - Ticketomat</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script data-isso="/isso" src="/isso/js/embed.min.js"></script>
 
   <style>
     body { background-color: #f8f9fa; }
@@ -200,22 +199,11 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         loadDevices();
         loadClients();
 
-        const ticketModalEl = document.getElementById('ticketModal');
-        const ticketModal = new bootstrap.Modal(ticketModalEl);
-
-        ticketModalEl.addEventListener('hidden.bs.modal', function () {
+        const ticketModal = document.getElementById('ticketModal');
+        ticketModal.addEventListener('hidden.bs.modal', function () {
             const fileInput = document.getElementById('attachment');
             if (fileInput) {
                 fileInput.value = '';
-            }
-            if (document.activeElement) {
-                document.activeElement.blur();
-            }
-        });
-
-        ticketModalEl.addEventListener('shown.bs.modal', function () {
-            if (window.isso) {
-                isso.render();
             }
         });
     });
