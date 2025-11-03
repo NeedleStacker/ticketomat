@@ -175,6 +175,11 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
         modal.querySelector('.modal-header').classList.add('bg-primary');
       }
 
+      const cusdisThread = document.getElementById("cusdis_thread");
+      cusdisThread.setAttribute("data-page-id", t.id);
+      cusdisThread.setAttribute("data-page-url", window.location.href + "?ticket=" + t.id);
+      cusdisThread.setAttribute("data-page-title", t.title);
+
       new bootstrap.Modal(modal).show();
     }
 
@@ -416,6 +421,16 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
                 <button class="btn btn-outline-secondary" type="button" onclick="addAttachment()">Dodaj</button>
             </div>
           </div>
+
+          <hr>
+          <h6>Komentari</h6>
+          <div id="cusdis_thread"
+            data-host="https://cusdis.com"
+            data-app-id="YOUR_CUSDIS_APP_ID"
+            data-page-id="{{ PAGE_ID }}"
+            data-page-url="{{ PAGE_URL }}"
+            data-page-title="{{ PAGE_TITLE }}"
+          ></div>
         </div>
         <div class="modal-footer">
           <button class="btn btn-danger me-auto" id="cancelTicketBtn" data-bs-toggle="modal" data-bs-target="#cancelModal">Otkaži zahtjev</button>
@@ -446,5 +461,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script defer src="https://cusdis.com/js/widget/lang/hr.js"></script>
+  <script defer src="https://cusdis.com/js/auto.js"></script>
 </body>
 </html>
