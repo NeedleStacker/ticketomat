@@ -13,7 +13,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Klijent - Ticketomat</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-  <script data-isso="http://localhost:8080/" src="http://localhost:8080/js/embed.min.js" defer></script>
+  <script data-isso="/isso" src="/isso/js/embed.min.js"></script>
   <style>
     body { background-color: #f8f9fa; }
     .navbar-brand { font-weight: 600; letter-spacing: 0.5px; }
