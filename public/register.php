@@ -73,57 +73,57 @@ function showAlert(msg, type) {
         <form onsubmit="event.preventDefault(); registerUser();">
           <div class="row g-3">
             <div class="col-md-6">
-              <label class="form-label">Ime *</label>
-              <input id="first_name" class="form-control" required>
+              <label for="first_name" class="form-label">Ime *</label>
+              <input id="first_name" class="form-control" required autocomplete="given-name">
             </div>
             <div class="col-md-6">
-              <label class="form-label">Prezime *</label>
-              <input id="last_name" class="form-control" required>
+              <label for="last_name" class="form-label">Prezime *</label>
+              <input id="last_name" class="form-control" required autocomplete="family-name">
             </div>
 
             <div class="col-md-6">
-              <label class="form-label">Ustanova / Tvrtka</label>
-              <input id="company" class="form-control">
+              <label for="company" class="form-label">Ustanova / Tvrtka</label>
+              <input id="company" class="form-control" autocomplete="organization">
             </div>
             <div class="col-md-6">
-              <label class="form-label">OIB ustanove</label>
+              <label for="company_oib" class="form-label">OIB ustanove</label>
               <input id="company_oib" class="form-control">
             </div>
-			
+
 			<div class="col-md-2">
-              <label class="form-label">PTT</label>
-              <input id="postal_code" class="form-control">
+              <label for="postal_code" class="form-label">PTT</label>
+              <input id="postal_code" class="form-control" autocomplete="postal-code">
             </div>
             <div class="col-md-4">
-              <label class="form-label">Grad</label>
-              <input id="city" class="form-control">
+              <label for="city" class="form-label">Grad</label>
+              <input id="city" class="form-control" autocomplete="address-level2">
             </div>
             <div class="col-md-6">
-              <label class="form-label">Adresa</label>
-              <input id="address" class="form-control">
+              <label for="address" class="form-label">Adresa</label>
+              <input id="address" class="form-control" autocomplete="street-address">
             </div>
 
             <div class="col-md-6">
-              <label class="form-label">Email *</label>
-              <input id="email" type="email" class="form-control" required>
+              <label for="email" class="form-label">Email *</label>
+              <input id="email" type="email" class="form-control" required autocomplete="email">
             </div>
             <div class="col-md-6">
-              <label class="form-label">Telefon</label>
-              <input id="phone" class="form-control">
+              <label for="phone" class="form-label">Telefon</label>
+              <input id="phone" class="form-control" autocomplete="tel">
             </div>
 
             <div class="col-12">
-              <label class="form-label">Napomena</label>
+              <label for="note" class="form-label">Napomena</label>
               <textarea id="note" class="form-control" rows="2"></textarea>
             </div>
 
             <div class="col-md-6">
-              <label class="form-label">Korisničko ime *</label>
-              <input id="username" class="form-control" required>
+              <label for="username" class="form-label">Korisničko ime *</label>
+              <input id="username" class="form-control" required autocomplete="username">
             </div>
             <div class="col-md-6">
-              <label class="form-label">Lozinka *</label>
-              <input id="password" type="password" class="form-control" required>
+              <label for="password" class="form-label">Lozinka *</label>
+              <input id="password" type="password" class="form-control" required autocomplete="new-password">
             </div>
 
             <div class="col-12 mt-3 text-center">

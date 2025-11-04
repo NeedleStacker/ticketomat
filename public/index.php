@@ -74,12 +74,12 @@ function showAlert(msg, type) {
   <div id="alert"></div>
   <form onsubmit="event.preventDefault(); loginUser();">
     <div class="mb-3">
-      <label class="form-label">Korisničko ime</label>
-      <input id="username" class="form-control form-control-lg" placeholder="Unesite korisničko ime">
+      <label for="username" class="form-label">Korisničko ime</label>
+      <input id="username" class="form-control form-control-lg" placeholder="Unesite korisničko ime" autocomplete="username">
     </div>
     <div class="mb-3">
-      <label class="form-label">Lozinka</label>
-      <input id="password" type="password" class="form-control form-control-lg" placeholder="Unesite lozinku">
+      <label for="password" class="form-label">Lozinka</label>
+      <input id="password" type="password" class="form-control form-control-lg" placeholder="Unesite lozinku" autocomplete="current-password">
     </div>
     <div class="d-grid mb-3">
       <button type="submit" class="btn btn-primary btn-lg">Prijavi se</button>
