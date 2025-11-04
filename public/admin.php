@@ -138,16 +138,32 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
           attachmentLink.style.display = 'none';
       }
 
-      const cusdisThread = document.getElementById("cusdis_thread");
-      if (cusdisThread) {
-        cusdisThread.setAttribute('data-page-id', t.id);
-        cusdisThread.setAttribute('data-page-url', window.location.href.split('?')[0] + '?ticket=' + t.id);
-        cusdisThread.setAttribute('data-page-title', t.title);
+      const cusdisContainer = document.getElementById("cusdis-container");
+      cusdisContainer.innerHTML = ''; // Clear previous instance
 
-        if (window.CUSDIS) {
-          window.CUSDIS.render();
-        }
-      }
+      const iframe = document.createElement('iframe');
+      iframe.style.width = '100%';
+      iframe.style.border = 'none';
+      iframe.style.height = '400px'; // Adjust as needed
+      cusdisContainer.appendChild(iframe);
+
+      const iframeContent = `
+        <html>
+          <head><base target="_parent"></head>
+          <body>
+            <div id="cusdis_thread"
+              data-host="https://cusdis.com"
+              data-app-id="9195cf53-b951-405c-aa1a-2acccc1b57ce"
+              data-page-id="${t.id}"
+              data-page-url="${window.location.href.split('?')[0] + '?ticket=' + t.id}"
+              data-page-title="${t.title}"
+            ></div>
+            <script async defer src="https://cusdis.com/js/cusdis.es.js"><\/script>
+          </body>
+        </html>
+      `;
+
+      iframe.srcdoc = iframeContent;
 
       new bootstrap.Modal(modal).show();
     }
@@ -341,13 +357,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
 
           <hr>
           <h6>Komentari</h6>
-          <div id="cusdis_thread"
-            data-host="https://cusdis.com"
-            data-app-id="9195cf53-b951-405c-aa1a-2acccc1b57ce"
-            data-page-id=""
-            data-page-url=""
-            data-page-title=""
-          ></div>
+          <div id="cusdis-container"></div>
         </div>
         <div class="modal-footer">
           <button class="btn btn-secondary" data-bs-dismiss="modal">Zatvori</button>
@@ -358,6 +368,5 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script async defer src="https://cusdis.com/js/cusdis.es.js"></script>
 </body>
 </html>
