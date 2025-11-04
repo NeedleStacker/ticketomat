@@ -63,6 +63,15 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
         width: 1em;
         height: 1em;
     }
+
+    #cusdis-container-client {
+      flex-grow: 1;
+      min-height: 250px; /* Minimum height for the comment section */
+    }
+    .modal-body {
+      display: flex;
+      flex-direction: column;
+    }
   </style>
 
   <script>
@@ -180,20 +189,30 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
 
       const iframe = document.createElement('iframe');
       iframe.style.width = '100%';
+      iframe.style.height = '100%';
       iframe.style.border = 'none';
-      iframe.style.height = '400px'; // Adjust as needed
       cusdisContainer.appendChild(iframe);
+
+      const ssoName = (user.first_name && user.last_name) ? `${user.first_name} ${user.last_name}` : user.username;
 
       const iframeContent = `
         <html>
           <head><base target="_parent"></head>
-          <body>
+          <body style="margin: 0;">
+            <script>
+              window.CUSDIS_LOCALE = {
+                "COMMENT_TEXTAREA_PLACEHOLDER": "Poruka...",
+                "SUBMIT_COMMENT_BUTTON": "Pošalji poruku",
+              }
+            <\/script>
             <div id="cusdis_thread"
               data-host="https://cusdis.com"
               data-app-id="9195cf53-b951-405c-aa1a-2acccc1b57ce"
               data-page-id="${t.id}"
               data-page-url="${window.location.href.split('?')[0] + '?ticket=' + t.id}"
               data-page-title="${t.title}"
+              data-viewer-name="${ssoName}"
+              data-viewer-email="${user.email || ''}"
             ></div>
             <script async defer src="https://cusdis.com/js/cusdis.es.js"><\/script>
           </body>
