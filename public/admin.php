@@ -36,14 +36,6 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     .modal-priority-low .modal-header { background-color: #198754 !important; color: #fff; }
     .modal-status-otkazan .modal-header { background-color: #6c757d !important; color: #fff; }
 
-    #cusdis-container {
-      flex-grow: 1;
-      min-height: 250px; /* Minimum height for the comment section */
-    }
-    .modal-body {
-      display: flex;
-      flex-direction: column;
-    }
   </style>
 
   <script>
@@ -152,8 +144,8 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
 
       const iframe = document.createElement('iframe');
       iframe.style.width = '100%';
-      iframe.style.height = '100%';
       iframe.style.border = 'none';
+      iframe.style.minHeight = '250px';
       cusdisContainer.appendChild(iframe);
 
       const ssoName = (user.first_name && user.last_name) ? `${user.first_name} ${user.last_name}` : user.username;
@@ -178,6 +170,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
                 "reply_placeholder": "Poruka...",
                 "COMMENT_TEXTAREA_PLACEHOLDER": "Poruka...",
                 "SUBMIT_COMMENT_BUTTON": "Pošalji poruku",
+                "mod_badge": "Admin",
               }
             <\/script>
             <div id="cusdis_thread"
@@ -192,6 +185,11 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
             <script async defer src="https://cusdis.com/js/cusdis.es.js"><\/script>
             <script>
               window.addEventListener('load', () => {
+                // Hide the input fields
+                const style = document.createElement('style');
+                style.innerHTML = 'form > div:nth-child(1) { display: none !important; }';
+                document.head.appendChild(style);
+
                 const observer = new ResizeObserver(entries => {
                   window.parent.postMessage({
                     height: entries[0].target.scrollHeight
