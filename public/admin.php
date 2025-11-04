@@ -154,9 +154,6 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         <html>
           <head>
             <base target="_parent">
-            <style>
-              form > div:nth-child(1) { display: none !important; }
-            </style>
           </head>
           <body style="margin: 0;">
             <script>
@@ -184,18 +181,37 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
             ></div>
             <script async defer src="https://cusdis.com/js/cusdis.es.js"><\/script>
             <script>
-              window.addEventListener('load', () => {
-                // Hide the input fields
-                const style = document.createElement('style');
-                style.innerHTML = 'form > div:nth-child(1) { display: none !important; }';
-                document.head.appendChild(style);
+              const ssoName = "${ssoName}";
 
-                const observer = new ResizeObserver(entries => {
+              const observer = new MutationObserver((mutations, obs) => {
+                const nicknameInput = document.querySelector('input[placeholder="Nadimak"]');
+                if (nicknameInput) {
+                  // Set the value
+                  nicknameInput.value = ssoName;
+
+                  // Hide the parent container of nickname and email
+                  const formGroup = nicknameInput.closest('.cusdis-form-group');
+                  if (formGroup) {
+                    formGroup.style.display = 'none';
+                  }
+
+                  // Disconnect the observer once we're done
+                  obs.disconnect();
+                }
+              });
+
+              observer.observe(document.body, {
+                childList: true,
+                subtree: true
+              });
+
+              window.addEventListener('load', () => {
+                const resizeObserver = new ResizeObserver(entries => {
                   window.parent.postMessage({
                     height: entries[0].target.scrollHeight
                   }, '*');
                 });
-                observer.observe(document.body);
+                resizeObserver.observe(document.body);
               });
             <\/script>
           </body>
@@ -405,7 +421,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
           </div>
 
           <hr>
-          <h6>Komentari</h6>
+          <h6>Poruke</h6>
           <div id="cusdis-container"></div>
         </div>
         <div class="modal-footer">
