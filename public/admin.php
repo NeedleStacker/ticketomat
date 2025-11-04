@@ -138,10 +138,25 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
           attachmentLink.style.display = 'none';
       }
 
-      const cusdisThread = document.getElementById("cusdis_thread");
-      cusdisThread.setAttribute("data-page-id", t.id);
-      cusdisThread.setAttribute("data-page-url", window.location.href + "?ticket=" + t.id);
-      cusdisThread.setAttribute("data-page-title", t.title);
+      // Cusdis workaround: remove and recreate the div and script to force reload
+      const cusdisContainer = document.getElementById("cusdis-container");
+      cusdisContainer.innerHTML = ''; // Clear previous instance
+
+      const cusdisThread = document.createElement('div');
+      cusdisThread.id = 'cusdis_thread';
+      cusdisThread.setAttribute('data-host', 'https://cusdis.com');
+      cusdisThread.setAttribute('data-app-id', '9195cf53-b951-405c-aa1a-2acccc1b57ce');
+      cusdisThread.setAttribute('data-page-id', t.id);
+      cusdisThread.setAttribute('data-page-url', window.location.href.split('?')[0] + '?ticket=' + t.id);
+      cusdisThread.setAttribute('data-page-title', t.title);
+      cusdisContainer.appendChild(cusdisThread);
+
+      const cusdisScript = document.createElement('script');
+      cusdisScript.async = true;
+      cusdisScript.defer = true;
+      cusdisScript.src = 'https://cusdis.com/js/cusdis.es.js';
+      cusdisContainer.appendChild(cusdisScript);
+
 
       new bootstrap.Modal(modal).show();
     }
@@ -335,13 +350,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
 
           <hr>
           <h6>Komentari</h6>
-          <div id="cusdis_thread"
-            data-host="https://cusdis.com"
-            data-app-id="YOUR_CUSDIS_APP_ID"
-            data-page-id="{{ PAGE_ID }}"
-            data-page-url="{{ PAGE_URL }}"
-            data-page-title="{{ PAGE_TITLE }}"
-          ></div>
+          <div id="cusdis-container"></div>
         </div>
         <div class="modal-footer">
           <button class="btn btn-secondary" data-bs-dismiss="modal">Zatvori</button>
@@ -352,7 +361,5 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-  <script defer src="https://cusdis.com/js/widget/lang/hr.js"></script>
-  <script defer src="https://cusdis.com/js/auto.js"></script>
 </body>
 </html>
