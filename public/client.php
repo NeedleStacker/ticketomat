@@ -197,10 +197,22 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
 
       const iframeContent = `
         <html>
-          <head><base target="_parent"></head>
+          <head>
+            <base target="_parent">
+            <style>
+              form > div:nth-child(1) { display: none !important; }
+            </style>
+          </head>
           <body style="margin: 0;">
             <script>
               window.CUSDIS_LOCALE = {
+                "powered_by": "Pokreće Cusdis",
+                "post_comment": "Pošalji poruku",
+                "loading": "Učitavanje...",
+                "nickname": "Nadimak",
+                "email": "Email (opcionalno)",
+                "reply_btn": "Odgovori",
+                "reply_placeholder": "Poruka...",
                 "COMMENT_TEXTAREA_PLACEHOLDER": "Poruka...",
                 "SUBMIT_COMMENT_BUTTON": "Pošalji poruku",
               }
@@ -215,6 +227,16 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
               data-viewer-email="${user.email || ''}"
             ></div>
             <script async defer src="https://cusdis.com/js/cusdis.es.js"><\/script>
+            <script>
+              window.addEventListener('load', () => {
+                const observer = new ResizeObserver(entries => {
+                  window.parent.postMessage({
+                    height: entries[0].target.scrollHeight
+                  }, '*');
+                });
+                observer.observe(document.body);
+              });
+            <\/script>
           </body>
         </html>
       `;
@@ -373,6 +395,16 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
       getTickets();
       populateClientInfo();
       loadDevices();
+
+        window.addEventListener('message', event => {
+          if (event.origin !== 'https://cusdis.com') return;
+          if (event.data && event.data.height) {
+            const cusdisIframe = document.querySelector('#cusdis-container-client iframe');
+            if (cusdisIframe) {
+              cusdisIframe.style.height = event.data.height + 'px';
+            }
+          }
+        });
 
       const ticketModal = document.getElementById('ticketModal');
       ticketModal.addEventListener('hidden.bs.modal', function () {
