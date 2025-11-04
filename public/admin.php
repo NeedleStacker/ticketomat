@@ -183,26 +183,25 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
             <script>
               const ssoName = "${ssoName}";
 
-              const observer = new MutationObserver((mutations, obs) => {
-                const nicknameInput = document.querySelector('input[placeholder="Nadimak"]');
-                if (nicknameInput) {
-                  // Set the value
-                  nicknameInput.value = ssoName;
+              window.addEventListener('message', event => {
+                if (event.data && event.data.action === 'fillAndHide') {
+                  const interval = setInterval(() => {
+                    const nicknameInput = document.querySelector('input[placeholder="Nadimak"]');
+                    if (nicknameInput) {
+                      clearInterval(interval);
 
-                  // Hide the parent container of nickname and email
-                  const formGroup = nicknameInput.closest('.cusdis-form-group');
-                  if (formGroup) {
-                    formGroup.style.display = 'none';
-                  }
+                      nicknameInput.value = ssoName;
 
-                  // Disconnect the observer once we're done
-                  obs.disconnect();
+                      const event = new Event('input', { bubbles: true });
+                      nicknameInput.dispatchEvent(event);
+
+                      const formGroup = nicknameInput.closest('.cusdis-form-group');
+                      if (formGroup) {
+                        formGroup.style.display = 'none';
+                      }
+                    }
+                  }, 100);
                 }
-              });
-
-              observer.observe(document.body, {
-                childList: true,
-                subtree: true
               });
 
               window.addEventListener('load', () => {
@@ -277,7 +276,6 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         loadClients();
 
         window.addEventListener('message', event => {
-          if (event.origin !== 'https://cusdis.com') return;
           if (event.data && event.data.height) {
             const cusdisIframe = document.querySelector('#cusdis-container iframe');
             if (cusdisIframe) {
@@ -291,6 +289,13 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
             const fileInput = document.getElementById('attachment');
             if (fileInput) {
                 fileInput.value = '';
+            }
+        });
+
+        ticketModal.addEventListener('shown.bs.modal', function () {
+            const cusdisIframe = document.querySelector('#cusdis-container iframe');
+            if (cusdisIframe && cusdisIframe.contentWindow) {
+                cusdisIframe.contentWindow.postMessage({ action: 'fillAndHide' }, '*');
             }
         });
     });
@@ -421,7 +426,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
           </div>
 
           <hr>
-          <h6>Poruke</h6>
+          <h6>Pošaljite poruku vezanu za ovaj zahtjev</h6>
           <div id="cusdis-container"></div>
         </div>
         <div class="modal-footer">
