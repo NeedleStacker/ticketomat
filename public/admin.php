@@ -161,7 +161,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
                 "powered_by": "Pokreće Cusdis",
                 "post_comment": "Pošalji poruku",
                 "loading": "Učitavanje...",
-                "nickname": "Nadimak",
+                "nickname": "Ime",
                 "email": "Email (opcionalno)",
                 "reply_btn": "Odgovori",
                 "reply_placeholder": "Poruka...",
@@ -186,7 +186,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
               window.addEventListener('message', event => {
                 if (event.data && event.data.action === 'fillAndHide') {
                   const interval = setInterval(() => {
-                    const nicknameInput = document.querySelector('input[placeholder="Nadimak"]');
+                    const nicknameInput = document.querySelector('input[placeholder="Ime"]');
                     if (nicknameInput) {
                       clearInterval(interval);
 
