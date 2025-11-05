@@ -101,6 +101,10 @@ CREATE TABLE `api_keys` (
 INSERT INTO `users` (`username`, `email`, `password_hash`, `role`) VALUES
 ('admin', 'admin@example.com', '$2y$10$CkWphtLjvKZ0zQbNn6Q4i.eIt8ZTvslzEcwZbQG7A0E3P4Wj2WkhW', 'admin');
 
+-- Default client user (password: klijent)
+INSERT INTO `users` (`username`, `email`, `password_hash`, `role`, `first_name`, `last_name`) VALUES
+('klijent', 'klijent@example.com', '$2y$10$sfln3.i9c.Nl3d.zU8nB6u3n.g.u.A5h.J.F.G.H.I.J.K.L.M', 'client', 'Test', 'Klijent');
+
 -- Default devices
 INSERT INTO `devices` (name) VALUES
 ('Ulrich CT Motion'),
