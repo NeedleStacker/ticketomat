@@ -200,8 +200,9 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
               data-page-title="${escapeHTML(t.title)}"
               data-viewer-name="${escapeHTML(ssoName)}"
               ${emailAttr}
+              data-iframe="js/iframe.umd.js"
             ></div>
-            <script async defer src="https://cusdis.com/js/cusdis.es.js"><\/script>
+            <script async defer src="js/cusdis.es.js"><\/script>
             <script>
               window.addEventListener('load', () => {
                 const resizeObserver = new ResizeObserver(entries => {
