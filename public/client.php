@@ -321,11 +321,20 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
     }
 
     async function addTicket() {
+        const title = document.getElementById("title").value.trim();
+        const device_name = document.getElementById("device_name").value;
+        const serial_number = document.getElementById("serial_number").value.trim();
+
+        if (!title || !device_name || !serial_number) {
+            alert("Molimo popunite sva obavezna polja: Naslov, Ime aparata i Serijski broj.");
+            return;
+        }
+
         const formData = new FormData();
-        formData.append('title', document.getElementById("title").value.trim());
+        formData.append('title', title);
         formData.append('description', document.getElementById("desc").value.trim());
-        formData.append('device_name', document.getElementById("device_name").value);
-        formData.append('serial_number', document.getElementById("serial_number").value.trim());
+        formData.append('device_name', device_name);
+        formData.append('serial_number', serial_number);
         formData.append('request_creator', document.getElementById("request_creator").value.trim());
         formData.append('creator_contact', document.getElementById("creator_contact").value.trim());
         formData.append('user_id', user.id);
