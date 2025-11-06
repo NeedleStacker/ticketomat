@@ -64,6 +64,19 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
         height: 1em;
     }
 
+    /* Full-height modal */
+    .modal.fade .modal-dialog {
+      height: 100%;
+      margin-top: 0;
+      margin-bottom: 0;
+    }
+    .modal.fade .modal-content {
+      height: 100%;
+      border-radius: 0;
+    }
+    .modal.fade .modal-body {
+      overflow-y: auto;
+    }
   </style>
 
   <script>
@@ -213,6 +226,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
                 "nickname": "Ime", "email": "Email (opcionalno)", "reply_btn": "Odgovori",
                 "reply_placeholder": "Poruka...", "COMMENT_TEXTAREA_PLACEHOLDER": "Poruka...",
                 "SUBMIT_COMMENT_BUTTON": "Pošalji poruku", "mod_badge": "Admin",
+                "content_is_required": "Sadržaj je obavezan.",
               }
             <\/script>
             <div id="cusdis_thread"
@@ -226,23 +240,6 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
             ></div>
             <script async defer src="https://cusdis.com/js/cusdis.es.js"><\/script>
             <script>
-              const ssoName = "${escapeHTML(ssoName)}";
-              window.addEventListener('message', event => {
-                if (event.data && event.data.action === 'fillAndHide') {
-                  const interval = setInterval(() => {
-                    const nicknameInput = document.querySelector('input[placeholder="Ime"]');
-                    if (nicknameInput) {
-                      clearInterval(interval);
-                      nicknameInput.value = ssoName;
-                      const event = new Event('input', { bubbles: true });
-                      nicknameInput.dispatchEvent(event);
-
-                      const formGroup = nicknameInput.closest('.cusdis-form-group');
-                      if (formGroup) formGroup.style.display = 'none';
-                    }
-                  }, 100);
-                }
-              });
               window.addEventListener('load', () => {
                 const resizeObserver = new ResizeObserver(entries => {
                   window.parent.postMessage({ height: entries[0].target.scrollHeight }, '*');
@@ -422,13 +419,6 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
       ticketModal.addEventListener('hidden.bs.modal', function () {
           document.getElementById('new_attachment').value = '';
       });
-
-      ticketModal.addEventListener('shown.bs.modal', function () {
-            const cusdisIframe = document.querySelector('#cusdis-container-client iframe');
-            if (cusdisIframe && cusdisIframe.contentWindow) {
-                cusdisIframe.contentWindow.postMessage({ action: 'fillAndHide' }, '*');
-            }
-        });
     });
   </script>
 </head>
