@@ -36,15 +36,14 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     .modal-priority-low .modal-header { background-color: #198754 !important; color: #fff; }
     .modal-status-otkazan .modal-header { background-color: #6c757d !important; color: #fff; }
 
-    /* Full-height modal */
+    /* Modal styling */
     .modal.fade .modal-dialog {
-      height: 100%;
-      margin-top: 0;
-      margin-bottom: 0;
+      margin-top: 2rem;
+      margin-bottom: 2rem;
+      height: calc(100% - 4rem);
     }
     .modal.fade .modal-content {
       height: 100%;
-      border-radius: 0;
     }
     .modal.fade .modal-body {
       overflow-y: auto;
@@ -127,6 +126,33 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         });
     }
 
+    async function loadAttachmentsAdmin(ticketId) {
+        const attachmentList = document.getElementById("attachmentListAdmin");
+        attachmentList.innerHTML = '<div class="text-muted">Učitavanje...</div>';
+
+        const res = await fetch(API + `getAttachments.php?ticket_id=${ticketId}`);
+        const attachments = await res.json();
+
+        attachmentList.innerHTML = ""; // Clear loader/previous content
+        if (attachments.error) {
+            attachmentList.innerHTML = `<div class="text-danger">${attachments.error}</div>`;
+            return;
+        }
+        if (attachments.length === 0) {
+            attachmentList.innerHTML = `<div class="text-muted small">Nema priloženih datoteka.</div>`;
+            return;
+        }
+
+        attachments.forEach(file => {
+            const link = document.createElement('a');
+            link.href = `${API}getAttachment.php?id=${file.id}`;
+            link.textContent = file.attachment_name;
+            link.className = 'btn btn-outline-secondary btn-sm me-2 mb-2';
+            link.target = '_blank';
+            attachmentList.appendChild(link);
+        });
+    }
+
     async function showTicketDetails(id) {
       const res = await fetch(API + `getTicketDetails.php?id=${id}`);
       const t = await res.json();
@@ -156,14 +182,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
       document.getElementById("ticket_request_creator").textContent = t.request_creator || '-';
       document.getElementById("ticket_creator_contact").textContent = t.creator_contact || '-';
 
-      const attachmentLink = document.getElementById("attachmentLink");
-      if (t.attachment_name) {
-          attachmentLink.href = `${API}getAttachment.php?id=${t.id}`;
-          attachmentLink.textContent = t.attachment_name;
-          attachmentLink.style.display = 'block';
-      } else {
-          attachmentLink.style.display = 'none';
-      }
+      loadAttachmentsAdmin(t.id);
 
       const cusdisContainer = document.getElementById("cusdis-container");
       cusdisContainer.innerHTML = ''; // Clear previous instance
@@ -200,10 +219,35 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
               data-page-title="${escapeHTML(t.title)}"
               data-viewer-name="${escapeHTML(ssoName)}"
               ${emailAttr}
-              data-iframe="js/iframe.umd.js"
             ></div>
             <script async defer src="js/cusdis.es.js"><\/script>
             <script>
+              // This script runs inside the iframe
+              document.addEventListener('DOMContentLoaded', function() {
+                const ssoName = "${escapeHTML(ssoName)}";
+
+                // Hide the nickname and email fields and pre-fill the name
+                const interval = setInterval(() => {
+                  const nicknameInput = document.querySelector('input[name="nickname"]');
+                  const emailInput = document.querySelector('input[name="email"]');
+
+                  if (nicknameInput && emailInput) {
+                    const nicknameContainer = nicknameInput.closest('.px-1');
+                    const emailContainer = emailInput.closest('.px-1');
+
+                    if(nicknameContainer) nicknameContainer.style.display = 'none';
+                    if(emailContainer) emailContainer.style.display = 'none';
+
+                    nicknameInput.value = ssoName;
+
+                    // Dispatch an input event to make sure the component's state is updated
+                    nicknameInput.dispatchEvent(new Event('input', { bubbles: true }));
+
+                    clearInterval(interval);
+                  }
+                }, 50);
+              });
+
               window.addEventListener('load', () => {
                 const resizeObserver = new ResizeObserver(entries => {
                   window.parent.postMessage({ height: entries[0].target.scrollHeight }, '*');
@@ -408,7 +452,11 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
             <p class="mb-1"><b>Osoba:</b> <span id="ticket_request_creator"></span></p>
             <p class="mb-0"><b>Kontakt:</b> <span id="ticket_creator_contact"></span></p>
           </div>
-          <p class="mt-3"><b>Datoteka:</b> <a href="#" id="attachmentLink" target="_blank" style="display:none;"></a></p>
+          <div id="attachmentSectionAdmin">
+            <hr>
+            <h6>Datoteke</h6>
+            <div id="attachmentListAdmin" class="mb-3"></div>
+          </div>
           <div id="cancel_reason_div" class="mt-3" style="display:none;">
             <label class="form-label">Razlog otkazivanja:</label>
             <textarea id="cancel_reason_input" class="form-control" rows="2"></textarea>
