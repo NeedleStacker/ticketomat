@@ -8,7 +8,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
     exit;
 }
 
-$sql = "SELECT id, username FROM users WHERE role = 'client' ORDER BY username";
+$sql = "SELECT id, username, first_name, last_name FROM users WHERE role = 'client' ORDER BY username";
 $result = $conn->query($sql);
 
 $clients = [];
