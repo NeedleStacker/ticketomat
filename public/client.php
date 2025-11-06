@@ -64,32 +64,17 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
         height: 1em;
     }
 
-    /* Full-height modal */
+    /* Modal styling */
     .modal.fade .modal-dialog {
-      height: 100%;
-      margin-top: 0;
-      margin-bottom: 0;
+      margin-top: 2rem;
+      margin-bottom: 2rem;
+      height: calc(100% - 4rem);
     }
     .modal.fade .modal-content {
       height: 100%;
-      border-radius: 0;
     }
     .modal.fade .modal-body {
       overflow-y: auto;
-    }
-    .custom-file-upload {
-      background: #007bff;
-      color: white;
-      padding: 8px 12px;
-      cursor: pointer;
-      border-radius: 4px;
-      display: inline-block;
-    }
-    #new_attachment {
-      display: none;
-    }
-    #file-name-span {
-      margin-left: 10px;
     }
   </style>
 
@@ -169,6 +154,33 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
       });
     }
 
+    async function loadAttachments(ticketId) {
+        const attachmentList = document.getElementById("attachmentList");
+        attachmentList.innerHTML = '<div class="text-muted">Učitavanje...</div>';
+
+        const res = await fetch(API + `getAttachments.php?ticket_id=${ticketId}`);
+        const attachments = await res.json();
+
+        attachmentList.innerHTML = "";
+        if (attachments.error) {
+            attachmentList.innerHTML = `<div class="text-danger">${attachments.error}</div>`;
+            return;
+        }
+        if (attachments.length === 0) {
+            attachmentList.innerHTML = `<div class="text-muted small">Nema priloženih datoteka.</div>`;
+            return;
+        }
+
+        attachments.forEach(file => {
+            const link = document.createElement('a');
+            link.href = `${API}getAttachment.php?id=${file.id}`;
+            link.textContent = file.attachment_name;
+            link.className = 'btn btn-outline-secondary btn-sm me-2 mb-2';
+            link.target = '_blank';
+            attachmentList.appendChild(link);
+        });
+    }
+
     async function openDetails(id) {
       const res = await fetch(API + `getTicketDetails.php?id=${id}`);
       const t = await res.json();
@@ -185,14 +197,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
       document.getElementById("modalCancelReason").textContent = t.cancel_reason || "-";
       document.getElementById("ticket_id").value = t.id;
 
-      const attachmentLink = document.getElementById("attachmentLink");
-      if (t.attachment_name) {
-          attachmentLink.href = `${API}getAttachment.php?id=${t.id}`;
-          attachmentLink.textContent = t.attachment_name;
-          attachmentLink.style.display = 'block';
-      } else {
-          attachmentLink.style.display = 'none';
-      }
+      loadAttachments(t.id);
 
       const addAttachmentSection = document.getElementById("addAttachmentSection");
       if (t.status === 'Otvoren' || t.status === 'U tijeku') {
@@ -251,10 +256,35 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
               data-page-title="${escapeHTML(t.title)}"
               data-viewer-name="${escapeHTML(ssoName)}"
               ${emailAttr}
-              data-iframe="js/iframe.umd.js"
             ></div>
             <script async defer src="js/cusdis.es.js"><\/script>
             <script>
+              // This script runs inside the iframe
+              document.addEventListener('DOMContentLoaded', function() {
+                const ssoName = "${escapeHTML(ssoName)}";
+
+                // Hide the nickname and email fields and pre-fill the name
+                const interval = setInterval(() => {
+                  const nicknameInput = document.querySelector('input[name="nickname"]');
+                  const emailInput = document.querySelector('input[name="email"]');
+
+                  if (nicknameInput && emailInput) {
+                    const nicknameContainer = nicknameInput.closest('.px-1');
+                    const emailContainer = emailInput.closest('.px-1');
+
+                    if(nicknameContainer) nicknameContainer.style.display = 'none';
+                    if(emailContainer) emailContainer.style.display = 'none';
+
+                    nicknameInput.value = ssoName;
+
+                    // Dispatch an input event to make sure the component's state is updated
+                    nicknameInput.dispatchEvent(new Event('input', { bubbles: true }));
+
+                    clearInterval(interval);
+                  }
+                }, 50);
+              });
+
               window.addEventListener('load', () => {
                 const resizeObserver = new ResizeObserver(entries => {
                   window.parent.postMessage({ height: entries[0].target.scrollHeight }, '*');
@@ -329,7 +359,9 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
 
     async function addAttachment() {
         const ticket_id = document.getElementById("ticket_id").value;
-        const attachment = document.getElementById("new_attachment").files[0];
+        const fileInput = document.getElementById("new_attachment");
+        const attachment = fileInput.files[0];
+
         if (!attachment) {
             alert("Molimo odaberite datoteku.");
             return;
@@ -339,16 +371,23 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
         formData.append('ticket_id', ticket_id);
         formData.append('attachment', attachment);
 
+        const addButton = document.querySelector("#addAttachmentSection button");
+        const originalButtonText = addButton.innerHTML;
+        addButton.disabled = true;
+        addButton.innerHTML = '<span class="spinner-border spinner-border-sm" role="status" aria-hidden="true"></span> Dodavanje...';
+
         const res = await fetch(API + "addAttachment.php", {
             method: "POST",
             body: formData
         });
 
+        addButton.disabled = false;
+        addButton.innerHTML = originalButtonText;
+
         const data = await res.json();
         if (data.success) {
-            alert("✅ Datoteka uspješno dodana.");
-            bootstrap.Modal.getInstance(document.getElementById('ticketModal')).hide();
-            getTickets();
+            fileInput.value = ''; // Clear the file input
+            loadAttachments(ticket_id); // Reload the list of attachments
         } else {
             alert("❌ " + (data.error || "Greška prilikom dodavanja datoteke."));
         }
@@ -432,22 +471,9 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
 
       const ticketModal = document.getElementById('ticketModal');
       ticketModal.addEventListener('hidden.bs.modal', function () {
-          document.getElementById('new_attachment').value = '';
-          const fileNameSpan = document.getElementById('file-name-span');
-          if (fileNameSpan) {
-            fileNameSpan.textContent = 'Nije izabran fajl';
-          }
+          const fileInput = document.getElementById('new_attachment');
+          if (fileInput) fileInput.value = '';
       });
-
-      const fileInput = document.getElementById('new_attachment');
-      if (fileInput) {
-        fileInput.addEventListener('change', function() {
-          const fileNameSpan = document.getElementById('file-name-span');
-          if (fileNameSpan) {
-            fileNameSpan.textContent = fileInput.files.length > 0 ? fileInput.files[0].name : 'Nije izabran fajl';
-          }
-        });
-      }
     });
   </script>
 </head>
@@ -523,16 +549,18 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
           <p><b>Kreirano:</b> <span id="modalDate"></span></p>
           <p><b>Otkazano:</b> <span id="modalCanceledAt"></span></p>
           <p><b>Razlog otkazivanja:</b> <span id="modalCancelReason"></span></p>
-          <p><b>Datoteka:</b> <a href="#" id="attachmentLink" target="_blank" style="display:none;"></a></p>
-          <div id="addAttachmentSection" style="display:none;">
-            <hr>
-            <h6>Dodaj datoteku</h6>
-            <div>
-              <label for="new_attachment" class="custom-file-upload">Odaberi fajl</label>
-              <input type="file" id="new_attachment">
-              <span id="file-name-span">Nije izabran fajl</span>
-            </div>
-            <button class="btn btn-outline-secondary mt-2" type="button" onclick="addAttachment()">Dodaj</button>
+
+          <div id="attachmentSection">
+              <hr>
+              <h6>Datoteke</h6>
+              <div id="attachmentList" class="mb-3"></div>
+              <div id="addAttachmentSection" style="display:none;" class="p-2 border rounded">
+                  <h6 class="fs-6">Dodaj novu datoteku</h6>
+                  <div class="input-group">
+                      <input type="file" class="form-control" id="new_attachment">
+                      <button class="btn btn-outline-primary" type="button" onclick="addAttachment()">Dodaj</button>
+                  </div>
+              </div>
           </div>
 
           <hr>
