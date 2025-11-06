@@ -48,6 +48,19 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
       window.location = "index.php";
     }
 
+    function escapeHTML(str) {
+      if (typeof str !== 'string') return '';
+      return str.replace(/[&<>"']/g, function(match) {
+        return {
+          '&': '&amp;',
+          '<': '&lt;',
+          '>': '&gt;',
+          '"': '&quot;',
+          "'": '&#39;'
+        }[match];
+      });
+    }
+
     async function loadTickets() {
         const statusFilter = document.getElementById("statusFilter").value;
         const clientFilter = document.getElementById("clientFilter").value;
@@ -149,6 +162,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
       cusdisContainer.appendChild(iframe);
 
       const ssoName = (user.first_name && user.last_name) ? `${user.first_name} ${user.last_name}` : user.username;
+      const emailAttr = user.email ? `data-viewer-email="${escapeHTML(user.email)}"` : '';
 
       const iframeContent = `
         <html>
@@ -158,16 +172,10 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
           <body style="margin: 0;">
             <script>
               window.CUSDIS_LOCALE = {
-                "powered_by": "Pokreće Cusdis",
-                "post_comment": "Pošalji poruku",
-                "loading": "Učitavanje...",
-                "nickname": "Ime",
-                "email": "Email (opcionalno)",
-                "reply_btn": "Odgovori",
-                "reply_placeholder": "Poruka...",
-                "COMMENT_TEXTAREA_PLACEHOLDER": "Poruka...",
-                "SUBMIT_COMMENT_BUTTON": "Pošalji poruku",
-                "mod_badge": "Admin",
+                "powered_by": "Pokreće Cusdis", "post_comment": "Pošalji poruku", "loading": "Učitavanje...",
+                "nickname": "Ime", "email": "Email (opcionalno)", "reply_btn": "Odgovori",
+                "reply_placeholder": "Poruka...", "COMMENT_TEXTAREA_PLACEHOLDER": "Poruka...",
+                "SUBMIT_COMMENT_BUTTON": "Pošalji poruku", "mod_badge": "Admin",
               }
             <\/script>
             <div id="cusdis_thread"
@@ -175,40 +183,32 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
               data-app-id="9195cf53-b951-405c-aa1a-2acccc1b57ce"
               data-page-id="${t.id}"
               data-page-url="${window.location.href.split('?')[0] + '?ticket=' + t.id}"
-              data-page-title="${t.title}"
-              data-viewer-name="${ssoName}"
-              data-viewer-email="${user.email || ''}"
+              data-page-title="${escapeHTML(t.title)}"
+              data-viewer-name="${escapeHTML(ssoName)}"
+              ${emailAttr}
             ></div>
             <script async defer src="https://cusdis.com/js/cusdis.es.js"><\/script>
             <script>
-              const ssoName = "${ssoName}";
-
+              const ssoName = "${escapeHTML(ssoName)}";
               window.addEventListener('message', event => {
                 if (event.data && event.data.action === 'fillAndHide') {
                   const interval = setInterval(() => {
                     const nicknameInput = document.querySelector('input[placeholder="Ime"]');
                     if (nicknameInput) {
                       clearInterval(interval);
-
                       nicknameInput.value = ssoName;
-
                       const event = new Event('input', { bubbles: true });
                       nicknameInput.dispatchEvent(event);
 
                       const formGroup = nicknameInput.closest('.cusdis-form-group');
-                      if (formGroup) {
-                        formGroup.style.display = 'none';
-                      }
+                      if (formGroup) formGroup.style.display = 'none';
                     }
                   }, 100);
                 }
               });
-
               window.addEventListener('load', () => {
                 const resizeObserver = new ResizeObserver(entries => {
-                  window.parent.postMessage({
-                    height: entries[0].target.scrollHeight
-                  }, '*');
+                  window.parent.postMessage({ height: entries[0].target.scrollHeight }, '*');
                 });
                 resizeObserver.observe(document.body);
               });
@@ -287,9 +287,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         const ticketModal = document.getElementById('ticketModal');
         ticketModal.addEventListener('hidden.bs.modal', function () {
             const fileInput = document.getElementById('attachment');
-            if (fileInput) {
-                fileInput.value = '';
-            }
+            if (fileInput) fileInput.value = '';
         });
 
         ticketModal.addEventListener('shown.bs.modal', function () {
