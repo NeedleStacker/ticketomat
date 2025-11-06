@@ -257,34 +257,8 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
               data-viewer-name="${escapeHTML(ssoName)}"
               ${emailAttr}
             ></div>
-            <script async defer src="js/cusdis.es.js"><\/script>
+            <script async defer src="https://cusdis.com/js/cusdis.es.js"><\/script>
             <script>
-              // This script runs inside the iframe
-              document.addEventListener('DOMContentLoaded', function() {
-                const ssoName = "${escapeHTML(ssoName)}";
-
-                // Hide the nickname and email fields and pre-fill the name
-                const interval = setInterval(() => {
-                  const nicknameInput = document.querySelector('input[name="nickname"]');
-                  const emailInput = document.querySelector('input[name="email"]');
-
-                  if (nicknameInput && emailInput) {
-                    const nicknameContainer = nicknameInput.closest('.px-1');
-                    const emailContainer = emailInput.closest('.px-1');
-
-                    if(nicknameContainer) nicknameContainer.style.display = 'none';
-                    if(emailContainer) emailContainer.style.display = 'none';
-
-                    nicknameInput.value = ssoName;
-
-                    // Dispatch an input event to make sure the component's state is updated
-                    nicknameInput.dispatchEvent(new Event('input', { bubbles: true }));
-
-                    clearInterval(interval);
-                  }
-                }, 50);
-              });
-
               window.addEventListener('load', () => {
                 const resizeObserver = new ResizeObserver(entries => {
                   window.parent.postMessage({ height: entries[0].target.scrollHeight }, '*');
