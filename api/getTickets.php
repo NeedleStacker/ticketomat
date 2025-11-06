@@ -53,7 +53,7 @@ if ($role === "admin") {
     $q->execute();
     $result = $q->get_result();
 } else {
-    $q = $conn->prepare("SELECT id, title, status, created_at, attachment_name, device_name, serial_number, description FROM tickets WHERE user_id = ? ORDER BY id DESC");
+    $q = $conn->prepare("SELECT id, title, status, created_at, device_name, serial_number, description FROM tickets WHERE user_id = ? ORDER BY id DESC");
     $q->bind_param("i", $user_id);
     $q->execute();
     $result = $q->get_result();
