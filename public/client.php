@@ -77,6 +77,20 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
     .modal.fade .modal-body {
       overflow-y: auto;
     }
+    .custom-file-upload {
+      background: #007bff;
+      color: white;
+      padding: 8px 12px;
+      cursor: pointer;
+      border-radius: 4px;
+      display: inline-block;
+    }
+    #new_attachment {
+      display: none;
+    }
+    #file-name-span {
+      margin-left: 10px;
+    }
   </style>
 
   <script>
@@ -237,8 +251,9 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
               data-page-title="${escapeHTML(t.title)}"
               data-viewer-name="${escapeHTML(ssoName)}"
               ${emailAttr}
+              data-iframe="js/iframe.umd.js"
             ></div>
-            <script async defer src="https://cusdis.com/js/cusdis.es.js"><\/script>
+            <script async defer src="js/cusdis.es.js"><\/script>
             <script>
               window.addEventListener('load', () => {
                 const resizeObserver = new ResizeObserver(entries => {
@@ -418,7 +433,21 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
       const ticketModal = document.getElementById('ticketModal');
       ticketModal.addEventListener('hidden.bs.modal', function () {
           document.getElementById('new_attachment').value = '';
+          const fileNameSpan = document.getElementById('file-name-span');
+          if (fileNameSpan) {
+            fileNameSpan.textContent = 'Nije izabran fajl';
+          }
       });
+
+      const fileInput = document.getElementById('new_attachment');
+      if (fileInput) {
+        fileInput.addEventListener('change', function() {
+          const fileNameSpan = document.getElementById('file-name-span');
+          if (fileNameSpan) {
+            fileNameSpan.textContent = fileInput.files.length > 0 ? fileInput.files[0].name : 'Nije izabran fajl';
+          }
+        });
+      }
     });
   </script>
 </head>
@@ -498,10 +527,12 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
           <div id="addAttachmentSection" style="display:none;">
             <hr>
             <h6>Dodaj datoteku</h6>
-            <div class="input-group">
-                <input class="form-control" type="file" id="new_attachment">
-                <button class="btn btn-outline-secondary" type="button" onclick="addAttachment()">Dodaj</button>
+            <div>
+              <label for="new_attachment" class="custom-file-upload">Odaberi fajl</label>
+              <input type="file" id="new_attachment">
+              <span id="file-name-span">Nije izabran fajl</span>
             </div>
+            <button class="btn btn-outline-secondary mt-2" type="button" onclick="addAttachment()">Dodaj</button>
           </div>
 
           <hr>
