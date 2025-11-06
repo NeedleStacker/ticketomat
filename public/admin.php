@@ -296,20 +296,51 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     async function loadDevices() {
         const res = await fetch(API + "getDevices.php");
         const devices = await res.json();
-        const select = document.getElementById("ticket_device_name");
-        select.innerHTML = '<option value="">Odaberite uređaj...</option>';
-        devices.forEach(d => {
-            select.innerHTML += `<option>${d.name}</option>`;
+        const deviceSelects = document.querySelectorAll("#ticket_device_name, #new_ticket_device");
+        deviceSelects.forEach(select => {
+            select.innerHTML = '<option value="">Odaberite uređaj...</option>';
+            devices.forEach(d => {
+                select.innerHTML += `<option>${d.name}</option>`;
+            });
         });
     }
 
     async function loadClients() {
         const res = await fetch(API + "getClients.php");
         const clients = await res.json();
-        const select = document.getElementById("clientFilter");
-        clients.forEach(c => {
-            select.innerHTML += `<option value="${c.id}">${c.username}</option>`;
+        const clientSelects = document.querySelectorAll("#clientFilter, #new_ticket_client");
+        clientSelects.forEach(select => {
+            select.innerHTML += `<option value="">Odaberite klijenta...</option>`;
+            clients.forEach(c => {
+                select.innerHTML += `<option value="${c.id}">${c.username} (${c.first_name} ${c.last_name})</option>`;
+            });
         });
+    }
+
+    async function createNewTicket() {
+        const formData = new FormData();
+        formData.append('title', document.getElementById("new_ticket_title").value.trim());
+        formData.append('description', document.getElementById("new_ticket_description").value.trim());
+        formData.append('device_name', document.getElementById("new_ticket_device").value);
+        formData.append('serial_number', document.getElementById("new_ticket_serial").value.trim());
+        formData.append('user_id', document.getElementById("new_ticket_client").value);
+        formData.append('status', "Otvoren");
+        formData.append('request_creator', `${user.first_name} ${user.last_name} (Admin)`);
+        formData.append('creator_contact', user.email);
+
+        const res = await fetch(API + "addTicket.php", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await res.json();
+        if (data.success) {
+            alert("✅ Ticket uspješno kreiran.");
+            bootstrap.Modal.getInstance(document.getElementById('newTicketModal')).hide();
+            loadTickets();
+        } else {
+            alert("❌ " + (data.error || "Greška prilikom kreiranja ticketa."));
+        }
     }
 
     document.addEventListener("DOMContentLoaded", function() {
@@ -340,6 +371,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     <div class="container-fluid">
       <a class="navbar-brand" href="admin.php">Admin - Ticketomat</a>
       <div>
+        <button class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#newTicketModal">Novi ticket</button>
         <a href="devices.php" class="btn btn-outline-light btn-sm">Upravljanje aparatima</a>
         <button class="btn btn-outline-light btn-sm" onclick="logout()">Odjava</button>
       </div>
@@ -469,6 +501,46 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         <div class="modal-footer">
           <button class="btn btn-secondary" data-bs-dismiss="modal">Zatvori</button>
           <button class="btn btn-success" onclick="saveChanges()">Spremi promjene</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- New Ticket Modal -->
+  <div class="modal fade" id="newTicketModal" tabindex="-1">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h5 class="modal-title">Kreiraj novi ticket</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="new_ticket_client" class="form-label">Klijent</label>
+            <select id="new_ticket_client" class="form-select"></select>
+          </div>
+          <div class="mb-3">
+            <label for="new_ticket_title" class="form-label">Naslov</label>
+            <input type="text" id="new_ticket_title" class="form-control">
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="new_ticket_device" class="form-label">Ime aparata</label>
+              <select id="new_ticket_device" class="form-select"></select>
+            </div>
+            <div class="col-md-6">
+              <label for="new_ticket_serial" class="form-label">Serijski broj</label>
+              <input type="text" id="new_ticket_serial" class="form-control">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="new_ticket_description" class="form-label">Opis</label>
+            <textarea id="new_ticket_description" class="form-control" rows="4"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zatvori</button>
+          <button type="button" class="btn btn-primary" onclick="createNewTicket()">Kreiraj ticket</button>
         </div>
       </div>
     </div>
