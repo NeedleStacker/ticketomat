@@ -44,9 +44,21 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     }
     .modal.fade .modal-content {
       height: 100%;
+      display: flex;
+      flex-direction: column;
     }
     .modal.fade .modal-body {
       overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+    #cusdis-container {
+      flex-grow: 1;
+      display: flex;
+    }
+    #cusdis-container iframe {
+      flex-grow: 1;
     }
   </style>
 
