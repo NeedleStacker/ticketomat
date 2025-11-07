@@ -209,6 +209,8 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
                 "reply_placeholder": "Poruka...", "COMMENT_TEXTAREA_PLACEHOLDER": "Poruka...",
                 "SUBMIT_COMMENT_BUTTON": "Pošalji poruku", "mod_badge": "Admin",
                 "content_is_required": "Sadržaj je obavezan.",
+                "sending": "Slanje...",
+                "comment_has_been_sent": "Vaš komentar je poslan. Molimo pričekajte odobrenje."
               }
             <\/script>
             <div id="cusdis_thread"
