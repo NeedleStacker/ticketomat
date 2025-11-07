@@ -72,9 +72,44 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
     }
     .modal.fade .modal-content {
       height: 100%;
+      display: flex;
+      flex-direction: column;
     }
     .modal.fade .modal-body {
       overflow-y: auto;
+      display: flex;
+      flex-direction: column;
+      flex-grow: 1;
+    }
+    #cusdis-container-client {
+      flex-grow: 1;
+      display: flex;
+    }
+    #cusdis-container-client iframe {
+      flex-grow: 1;
+    }
+    .custom-file-upload-container {
+      border: 1px solid #dee2e6;
+      border-radius: .375rem;
+      padding: .375rem .75rem;
+      display: flex;
+      align-items: center;
+    }
+    .custom-file-upload {
+      background: #0d6efd;
+      color: white;
+      padding: 0.375rem 0.75rem;
+      border-radius: .375rem;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-right: 10px;
+      white-space: nowrap;
+    }
+    #file-name-span {
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: #6c757d;
     }
   </style>
 
@@ -458,6 +493,13 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
       ticketModal.addEventListener('hidden.bs.modal', function () {
           const fileInput = document.getElementById('new_attachment');
           if (fileInput) fileInput.value = '';
+          document.getElementById('file-name-span').textContent = 'Nije izabran fajl';
+      });
+
+      const fileInput = document.getElementById('new_attachment');
+      fileInput.addEventListener('change', function() {
+        const fileNameSpan = document.getElementById('file-name-span');
+        fileNameSpan.textContent = this.files.length > 0 ? this.files[0].name : 'Nije izabran fajl';
       });
     });
   </script>
@@ -539,11 +581,13 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
               <hr>
               <h6>Datoteke</h6>
               <div id="attachmentList" class="mb-3"></div>
-              <div id="addAttachmentSection" style="display:none;" class="p-2 border rounded">
+              <div id="addAttachmentSection" style="display:none;">
                   <h6 class="fs-6">Dodaj novu datoteku</h6>
-                  <div class="input-group">
-                      <input type="file" class="form-control" id="new_attachment">
-                      <button class="btn btn-outline-primary" type="button" onclick="addAttachment()">Dodaj</button>
+                  <div class="custom-file-upload-container">
+                      <label for="new_attachment" class="custom-file-upload">Odaberi fajl</label>
+                      <span id="file-name-span">Nije izabran fajl</span>
+                      <input type="file" id="new_attachment" class="d-none">
+                      <button class="btn btn-outline-primary btn-sm ms-auto" type="button" onclick="addAttachment()">Dodaj</button>
                   </div>
               </div>
           </div>
