@@ -316,6 +316,52 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
 
       iframe.srcdoc = iframeContent;
 
+      // === TEST & FALLBACK ZA AUTOMATSKO POPUNJAVANJE I SAKRIVANJE POLJA ===
+      iframe.addEventListener('load', function() {
+        let doc;
+        try {
+          doc = iframe.contentDocument || iframe.contentWindow.document;
+        } catch (e) {
+          console.warn("⚠️ Cusdis iframe je u sandbox modu — ne mogu pristupiti DOM-u (Same-Origin Policy).");
+          return; // sigurnosno ograničenje, ne diraj ništa dalje
+        }
+
+        if (!doc) return;
+
+        // Pokušaj više puta (Cusdis se učitava asinkrono)
+        const interval = setInterval(() => {
+          const nameInput = doc.querySelector('input[name="nickname"]');
+          const emailInput = doc.querySelector('input[name="email"]');
+          const wrapper = doc.querySelector('.grid.grid-cols-2.gap-4');
+
+          // Ako se pojavio input, možemo raditi izmjene
+          if (nameInput && wrapper) {
+            clearInterval(interval);
+
+            // 1️⃣ Upis imena
+            const fullName = `${user.first_name} ${user.last_name}`.trim() || user.username;
+            nameInput.value = fullName;
+
+            // 2️⃣ Upis emaila ako postoji
+            if (emailInput && user.email) {
+              emailInput.value = user.email;
+            }
+
+            // 3️⃣ Sakrivanje polja
+            wrapper.style.visibility = 'hidden';
+            wrapper.style.height = '0';
+            wrapper.style.overflow = 'hidden';
+            wrapper.style.margin = '0';
+            wrapper.style.padding = '0';
+
+            console.log("✅ Polja za ime/email uspješno popunjena i skrivena:", fullName);
+          }
+        }, 300);
+
+        // Fallback – nakon 5 sekundi, ako ništa nije uspjelo, odustani
+        setTimeout(() => clearInterval(interval), 5000);
+      });
+
       new bootstrap.Modal(modal).show();
     }
 
