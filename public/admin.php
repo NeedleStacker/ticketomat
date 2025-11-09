@@ -334,6 +334,33 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         }
     }
 
+    function fillDefaultName(containerId) {
+      const container = document.getElementById(containerId);
+      if (!container) return;
+
+      const iframe = container.querySelector('iframe');
+      if (!iframe) return;
+
+      let doc;
+      try {
+        doc = iframe.contentDocument || iframe.contentWindow.document;
+      } catch (e) {
+        console.warn("Ne mogu pristupiti Cusdis iframe-u.", e);
+        alert("Nije moguće automatski popuniti ime.");
+        return;
+      }
+
+      if (!doc) return;
+
+      const nameInput = doc.querySelector('input[name="nickname"]');
+      if (nameInput) {
+        const fullName = `${user.first_name} ${user.last_name}`.trim() || user.username;
+        nameInput.value = fullName;
+      } else {
+        alert("Polje za unos imena nije pronađeno. Molimo pričekajte da se komentari učitaju.");
+      }
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
         loadTickets();
         loadDevices();
@@ -478,8 +505,11 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
           </div>
 
           <hr>
-          <h6>Pošaljite poruku vezanu za ovaj zahtjev</h6>
-          <div id="cusdis-container"></div>
+          <div class="d-flex justify-content-between align-items-center">
+            <h6 class="mb-0">Pošaljite poruku vezanu za ovaj zahtjev</h6>
+            <button class="btn btn-sm btn-outline-secondary" onclick="fillDefaultName('cusdis-container')">Default</button>
+          </div>
+          <div id="cusdis-container" class="mt-2"></div>
         </div>
         <div class="modal-footer">
           <button class="btn btn-secondary" data-bs-dismiss="modal">Zatvori</button>
