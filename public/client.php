@@ -262,11 +262,11 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
       const iframe = document.createElement('iframe');
       iframe.style.width = '100%';
       iframe.style.border = 'none';
-      iframe.style.minHeight = '250px';
       cusdisContainer.appendChild(iframe);
 
       const ssoName = (user.first_name && user.last_name) ? `${user.first_name} ${user.last_name}` : user.username;
       const emailAttr = user.email ? `data-viewer-email="${escapeHTML(user.email)}"` : '';
+      const viewportHeight = window.innerHeight;
 
       const iframeContent = `
         <html>
@@ -296,12 +296,19 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
             ></div>
             <script async defer src="https://cusdis.com/js/cusdis.es.js"><\/script>
             <script>
-              window.addEventListener('load', () => {
-                const resizeObserver = new ResizeObserver(entries => {
-                  window.parent.postMessage({ height: entries[0].target.scrollHeight }, '*');
-                });
-                resizeObserver.observe(document.body);
+              const parentViewportHeight = ${viewportHeight};
+              const observer = new MutationObserver((mutationsList, observer) => {
+                const cusdisIframe = document.querySelector('#cusdis_thread > iframe');
+                if (cusdisIframe) {
+                  const dynamicHeight = Math.max(400, parentViewportHeight * 0.4);
+                  cusdisIframe.style.minHeight = \`\${dynamicHeight}px\`;
+                  observer.disconnect();
+                }
               });
+              const targetNode = document.getElementById('cusdis_thread');
+              if (targetNode) {
+                observer.observe(targetNode, { childList: true });
+              }
             <\/script>
           </body>
         </html>
@@ -480,14 +487,6 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
       populateClientInfo();
       loadDevices();
 
-      window.addEventListener('message', event => {
-        if (event.data && event.data.height) {
-          const cusdisIframe = document.querySelector('#cusdis-container-client iframe');
-          if (cusdisIframe) {
-            cusdisIframe.style.height = event.data.height + 'px';
-          }
-        }
-      });
 
       const ticketModal = document.getElementById('ticketModal');
       ticketModal.addEventListener('hidden.bs.modal', function () {
