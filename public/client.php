@@ -84,9 +84,9 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
     #cusdis-container-client {
       flex-grow: 1;
       display: flex;
-    }
-    #cusdis-container-client iframe {
-      flex-grow: 1;
+      min-height: 250px; /* Fallback height */
+      max-height: 600px; /* Prevent excessive modal height */
+      overflow-y: auto;  /* Allow scrolling for long comment threads */
     }
     .custom-file-upload-container {
       border: 1px solid #dee2e6;

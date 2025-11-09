@@ -56,9 +56,9 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     #cusdis-container {
       flex-grow: 1;
       display: flex;
-    }
-    #cusdis-container iframe {
-      flex-grow: 1;
+      min-height: 250px; /* Fallback height */
+      max-height: 600px; /* Prevent excessive modal height */
+      overflow-y: auto;  /* Allow scrolling for long comment threads */
     }
   </style>
 
