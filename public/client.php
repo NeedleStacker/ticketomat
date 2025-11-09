@@ -269,6 +269,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
       const iframeContent = `
         <html>
           <head>
+            <link rel="stylesheet" href="assets/css/cusdis.css">
             <base target="_parent">
           </head>
           <body style="margin: 0;">
@@ -289,6 +290,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
               data-page-id="${t.id}"
               data-page-url="${window.location.href.split('?')[0] + '?ticket=' + t.id}"
               data-page-title="${escapeHTML(t.title)}"
+              data-nickname="${`${user.first_name} ${user.last_name}`.trim() || user.username}"
             ></div>
             <script async defer src="https://cusdis.com/js/cusdis.es.js"><\/script>
             <script>
@@ -478,33 +480,6 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
         });
     }
 
-    function fillDefaultName(containerId) {
-      const container = document.getElementById(containerId);
-      if (!container) return;
-
-      const iframe = container.querySelector('iframe');
-      if (!iframe) return;
-
-      let doc;
-      try {
-        doc = iframe.contentDocument || iframe.contentWindow.document;
-      } catch (e) {
-        console.warn("Ne mogu pristupiti Cusdis iframe-u.", e);
-        alert("Nije moguće automatski popuniti ime.");
-        return;
-      }
-
-      if (!doc) return;
-
-      const nameInput = doc.querySelector('input[name="nickname"]');
-      if (nameInput) {
-        const fullName = `${user.first_name} ${user.last_name}`.trim() || user.username;
-        nameInput.value = fullName;
-      } else {
-        alert("Polje za unos imena nije pronađeno. Molimo pričekajte da se komentari učitaju.");
-      }
-    }
-
     document.addEventListener("DOMContentLoaded", function() {
       getTickets();
       populateClientInfo();
@@ -617,7 +592,6 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
           <hr>
           <div class="d-flex justify-content-between align-items-center">
             <h6 class="mb-0">Pošaljite poruku vezanu za ovaj zahtjev</h6>
-            <button class="btn btn-sm btn-outline-secondary" onclick="fillDefaultName('cusdis-container-client')">Default</button>
           </div>
           <div id="cusdis-container-client" class="mt-2"></div>
         </div>
