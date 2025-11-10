@@ -307,6 +307,15 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
               if (targetNode) {
                 observer.observe(targetNode, { childList: true });
               }
+
+              window.addEventListener('message', event => {
+                if (event.origin === 'https://cusdis.com' && event.data && Array.isArray(event.data) && event.data[0] === 'comment:sent') {
+                  const cusdisContainer = document.getElementById('cusdis_thread');
+                  if(cusdisContainer) {
+                    cusdisContainer.innerHTML = '<div style="text-align: center; padding: 2rem; color: #0f5132; background-color: #d1e7dd; border: 1px solid #badbcc; border-radius: .375rem;">Hvala! Vaš komentar je poslan i čeka na odobrenje.</div>';
+                  }
+                }
+              });
             <\/script>
           </body>
         </html>
