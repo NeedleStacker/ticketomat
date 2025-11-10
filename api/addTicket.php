@@ -1,6 +1,5 @@
 <?php
-require_once("config.php");
-require_once("functions.php");
+require_once __DIR__ . '/../includes/db.php';
 session_start();
 if (!isset($_SESSION['user_id'])) {
     http_response_code(401);
@@ -8,14 +7,14 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-$title = isset($_POST["title"]) ? clean($_POST["title"]) : "";
-$description = isset($_POST["description"]) ? clean($_POST["description"]) : "";
-$device_name = isset($_POST["device_name"]) ? clean($_POST["device_name"]) : "";
-$serial_number = isset($_POST["serial_number"]) ? clean($_POST["serial_number"]) : "";
+$title = isset($_POST["title"]) ? $_POST["title"] : "";
+$description = isset($_POST["description"]) ? $_POST["description"] : "";
+$device_name = isset($_POST["device_name"]) ? $_POST["device_name"] : "";
+$serial_number = isset($_POST["serial_number"]) ? $_POST["serial_number"] : "";
 $user_id = isset($_POST["user_id"]) ? intval($_POST["user_id"]) : 0;
-$request_creator = isset($_POST["request_creator"]) ? clean($_POST["request_creator"]) : "";
-$creator_contact = isset($_POST["creator_contact"]) ? clean($_POST["creator_contact"]) : "";
-$status = isset($_POST["status"]) ? clean($_POST["status"]) : "Otvoren";
+$request_creator = isset($_POST["request_creator"]) ? $_POST["request_creator"] : "";
+$creator_contact = isset($_POST["creator_contact"]) ? $_POST["creator_contact"] : "";
+$status = isset($_POST["status"]) ? $_POST["status"] : "Otvoren";
 
 if (empty($title) || empty($device_name) || empty($serial_number) || $user_id <= 0) {
   http_response_code(400);

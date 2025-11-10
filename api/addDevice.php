@@ -1,6 +1,5 @@
 <?php
-require_once("config.php");
-require_once("functions.php");
+require_once __DIR__ . '/../includes/db.php';
 session_start();
 if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
     http_response_code(403);
@@ -9,7 +8,7 @@ if (!isset($_SESSION['user_id']) || $_SESSION['user_role'] !== 'admin') {
 }
 
 $data = json_decode(file_get_contents("php://input"), true);
-$name = isset($data["name"]) ? clean($data["name"]) : "";
+$name = isset($data["name"]) ? $data["name"] : "";
 
 if (empty($name)) {
     echo json_encode(["error" => "Ime aparata ne smije biti prazno."]);

@@ -1,5 +1,5 @@
 <?php
-require_once '../includes/db.php';
+require_once __DIR__ . '/../includes/db.php';
 
 session_start();
 if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
@@ -10,7 +10,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
 
 header('Content-Type: application/json');
 
-$sql = "SELECT id, username, first_name, last_name, email, role FROM users";
+$sql = "SELECT id, username, first_name, last_name, email, phone, company, company_oib, address, city, postal_code, note, role FROM users";
 $result = $conn->query($sql);
 
 $users = [];
