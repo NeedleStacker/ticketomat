@@ -20,7 +20,7 @@ jobs:
           lftp -f "
           set ssl:verify-certificate no
           open ftp://$FTP_USERNAME:$FTP_PASSWORD@$FTP_HOST
-          mirror -R ./ $FTP_WORKING_PATH
+          mirror -R --no-symlinks ./ $FTP_WORKING_PATH
           quit
           "
         env:
