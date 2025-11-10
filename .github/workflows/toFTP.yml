@@ -3,26 +3,26 @@ name: Deploy to FTP Server
 on:
   push:
     branches:
-      - main
+      - main  # Trigger the workflow on push to the 'main' branch
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v2
 
-      - name: Install lftp
+      - name: Install lftp (FTP client)
         run: sudo apt-get install -y lftp
 
       - name: Upload files to FTP
         run: |
-          lftp -u "$FTP_USERNAME","$FTP_PASSWORD" "$FTP_HOST" <<EOF
+          lftp -f "
           set ssl:verify-certificate no
-          set ftp:ssl-allow no
-          mirror -R --no-symlinks --verbose ./ $FTP_WORKING_PATH
-          bye
-          EOF
+          open ftp://$FTP_USERNAME:$FTP_PASSWORD@$FTP_HOST
+          mirror -R --no-symlinks ./ $FTP_WORKING_PATH
+          quit
+          "
         env:
           FTP_USERNAME: ${{ secrets.FTP_USERNAME }}
           FTP_PASSWORD: ${{ secrets.FTP_PASSWORD }}
