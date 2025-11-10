@@ -55,8 +55,6 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
       flex-grow: 1;
     }
     #cusdis-container {
-      flex-grow: 1;
-      display: flex;
       min-height: 250px; /* Fallback height */
       max-height: 600px; /* Prevent excessive modal height */
     }
