@@ -62,7 +62,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     </div>
 
     <script>
-        const API = "api/";
+        const API = "../api/";
 
         async function loadCompanyInfo() {
             const res = await fetch(API + "getCompanyInfo.php");
