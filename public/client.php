@@ -11,7 +11,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
   <meta charset="utf-8">
   <link rel="icon" type="image/x-icon" href="favicon.ico">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Klijent - Ticketomat</title>
+  <title>Korisnik - Ticketomat</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
     body { background-color: #f8f9fa; }

@@ -4,27 +4,13 @@
 --  Collation: utf8_croatian_ci
 -- ======================================================
 
+SET FOREIGN_key_CHECKS=0;
+
 CREATE DATABASE IF NOT EXISTS `liveinsb_tickets_db`
   DEFAULT CHARACTER SET utf8
   COLLATE utf8_croatian_ci;
 
 USE `liveinsb_tickets_db`;
-
--- ======================================================
--- Table: users
--- ======================================================
-DROP TABLE IF EXISTS `users`;
-CREATE TABLE `users` (
-  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
-  `username` VARCHAR(100) NOT NULL UNIQUE,
-  `email` VARCHAR(150) DEFAULT NULL,
-  `password_hash` VARCHAR(255) NOT NULL,
-  `role` ENUM('client','agent','admin') NOT NULL DEFAULT 'client',
-  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
-  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`)
-) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_croatian_ci;
 
 -- ======================================================
 -- Table: tickets
@@ -49,11 +35,7 @@ CREATE TABLE `tickets` (
   `attachment` LONGBLOB NULL,
   `attachment_name` VARCHAR(255) NULL,
   `attachment_type` VARCHAR(255) NULL,
-  PRIMARY KEY (`id`),
-  KEY `fk_tickets_user` (`user_id`),
-  KEY `fk_tickets_agent` (`assigned_to`),
-  CONSTRAINT `fk_tickets_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
-  CONSTRAINT `fk_tickets_agent` FOREIGN KEY (`assigned_to`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_croatian_ci;
 
 -- ======================================================
@@ -66,16 +48,39 @@ CREATE TABLE `ticket_comments` (
   `user_id` INT UNSIGNED NULL,
   `comment` TEXT NOT NULL,
   `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-  PRIMARY KEY (`id`),
-  KEY `fk_comment_ticket` (`ticket_id`),
-  KEY `fk_comment_user` (`user_id`),
-  CONSTRAINT `fk_comment_ticket` FOREIGN KEY (`ticket_id`) REFERENCES `tickets` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
-  CONSTRAINT `fk_comment_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE
+  PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_croatian_ci;
+
+
+-- ======================================================
+-- Table: users
+-- ======================================================
+DROP TABLE IF EXISTS `users`;
+CREATE TABLE `users` (
+  `id` INT UNSIGNED NOT NULL AUTO_INCREMENT,
+  `username` VARCHAR(100) NOT NULL UNIQUE,
+  `email` VARCHAR(150) DEFAULT NULL,
+  `password_hash` VARCHAR(255) NOT NULL,
+  `role` ENUM('client','agent','admin') NOT NULL DEFAULT 'client',
+  `is_active` TINYINT(1) NOT NULL DEFAULT 1,
+  `created_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_croatian_ci;
+
+
+ALTER TABLE `tickets`
+ADD CONSTRAINT `fk_tickets_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE,
+ADD CONSTRAINT `fk_tickets_agent` FOREIGN KEY (`assigned_to`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
+
+ALTER TABLE `ticket_comments`
+ADD CONSTRAINT `fk_comment_ticket` FOREIGN KEY (`ticket_id`) REFERENCES `tickets` (`id`) ON DELETE CASCADE ON UPDATE CASCADE,
+ADD CONSTRAINT `fk_comment_user` FOREIGN KEY (`user_id`) REFERENCES `users` (`id`) ON DELETE SET NULL ON UPDATE CASCADE;
 
 -- ======================================================
 -- Table: devices
 -- ======================================================
+DROP TABLE IF EXISTS `devices`;
 CREATE TABLE IF NOT EXISTS `devices` (
     `id` INT AUTO_INCREMENT PRIMARY KEY,
     `name` VARCHAR(255) NOT NULL UNIQUE
@@ -99,11 +104,11 @@ CREATE TABLE `api_keys` (
 -- ======================================================
 -- Default admin user (password: admin)
 INSERT INTO `users` (`username`, `email`, `password_hash`, `role`) VALUES
-('admin', 'admin@example.com', '$2y$10$CkWphtLjvKZ0zQbNn6Q4i.eIt8ZTvslzEcwZbQG7A0E3P4Wj2WkhW', 'admin');
+('admin', 'admin@example.com', '$2y$10$0y265kTeJCZUQkmP1cJR9OMQfqPZlNPOsnrVvu0Yont2DQPahk7kK', 'admin');
 
 -- Default client user (password: klijent)
-INSERT INTO `users` (`username`, `email`, `password_hash`, `role`, `first_name`, `last_name`) VALUES
-('klijent', 'klijent@example.com', '$2y$10$sfln3.i9c.Nl3d.zU8nB6u3n.g.u.A5h.J.F.G.H.I.J.K.L.M', 'client', 'Test', 'Klijent');
+INSERT INTO `users` (`username`, `email`, `password_hash`, `role`) VALUES
+('klijent', 'klijent@example.com', '$2y$10$sfln3.i9c.Nl3d.zU8nB6u3n.g.u.A5h.J.F.G.H.I.J.K.L.M', 'client');
 
 -- Default devices
 INSERT INTO `devices` (name) VALUES
@@ -113,3 +118,5 @@ INSERT INTO `devices` (name) VALUES
 ('Vernacare Vortex+'),
 ('ACIST CVi'),
 ('Eurosets ECMOLIFE');
+
+SET FOREIGN_KEY_CHECKS=1;

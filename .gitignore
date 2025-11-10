@@ -1,3 +1,4 @@
 php_server.log
 api/php_error.log
 api/config.php
+includes/db.php

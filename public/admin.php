@@ -49,6 +49,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     }
     .modal.fade .modal-body {
       overflow-y: auto;
+      overflow-x: hidden;
       display: flex;
       flex-direction: column;
       flex-grow: 1;
@@ -58,7 +59,13 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
       display: flex;
       min-height: 250px; /* Fallback height */
       max-height: 600px; /* Prevent excessive modal height */
-      overflow-y: auto;  /* Allow scrolling for long comment threads */
+    }
+    .attachment-link {
+      max-width: 300px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      vertical-align: middle;
     }
   </style>
 
@@ -122,6 +129,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
               t.priority === 'medium' ? 'priority-medium-row' :
               'priority-low-row';
 
+            row.insertCell().textContent = t.id;
             row.insertCell().textContent = t.title;
             row.insertCell().textContent = t.username || 'N/A';
             row.insertCell().textContent = t.device_name || '';
@@ -159,8 +167,9 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
             const link = document.createElement('a');
             link.href = `${API}getAttachment.php?id=${file.id}`;
             link.textContent = file.attachment_name;
-            link.className = 'btn btn-outline-secondary btn-sm me-2 mb-2';
+            link.className = 'btn btn-outline-secondary btn-sm me-2 mb-2 attachment-link';
             link.target = '_blank';
+            link.title = file.attachment_name; // Add tooltip with full filename
             attachmentList.appendChild(link);
         });
     }
@@ -308,11 +317,11 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     }
 
     async function loadClients() {
-        const res = await fetch(API + "getClients.php");
+        const res = await fetch(API + "getKorisnici.php");
         const clients = await res.json();
         const clientSelects = document.querySelectorAll("#clientFilter, #new_ticket_client");
         clientSelects.forEach(select => {
-            select.innerHTML += `<option value="">Odaberite klijenta...</option>`;
+            select.innerHTML += `<option value="">Odaberite korisnika...</option>`;
             clients.forEach(c => {
                 select.innerHTML += `<option value="${c.id}">${c.username} (${c.first_name} ${c.last_name})</option>`;
             });
@@ -320,6 +329,18 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     }
 
     async function createNewTicket() {
+        // Fetch company info to get the phone number
+        let companyPhone = user.email; // Fallback to user's email
+        try {
+            const companyRes = await fetch(API + "getCompanyInfo.php");
+            const companyData = await companyRes.json();
+            if (companyData && companyData.phone) {
+                companyPhone = companyData.phone;
+            }
+        } catch (error) {
+            console.error("Could not fetch company info, using admin email as contact fallback.", error);
+        }
+
         const formData = new FormData();
         formData.append('title', document.getElementById("new_ticket_title").value.trim());
         formData.append('description', document.getElementById("new_ticket_description").value.trim());
@@ -328,7 +349,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         formData.append('user_id', document.getElementById("new_ticket_client").value);
         formData.append('status', "Otvoren");
         formData.append('request_creator', `${user.first_name} ${user.last_name} (Admin)`);
-        formData.append('creator_contact', user.email);
+        formData.append('creator_contact', companyPhone);
 
         const res = await fetch(API + "addTicket.php", {
             method: "POST",
@@ -363,16 +384,20 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
 <body class="bg-light">
   <nav class="navbar navbar-dark bg-dark mb-3">
     <div class="container-fluid">
-      <a class="navbar-brand" href="admin.php">Admin - Ticketomat</a>
+      <div>
+        <a class="navbar-brand" href="admin.php">Admin - Ticketomat</a>
+        <a href="company.php" class="btn btn-outline-light btn-sm">Tvrtka</a>
+      </div>
       <div>
         <button class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#newTicketModal">Novi ticket</button>
         <a href="devices.php" class="btn btn-outline-light btn-sm">Upravljanje aparatima</a>
+        <a href="users.php" class="btn btn-outline-light btn-sm">Upravljanje korisnicima</a>
         <button class="btn btn-outline-light btn-sm" onclick="logout()">Odjava</button>
       </div>
     </div>
   </nav>
 
-  <div class="container py-3">
+  <div class="container-lg py-3">
     <div class="card p-3 p-sm-4">
       <h1 class="mb-4 fs-4 text-center text-sm-start">Administracija ticketa</h1>
       <div class="row mb-3 g-2">
@@ -405,6 +430,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         <table class="table table-hover align-middle">
           <thead class="table-dark">
             <tr>
+              <th scope="col">#</th>
               <th>Naslov</th>
               <th>Korisnik</th>
               <th>Ime aparata</th>
@@ -512,7 +538,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         </div>
         <div class="modal-body">
           <div class="mb-3">
-            <label for="new_ticket_client" class="form-label">Klijent</label>
+            <label for="new_ticket_client" class="form-label">Korisnik</label>
             <select id="new_ticket_client" class="form-select"></select>
           </div>
           <div class="mb-3">
