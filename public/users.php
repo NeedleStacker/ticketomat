@@ -38,6 +38,8 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
                             <th>Ime</th>
                             <th>Prezime</th>
                             <th>Email</th>
+                            <th>Telefon</th>
+                            <th>Tvrtka</th>
                             <th>Uloga</th>
                             <th>Akcije</th>
                         </tr>
@@ -52,7 +54,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
 
     <!-- User Modal -->
     <div class="modal fade" id="userModal" tabindex="-1">
-        <div class="modal-dialog">
+        <div class="modal-dialog modal-lg">
             <div class="modal-content">
                 <div class="modal-header">
                     <h5 class="modal-title" id="userModalLabel">Dodaj korisnika</h5>
@@ -61,33 +63,75 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
                 <div class="modal-body">
                     <form id="user-form">
                         <input type="hidden" id="user_id" name="id">
-                        <div class="mb-3">
-                            <label for="username" class="form-label">Korisničko ime</label>
-                            <input type="text" class="form-control" id="username" name="username" required>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="username" class="form-label">Korisničko ime</label>
+                                <input type="text" class="form-control" id="username" name="username" required>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="email" class="form-label">Email</label>
+                                <input type="email" class="form-control" id="email" name="email" required>
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="first_name" class="form-label">Ime</label>
+                                <input type="text" class="form-control" id="first_name" name="first_name">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="last_name" class="form-label">Prezime</label>
+                                <input type="text" class="form-control" id="last_name" name="last_name">
+                            </div>
+                        </div>
+                         <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="phone" class="form-label">Telefon</label>
+                                <input type="text" class="form-control" id="phone" name="phone">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="role" class="form-label">Uloga</label>
+                                <select class="form-select" id="role" name="role" required>
+                                    <option value="client">Korisnik</option>
+                                    <option value="admin">Admin</option>
+                                </select>
+                            </div>
+                        </div>
+                        <hr>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="company" class="form-label">Tvrtka</label>
+                                <input type="text" class="form-control" id="company" name="company">
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <label for="company_oib" class="form-label">OIB Tvrtke</label>
+                                <input type="text" class="form-control" id="company_oib" name="company_oib">
+                            </div>
+                        </div>
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="address" class="form-label">Adresa</label>
+                                <input type="text" class="form-control" id="address" name="address">
+                            </div>
+                             <div class="col-md-6 mb-3">
+                                <label for="city" class="form-label">Grad</label>
+                                <input type="text" class="form-control" id="city" name="city">
+                            </div>
+                        </div>
+                         <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label for="postal_code" class="form-label">Poštanski broj</label>
+                                <input type="text" class="form-control" id="postal_code" name="postal_code">
+                            </div>
                         </div>
                         <div class="mb-3">
-                            <label for="first_name" class="form-label">Ime</label>
-                            <input type="text" class="form-control" id="first_name" name="first_name">
+                            <label for="note" class="form-label">Bilješka</label>
+                            <textarea class="form-control" id="note" name="note" rows="3"></textarea>
                         </div>
-                        <div class="mb-3">
-                            <label for="last_name" class="form-label">Prezime</label>
-                            <input type="text" class="form-control" id="last_name" name="last_name">
-                        </div>
-                        <div class="mb-3">
-                            <label for="email" class="form-label">Email</label>
-                            <input type="email" class="form-control" id="email" name="email" required>
-                        </div>
+                        <hr>
                         <div class="mb-3">
                             <label for="password" class="form-label">Lozinka</label>
                             <input type="password" class="form-control" id="password" name="password">
                             <small class="form-text text-muted">Ostavite prazno ako ne želite mijenjati lozinku.</small>
-                        </div>
-                        <div class="mb-3">
-                            <label for="role" class="form-label">Uloga</label>
-                            <select class="form-select" id="role" name="role" required>
-                                <option value="client">Korisnik</option>
-                                <option value="admin">Admin</option>
-                            </select>
                         </div>
                         <button type="submit" class="btn btn-primary">Spremi</button>
                     </form>
@@ -98,7 +142,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
-        const API = "../api/";
+        const API = "api/";
         const userModal = new bootstrap.Modal(document.getElementById('userModal'));
 
         async function loadUsers() {
@@ -108,7 +152,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
             tableBody.innerHTML = '';
 
             if (users.error) {
-                tableBody.innerHTML = `<tr><td colspan="7" class="text-center text-danger">${users.error}</td></tr>`;
+                tableBody.innerHTML = `<tr><td colspan="9" class="text-center text-danger">${users.error}</td></tr>`;
                 return;
             }
 
@@ -120,6 +164,8 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
                     <td>${user.first_name}</td>
                     <td>${user.last_name}</td>
                     <td>${user.email}</td>
+                    <td>${user.phone}</td>
+                    <td>${user.company}</td>
                     <td>${user.role}</td>
                     <td>
                         <button class="btn btn-sm btn-outline-primary" onclick='editUser(${JSON.stringify(user)})'>Uredi</button>
@@ -143,6 +189,13 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
             document.getElementById('first_name').value = user.first_name;
             document.getElementById('last_name').value = user.last_name;
             document.getElementById('email').value = user.email;
+            document.getElementById('phone').value = user.phone;
+            document.getElementById('company').value = user.company;
+            document.getElementById('company_oib').value = user.company_oib;
+            document.getElementById('address').value = user.address;
+            document.getElementById('city').value = user.city;
+            document.getElementById('postal_code').value = user.postal_code;
+            document.getElementById('note').value = user.note;
             document.getElementById('role').value = user.role;
             document.getElementById('password').value = '';
             document.getElementById('password').required = false;

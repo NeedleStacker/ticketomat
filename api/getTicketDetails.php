@@ -1,6 +1,5 @@
 <?php
-require_once("config.php");
-require_once("functions.php");
+require_once __DIR__ . '/../includes/db.php';
 session_start();
 if (!isset($_SESSION['user_id'])) {
     http_response_code(401);

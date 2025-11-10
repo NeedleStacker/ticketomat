@@ -28,7 +28,7 @@ body {
 }
 </style>
 <script>
-const API = "../api/";
+const API = "api/";
 
 async function loginUser() {
   const username = document.getElementById("username").value.trim();
