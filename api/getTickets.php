@@ -1,5 +1,6 @@
 <?php
-require_once '../includes/db.php';
+require_once("config.php");
+require_once("functions.php");
 session_start();
 if (!isset($_SESSION['user_id'])) {
     http_response_code(401);
@@ -7,10 +8,9 @@ if (!isset($_SESSION['user_id'])) {
     exit;
 }
 
-$user_id = isset($_GET["user_id"]) ? intval($_GET["user_id"]) : 0;
-$role = isset($_GET["role"]) ? $_GET["role"] : "client";
+$user_id_filter = isset($_GET["user_id"]) ? intval($_GET["user_id"]) : 0;
 
-if ($role === "admin") {
+if ($_SESSION['user_role'] === 'admin') {
     $status = isset($_GET["status"]) ? $_GET["status"] : '';
     $search = isset($_GET["search"]) ? $_GET["search"] : '';
 
@@ -24,9 +24,9 @@ if ($role === "admin") {
         $params[] = $status;
         $types .= 's';
     }
-    if ($user_id > 0) {
+    if ($user_id_filter > 0) {
         $where[] = "t.user_id = ?";
-        $params[] = $user_id;
+        $params[] = $user_id_filter;
         $types .= 'i';
     }
 
@@ -52,6 +52,7 @@ if ($role === "admin") {
     $q->execute();
     $result = $q->get_result();
 } else {
+    $user_id = $_SESSION['user_id'];
     $q = $conn->prepare("SELECT id, title, status, created_at, device_name, serial_number, description FROM tickets WHERE user_id = ? ORDER BY id DESC");
     $q->bind_param("i", $user_id);
     $q->execute();
