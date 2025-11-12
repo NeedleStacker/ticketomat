@@ -7,11 +7,6 @@ if (!isset($_SESSION['user_id'])) {
     echo json_encode(["error" => "Unauthorized"]);
     exit;
 }
-if ($_SESSION['user_role'] !== 'admin') {
-    http_response_code(403);
-    echo json_encode(["error" => "Forbidden"]);
-    exit;
-}
 
 $sql = "SELECT * FROM devices ORDER BY id";
 $result = $conn->query($sql);
