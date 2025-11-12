@@ -1,11 +1,6 @@
 <?php
-ini_set('log_errors', 1);
-ini_set('error_log', __DIR__ . '/php_error.log');
-error_log("loginUser.php: Script started");
-
-require_once __DIR__ . '/../includes/db.php';
-error_log("loginUser.php: db.php included successfully");
-
+require_once("config.php");
+require_once("functions.php");
 session_start();
 
 $data = json_decode(file_get_contents("php://input"), true);
