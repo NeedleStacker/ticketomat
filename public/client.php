@@ -497,6 +497,9 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
           const fileInput = document.getElementById('new_attachment');
           if (fileInput) fileInput.value = '';
           document.getElementById('file-name-span').textContent = 'Nije izabran fajl';
+          if (document.activeElement) {
+            document.activeElement.blur();
+          }
       });
 
       const fileInput = document.getElementById('new_attachment');
