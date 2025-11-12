@@ -385,7 +385,9 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
             document.getElementById("request_creator").value = '';
             document.getElementById("creator_contact").value = '';
             document.getElementById("attachment").value = '';
-            await getTickets();
+            setTimeout(() => {
+                getTickets();
+            }, 200);
         } else {
             alert("❌ " + (data.error || "Greška prilikom dodavanja ticketa."));
         }
