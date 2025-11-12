@@ -1,5 +1,6 @@
 <?php
-require_once __DIR__ . '/../includes/db.php';
+require_once("config.php");
+require_once("functions.php");
 session_start();
 if (!isset($_SESSION['user_id'])) {
     http_response_code(401);
@@ -9,14 +10,15 @@ if (!isset($_SESSION['user_id'])) {
 
 $input = json_decode(file_get_contents("php://input"), true);
 
-$id       = isset($input["id"]) ? intval($input["id"]) : 0;
-$reason   = isset($input["reason"]) ? trim($input["reason"]) : "";
-$user_id  = isset($input["user_id"]) ? intval($input["user_id"]) : 0;
+$id     = isset($input["id"]) ? intval($input["id"]) : 0;
+$reason = isset($input["reason"]) ? trim($input["reason"]) : "";
 
-if (!$id || !$user_id) {
-  echo json_encode(array("error" => "Nedostaju podaci."));
+if (!$id) {
+  echo json_encode(array("error" => "Nedostaje ID ticketa."));
   exit;
 }
+
+$user_id = $_SESSION['user_id'];
 
 $q = $conn->prepare("
   UPDATE tickets

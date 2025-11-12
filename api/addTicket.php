@@ -1,5 +1,6 @@
 <?php
-require_once __DIR__ . '/../includes/db.php';
+require_once("config.php");
+require_once("functions.php");
 session_start();
 if (!isset($_SESSION['user_id'])) {
     http_response_code(401);
@@ -11,10 +12,16 @@ $title = isset($_POST["title"]) ? $_POST["title"] : "";
 $description = isset($_POST["description"]) ? $_POST["description"] : "";
 $device_name = isset($_POST["device_name"]) ? $_POST["device_name"] : "";
 $serial_number = isset($_POST["serial_number"]) ? $_POST["serial_number"] : "";
-$user_id = isset($_POST["user_id"]) ? intval($_POST["user_id"]) : 0;
 $request_creator = isset($_POST["request_creator"]) ? $_POST["request_creator"] : "";
 $creator_contact = isset($_POST["creator_contact"]) ? $_POST["creator_contact"] : "";
 $status = isset($_POST["status"]) ? $_POST["status"] : "Otvoren";
+
+// If the user is an admin, they can specify a user_id. Otherwise, use the session user_id.
+if ($_SESSION['user_role'] === 'admin' && isset($_POST["user_id"])) {
+    $user_id = intval($_POST["user_id"]);
+} else {
+    $user_id = $_SESSION['user_id'];
+}
 
 if (empty($title) || empty($device_name) || empty($serial_number) || $user_id <= 0) {
   http_response_code(400);
