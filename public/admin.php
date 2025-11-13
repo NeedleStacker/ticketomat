@@ -18,6 +18,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
   <style>
     body { background-color: #f8f9fa; }
     .navbar-brand { font-weight: 600; }
+    .navbar .btn { align-self: center; } /* To align buttons */
 
     .card { 
       background-color: #ffffff; 
@@ -82,6 +83,34 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
       font-size: 0.875rem;
     }
     .priority-dot { width: 18px; height: 18px; border-radius: 3px; display: inline-block; }
+    #ticketModal .modal-dialog {
+        max-height: 95vh;
+        margin-top: 2.5vh;
+        margin-bottom: 2.5vh;
+    }
+    #ticketModal .modal-content {
+        height: 100%;
+    }
+    #ticketModal .modal-body {
+        overflow-y: auto;
+    }
+    .custom-file-upload-container {
+      border: 1px solid #dee2e6;
+      border-radius: .375rem;
+      padding: .375rem .75rem;
+      display: flex;
+      align-items: center;
+    }
+    .custom-file-upload {
+      background: #0d6efd;
+      color: white;
+      padding: 0.375rem 0.75rem;
+      border-radius: .375rem;
+      cursor: pointer;
+      font-size: 1rem;
+      margin-right: 10px;
+      white-space: nowrap;
+    }
   </style>
 
   <script>
@@ -199,6 +228,58 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
       document.getElementById("ticket_phone").textContent = t.phone || '';
       loadAttachmentsAdmin(t.id);
 
+      const cusdisContainer = document.getElementById("cusdis-container-admin");
+      cusdisContainer.innerHTML = ''; // Clear previous instance
+
+      const iframe = document.createElement('iframe');
+      iframe.style.width = '100%';
+      iframe.style.border = 'none';
+      cusdisContainer.appendChild(iframe);
+
+      const iframeContent = `
+        <html>
+          <head>
+            <link rel="stylesheet" href="assets/css/cusdis.css">
+            <base target="_parent">
+          </head>
+          <body style="margin: 0;">
+            <script>
+              window.CUSDIS_LOCALE = {
+                "powered_by": "Pokreće Cusdis", "post_comment": "Pošalji poruku", "loading": "Učitavanje...",
+                "nickname": "Ime", "email": "Email (opcionalno)", "reply_btn": "Odgovori",
+                "reply_placeholder": "Poruka...", "COMMENT_TEXTAREA_PLACEHOLDER": "Poruka...",
+                "SUBMIT_COMMENT_BUTTON": "Pošalji poruku", "mod_badge": "Admin",
+                "content_is_required": "Sadržaj je obavezan.", "sending": "Slanje...",
+                "comment_has_been_sent": "Vaš komentar je poslan."
+              }
+            <\/script>
+            <div id="cusdis_thread"
+              data-host="https://cusdis.com"
+              data-app-id="9195cf53-b951-405c-aa1a-2acccc1b57ce"
+              data-page-id="${t.id}"
+              data-page-url="${window.location.href.split('?')[0] + '?ticket=' + t.id}"
+              data-page-title="${escapeHTML(t.title)}"
+              data-nickname="${`${user.first_name} ${user.last_name}`.trim() || user.username}"
+              data-moderator="${user.role === 'admin'}"
+            ></div>
+            <script>
+                window.addEventListener('message', (event) => {
+                    if (event.origin === 'https://cusdis.com' && event.data === 'cusdis:ready') {
+                        const style = document.createElement('style');
+                        style.innerHTML = \`
+                            .cusdis-form__meta { display: none !important; }
+                            .cusdis-textarea { min-height: 100px; }
+                        \`;
+                        document.head.appendChild(style);
+                    }
+                });
+            <\/script>
+            <script async defer src="https://cusdis.com/js/cusdis.es.js"><\/script>
+          </body>
+        </html>
+      `;
+      iframe.srcdoc = iframeContent;
+
       new bootstrap.Modal(modal).show();
     }
 
@@ -252,34 +333,79 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
       formData.append('status', "Otvoren");
       formData.append('request_creator', `${user.first_name} ${user.last_name} (Admin)`);
       formData.append('creator_contact', user.email);
+
+      const attachment = document.getElementById("new_ticket_attachment").files[0];
+      if (attachment) {
+          formData.append('attachment', attachment);
+      }
+
       const res = await fetch(API + "addTicket.php", { method: "POST", body: formData });
       const data = await res.json();
       if (data.success) {
         alert("✅ Ticket uspješno kreiran.");
         bootstrap.Modal.getInstance(document.getElementById('newTicketModal')).hide();
+        document.getElementById('newTicketForm').reset();
         loadTickets();
       } else alert("❌ " + (data.error || "Greška prilikom kreiranja ticketa."));
     }
 
-    document.addEventListener("DOMContentLoaded", () => { loadTickets(); loadDevices(); loadClients(); });
+    async function addAttachmentAdmin() {
+        const ticket_id = document.getElementById("ticket_id").value;
+        const fileInput = document.getElementById("admin_new_attachment");
+        const attachment = fileInput.files[0];
+
+        if (!attachment) {
+            alert("Molimo odaberite datoteku.");
+            return;
+        }
+
+        const formData = new FormData();
+        formData.append('ticket_id', ticket_id);
+        formData.append('attachment', attachment);
+
+        const res = await fetch(API + "addAttachment.php", {
+            method: "POST",
+            body: formData
+        });
+
+        const data = await res.json();
+        if (data.success) {
+            fileInput.value = '';
+            document.getElementById('file-name-span-admin').textContent = 'Nije izabrana datoteka';
+            loadAttachmentsAdmin(ticket_id);
+        } else {
+            alert("❌ " + (data.error || "Greška prilikom dodavanja datoteke."));
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+        loadTickets();
+        loadDevices();
+        loadClients();
+
+        const newTicketModal = document.getElementById('newTicketModal');
+        newTicketModal.addEventListener('hidden.bs.modal', function () {
+            document.getElementById('newTicketForm').reset();
+            document.getElementById('file-name-span-new').textContent = 'Nije izabrana datoteka';
+        });
+
+        const fileInput = document.getElementById('new_ticket_attachment');
+        fileInput.addEventListener('change', function() {
+            const fileNameSpan = document.getElementById('file-name-span-new');
+            fileNameSpan.textContent = this.files.length > 0 ? this.files[0].name : 'Nije izabrana datoteka';
+        });
+
+        const adminAttachmentInput = document.getElementById('admin_new_attachment');
+        adminAttachmentInput.addEventListener('change', function() {
+            const fileNameSpan = document.getElementById('file-name-span-admin');
+            fileNameSpan.textContent = this.files.length > 0 ? this.files[0].name : 'Nije izabrana datoteka';
+        });
+    });
   </script>
 </head>
 
 <body class="bg-light">
-  <nav class="navbar navbar-dark bg-dark mb-3">
-    <div class="container-fluid">
-      <div>
-        <a class="navbar-brand" href="admin.php">Admin - Ticketomat</a>
-        <a href="company.php" class="btn btn-outline-light btn-sm d-none d-md-inline">Tvrtka</a>
-      </div>
-      <div class="navbar-actions">
-        <button class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#newTicketModal">Novi ticket</button>
-        <a href="devices.php" class="btn btn-outline-light btn-sm">Aparati</a>
-        <a href="users.php" class="btn btn-outline-light btn-sm">Korisnici</a>
-        <button class="btn btn-outline-light btn-sm" onclick="logout()">Odjava</button>
-      </div>
-    </div>
-  </nav>
+  <?php include 'nav.php'; ?>
 
   <div class="container-lg py-3">
     <div class="card p-3 p-sm-4">
@@ -330,13 +456,23 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
-          <div class="mb-3"><label for="new_ticket_client" class="form-label">Korisnik</label><select id="new_ticket_client" class="form-select"></select></div>
-          <div class="mb-3"><label for="new_ticket_title" class="form-label">Naslov</label><input type="text" id="new_ticket_title" class="form-control"></div>
-          <div class="row mb-3">
-            <div class="col-md-6"><label for="new_ticket_device" class="form-label">Ime aparata</label><select id="new_ticket_device" class="form-select"></select></div>
-            <div class="col-md-6"><label for="new_ticket_serial" class="form-label">Serijski broj</label><input type="text" id="new_ticket_serial" class="form-control"></div>
-          </div>
-          <div class="mb-3"><label for="new_ticket_description" class="form-label">Opis</label><textarea id="new_ticket_description" class="form-control" rows="4"></textarea></div>
+          <form id="newTicketForm">
+            <div class="mb-3"><label for="new_ticket_client" class="form-label">Korisnik</label><select id="new_ticket_client" class="form-select"></select></div>
+            <div class="mb-3"><label for="new_ticket_title" class="form-label">Naslov</label><input type="text" id="new_ticket_title" class="form-control"></div>
+            <div class="row mb-3">
+              <div class="col-md-6"><label for="new_ticket_device" class="form-label">Ime aparata</label><select id="new_ticket_device" class="form-select"></select></div>
+              <div class="col-md-6"><label for="new_ticket_serial" class="form-label">Serijski broj</label><input type="text" id="new_ticket_serial" class="form-control"></div>
+            </div>
+            <div class="mb-3"><label for="new_ticket_description" class="form-label">Opis</label><textarea id="new_ticket_description" class="form-control" rows="4"></textarea></div>
+            <div class="mb-3">
+              <label class="form-label">Dodaj datoteku</label>
+              <div class="custom-file-upload-container">
+                  <label for="new_ticket_attachment" class="custom-file-upload">Odaberi datoteku</label>
+                  <span id="file-name-span-new" class="text-muted">Nije izabrana datoteka</span>
+                  <input type="file" id="new_ticket_attachment" class="d-none">
+              </div>
+            </div>
+          </form>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zatvori</button>
@@ -374,11 +510,25 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
               <select id="ticket_priority" class="form-select"><option value="low">Nizak</option><option value="medium">Srednji</option><option value="high">Visok</option></select>
             </div>
           </div>
-          <div class="mb-3"><label class="form-label">Prilozi</label><div id="attachmentListAdmin"></div></div>
+          <div class="mb-3">
+              <label class="form-label">Prilozi</label>
+              <div id="attachmentListAdmin" class="mb-2"></div>
+              <div class="custom-file-upload-container">
+                  <label for="admin_new_attachment" class="custom-file-upload">Odaberi datoteku</label>
+                  <span id="file-name-span-admin" class="text-muted">Nije izabrana datoteka</span>
+                  <input type="file" id="admin_new_attachment" class="d-none">
+                  <button class="btn btn-outline-primary btn-sm ms-auto" type="button" onclick="addAttachmentAdmin()">Dodaj</button>
+              </div>
+          </div>
         </div>
         <div class="modal-footer">
           <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zatvori</button>
           <button type="button" class="btn btn-primary" onclick="saveChanges()">Spremi promjene</button>
+        </div>
+        <hr>
+        <div class="modal-body">
+            <h6 class="mb-3">Komentari</h6>
+            <div id="cusdis-container-admin"></div>
         </div>
       </div>
     </div>
