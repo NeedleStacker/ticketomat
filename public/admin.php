@@ -83,6 +83,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
       font-size: 0.875rem;
     }
     .priority-dot { width: 18px; height: 18px; border-radius: 3px; display: inline-block; }
+    #newTicketModal .modal-dialog,
     #ticketModal .modal-dialog {
         max-height: 95vh;
         margin-top: 2.5vh;

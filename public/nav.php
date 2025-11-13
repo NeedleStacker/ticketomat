@@ -6,6 +6,7 @@
         </button>
         <div class="collapse navbar-collapse" id="adminNavbar">
             <div class="navbar-nav ms-auto">
+                <button class="btn btn-outline-light btn-sm me-2" data-bs-toggle="modal" data-bs-target="#newTicketModal">Novi ticket</button>
                 <a href="admin.php" class="btn btn-outline-light btn-sm me-2">Ticketi</a>
                 <a href="company.php" class="btn btn-outline-light btn-sm me-2">Tvrtka</a>
                 <a href="devices.php" class="btn btn-outline-light btn-sm me-2">Aparati</a>

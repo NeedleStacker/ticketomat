@@ -113,7 +113,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
 
                 const imgCell = row.insertCell();
                 const img = document.createElement('img');
-                img.src = d.image_path ? `../${d.image_path}?t=${new Date().getTime()}` : 'img/placeholder.jpg';
+                img.src = d.image_path ? `../${d.image_path}?t=${new Date().getTime()}` : '../img/placeholder.jpg';
                 img.alt = d.name;
                 img.className = 'device-img-thumb';
                 imgCell.appendChild(img);

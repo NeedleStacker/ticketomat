@@ -575,10 +575,9 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
 
         let imgSrc;
         if (device.image_path) {
-            const cleanPath = device.image_path.replace(/^\.\.\//, '');
-            imgSrc = cleanPath + "?v=" + new Date().getTime();
+            imgSrc = `../${device.image_path}?v=${new Date().getTime()}`;
         } else {
-            imgSrc = "img/serial_location.jpg?v=" + new Date().getTime();
+            imgSrc = "../img/serial_location.jpg?v=" + new Date().getTime();
         }
         
         console.log("Image source:", imgSrc);
@@ -637,7 +636,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
       ticketModal.addEventListener('hidden.bs.modal', function () {
           const fileInput = document.getElementById('new_attachment');
           if (fileInput) fileInput.value = '';
-          document.getElementById('file-name-span').textContent = 'Nije izabran fajl';
+          document.getElementById('file-name-span').textContent = 'Nije izabrana datoteka';
           
           if (document.activeElement && document.activeElement.blur) {
             document.activeElement.blur();
