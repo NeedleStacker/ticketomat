@@ -78,10 +78,24 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         </div>
     </div>
 
-
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
         const API = "../api/";
-        const editDeviceModal = new bootstrap.Modal(document.getElementById('editDeviceModal'));
+        let editDeviceModal;
+
+        document.addEventListener("DOMContentLoaded", function() {
+            editDeviceModal = new bootstrap.Modal(document.getElementById('editDeviceModal'));
+            loadDevices();
+
+            document.getElementById('edit_device_image').addEventListener('change', function(event) {
+                const [file] = event.target.files;
+                if (file) {
+                    const preview = document.getElementById('edit_image_preview');
+                    preview.src = URL.createObjectURL(file);
+                    preview.classList.remove('d-none');
+                }
+            });
+        });
 
         function logout() {
             localStorage.removeItem("user");
@@ -181,17 +195,6 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
             }
         }
 
-        document.getElementById('edit_device_image').addEventListener('change', function(event) {
-            const [file] = event.target.files;
-            if (file) {
-                const preview = document.getElementById('edit_image_preview');
-                preview.src = URL.createObjectURL(file);
-                preview.classList.remove('d-none');
-            }
-        });
-
-        document.addEventListener("DOMContentLoaded", loadDevices);
     </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>

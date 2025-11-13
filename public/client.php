@@ -134,9 +134,9 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
 
     /* Modal styling with better Cusdis height */
     #ticketModal .modal-dialog {
-        max-height: calc(100vh - 4rem);
-        margin-top: 2rem;
-        margin-bottom: 2rem;
+        max-height: 95vh;
+        margin-top: 2.5vh;
+        margin-bottom: 2.5vh;
     }
     
     .modal.fade .modal-content {
