@@ -85,8 +85,8 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     .priority-dot { width: 18px; height: 18px; border-radius: 3px; display: inline-block; }
     #newTicketModal .modal-dialog,
     #ticketModal .modal-dialog {
-        height: calc(100vh - 40px);
-        margin: 20px auto;
+        height: calc(100vh - 80px);
+        margin: 40px auto;
     }
     #newTicketModal .modal-content,
     #ticketModal .modal-content {
