@@ -18,52 +18,162 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
   <style>
     body { background-color: #f8f9fa; }
     .navbar-brand { font-weight: 600; }
-    .card { background-color: #f0ffff; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
-    table { background-color: #fff; border-radius: 8px; overflow: hidden; border: 1px solid rgba(0,0,0,0.5); }
-    td, th { vertical-align: middle !important; border: 1px solid rgba(0,0,0,0.5); }
+    
+    /* Card styling - removed light blue background */
+    .card { 
+      background-color: #ffffff; 
+      border-radius: 12px; 
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border: 1px solid #e0e0e0;
+    }
+    
+    /* Table styling with proper borders */
+    .table-container {
+      border: 2px solid #dee2e6;
+      border-radius: 8px;
+      overflow: hidden;
+      background-color: #fff;
+    }
+    
+    table { 
+      background-color: #fff; 
+      margin-bottom: 0;
+    }
+    
+    td, th { 
+      vertical-align: middle !important; 
+      border: 1px solid #dee2e6;
+      padding: 12px 8px;
+    }
+    
+    thead th {
+      background-color: #343a40 !important;
+      color: white !important;
+      font-weight: 600;
+      border-color: #454d55 !important;
+      position: sticky;
+      top: 0;
+      z-index: 10;
+    }
+    
+    tbody tr:hover {
+      background-color: #f8f9fa;
+      transition: background-color 0.2s ease;
+    }
 
+    /* Priority styling */
     .priority-low { color: #198754; font-weight: 600; }
     .priority-medium { color: #ffc107; font-weight: 600; }
     .priority-high { color: #dc3545; font-weight: 600; }
 
-    .priority-high-row { --bs-table-bg: #f8d7da; }
-    .priority-medium-row { --bs-table-bg: #fff3cd; }
-    .priority-low-row { --bs-table-bg: #d1e7dd; }
-    .status-otkazan-row { --bs-table-bg: #e2e3e5; }
+    .priority-high-row { background-color: #f8d7da; }
+    .priority-medium-row { background-color: #fff3cd; }
+    .priority-low-row { background-color: #d1e7dd; }
+    .status-otkazan-row { background-color: #e2e3e5; }
 
     .modal-priority-high .modal-header { background-color: #dc3545 !important; color: #fff; }
     .modal-priority-medium .modal-header { background-color: #ffc107 !important; color: #000; }
     .modal-priority-low .modal-header { background-color: #198754 !important; color: #fff; }
     .modal-status-otkazan .modal-header { background-color: #6c757d !important; color: #fff; }
 
-    /* Modal styling */
+    /* Improved navbar for mobile */
+    @media (max-width: 768px) {
+      .navbar-actions {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        justify-content: flex-end;
+      }
+      .navbar-actions .btn {
+        font-size: 0.8rem;
+        padding: 0.375rem 0.5rem;
+      }
+    }
+
+    /* Modal styling with better Cusdis height */
     .modal.fade .modal-dialog {
       margin-top: 2rem;
       margin-bottom: 2rem;
-      height: calc(100% - 4rem);
+      max-height: calc(100vh - 4rem);
     }
+    
     .modal.fade .modal-content {
-      height: 100%;
+      max-height: 100%;
       display: flex;
       flex-direction: column;
     }
+    
     .modal.fade .modal-body {
       overflow-y: auto;
       overflow-x: hidden;
       display: flex;
       flex-direction: column;
       flex-grow: 1;
+      flex-shrink: 1;
+      min-height: 0;
     }
+    
+    /* Cusdis container takes remaining space */
     #cusdis-container {
-      min-height: 250px; /* Fallback height */
-      max-height: 600px; /* Prevent excessive modal height */
+      flex-grow: 1;
+      flex-shrink: 1;
+      min-height: 300px;
+      display: flex;
+      flex-direction: column;
     }
+    
+    #cusdis-container iframe {
+      flex-grow: 1;
+      height: 100%;
+      min-height: 300px;
+    }
+    
+    /* Fix aria-hidden focus issue */
+    .modal.show {
+      overflow-y: auto;
+    }
+    
+    .modal-footer {
+      flex-shrink: 0;
+      z-index: 1;
+    }
+    
     .attachment-link {
       max-width: 300px;
       overflow: hidden;
       text-overflow: ellipsis;
       white-space: nowrap;
       vertical-align: middle;
+    }
+    
+    /* Filter section styling */
+    .filter-section {
+      background-color: #f8f9fa;
+      padding: 1rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+    }
+    
+    /* Priority legend */
+    .priority-legend {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 15px;
+      align-items: center;
+      font-size: 0.875rem;
+    }
+    
+    .priority-legend-item {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+    }
+    
+    .priority-dot {
+      width: 18px;
+      height: 18px;
+      border-radius: 3px;
+      display: inline-block;
     }
   </style>
 
@@ -111,11 +221,11 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         body.innerHTML = "";
 
         if (tickets.error) {
-            body.innerHTML = `<tr><td colspan='7' class='text-danger text-center'>Greška: ${tickets.error}</td></tr>`;
+            body.innerHTML = `<tr><td colspan='8' class='text-danger text-center'>Greška: ${tickets.error}</td></tr>`;
             return;
         }
         if (tickets.length === 0) {
-            body.innerHTML = `<tr><td colspan='7' class='text-center text-muted'>Nema ticketa za prikaz.</td></tr>`;
+            body.innerHTML = `<tr><td colspan='8' class='text-center text-muted py-4'>Nema ticketa za prikaz.</td></tr>`;
             return;
         }
 
@@ -130,10 +240,13 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
             row.insertCell().textContent = t.id;
             row.insertCell().textContent = t.title;
             row.insertCell().textContent = t.username || 'N/A';
-            row.insertCell().textContent = t.device_name || '';
-            row.insertCell().textContent = t.serial_number || '';
+            row.insertCell().textContent = t.device_name || '-';
+            row.insertCell().textContent = t.serial_number || '-';
             row.insertCell().textContent = t.status;
-            row.insertCell().textContent = t.created_at || '';
+            
+            const dateCell = row.insertCell();
+            dateCell.textContent = t.created_at ? new Date(t.created_at).toLocaleDateString('hr-HR') : '-';
+            dateCell.style.whiteSpace = 'nowrap';
 
             const cell = row.insertCell();
             const btn = document.createElement('button');
@@ -151,7 +264,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         const res = await fetch(API + `getAttachments.php?ticket_id=${ticketId}`);
         const attachments = await res.json();
 
-        attachmentList.innerHTML = ""; // Clear loader/previous content
+        attachmentList.innerHTML = "";
         if (attachments.error) {
             attachmentList.innerHTML = `<div class="text-danger">${attachments.error}</div>`;
             return;
@@ -167,7 +280,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
             link.textContent = file.attachment_name;
             link.className = 'btn btn-outline-secondary btn-sm me-2 mb-2 attachment-link';
             link.target = '_blank';
-            link.title = file.attachment_name; // Add tooltip with full filename
+            link.title = file.attachment_name;
             attachmentList.appendChild(link);
         });
     }
@@ -204,7 +317,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
       loadAttachmentsAdmin(t.id);
 
       const cusdisContainer = document.getElementById("cusdis-container");
-      cusdisContainer.innerHTML = ''; // Clear previous instance
+      cusdisContainer.innerHTML = '';
 
       const iframe = document.createElement('iframe');
       iframe.style.width = '100%';
@@ -327,8 +440,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     }
 
     async function createNewTicket() {
-        // Fetch company info to get the phone number
-        let companyPhone = user.email; // Fallback to user's email
+        let companyPhone = user.email;
         try {
             const companyRes = await fetch(API + "getCompanyInfo.php");
             const companyData = await companyRes.json();
@@ -369,12 +481,39 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         loadDevices();
         loadClients();
 
-
         const ticketModal = document.getElementById('ticketModal');
+        
+        // Fix aria-hidden warning
+        ticketModal.addEventListener('show.bs.modal', function (e) {
+            if (document.activeElement && document.activeElement.blur) {
+                document.activeElement.blur();
+            }
+        });
+
         ticketModal.addEventListener('hidden.bs.modal', function () {
             const fileInput = document.getElementById('attachment');
             if (fileInput) fileInput.value = '';
+            
+            if (document.activeElement && document.activeElement.blur) {
+                document.activeElement.blur();
+            }
+            
+            const backdrop = document.querySelector('.modal-backdrop');
+            if (backdrop) backdrop.remove();
+            
+            document.body.style.overflow = '';
+            document.body.classList.remove('modal-open');
         });
+
+        // Handle newTicketModal too
+        const newTicketModal = document.getElementById('newTicketModal');
+        if (newTicketModal) {
+            newTicketModal.addEventListener('show.bs.modal', function (e) {
+                if (document.activeElement && document.activeElement.blur) {
+                    document.activeElement.blur();
+                }
+            });
+        }
     });
   </script>
 </head>
@@ -384,12 +523,12 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     <div class="container-fluid">
       <div>
         <a class="navbar-brand" href="admin.php">Admin - Ticketomat</a>
-        <a href="company.php" class="btn btn-outline-light btn-sm">Tvrtka</a>
+        <a href="company.php" class="btn btn-outline-light btn-sm d-none d-md-inline">Tvrtka</a>
       </div>
-      <div>
+      <div class="navbar-actions">
         <button class="btn btn-outline-light btn-sm" data-bs-toggle="modal" data-bs-target="#newTicketModal">Novi ticket</button>
-        <a href="devices.php" class="btn btn-outline-light btn-sm">Upravljanje aparatima</a>
-        <a href="users.php" class="btn btn-outline-light btn-sm">Upravljanje korisnicima</a>
+        <a href="devices.php" class="btn btn-outline-light btn-sm">Aparati</a>
+        <a href="users.php" class="btn btn-outline-light btn-sm">Korisnici</a>
         <button class="btn btn-outline-light btn-sm" onclick="logout()">Odjava</button>
       </div>
     </div>
@@ -397,49 +536,72 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
 
   <div class="container-lg py-3">
     <div class="card p-3 p-sm-4">
-      <h1 class="mb-4 fs-4 text-center text-sm-start">Administracija ticketa</h1>
-      <div class="row mb-3 g-2">
-        <div class="col-md-4">
-            <input type="text" id="searchInput" class="form-control" placeholder="Pretraži..." onkeyup="loadTickets()">
-        </div>
-        <div class="col-md-4">
-          <select id="statusFilter" class="form-select" onchange="loadTickets()">
-            <option value="">Svi statusi</option>
-            <option>Otvoren</option>
-            <option>U tijeku</option>
-            <option>Riješen</option>
-            <option>Zatvoren</option>
-            <option>Otkazan</option>
-          </select>
-        </div>
-        <div class="col-md-4">
-          <select id="clientFilter" class="form-select" onchange="loadTickets()">
-            <option value="">Svi klijenti</option>
-          </select>
+      <h1 class="mb-3 fs-4 text-center text-sm-start">Administracija ticketa</h1>
+      
+      <!-- Filters -->
+      <div class="filter-section">
+        <div class="row g-2">
+          <div class="col-md-4">
+              <input type="text" id="searchInput" class="form-control" placeholder="🔍 Pretraži..." onkeyup="loadTickets()">
+          </div>
+          <div class="col-md-4">
+            <select id="statusFilter" class="form-select" onchange="loadTickets()">
+              <option value="">Svi statusi</option>
+              <option>Otvoren</option>
+              <option>U tijeku</option>
+              <option>Riješen</option>
+              <option>Zatvoren</option>
+              <option>Otkazan</option>
+            </select>
+          </div>
+          <div class="col-md-4">
+            <select id="clientFilter" class="form-select" onchange="loadTickets()">
+              <option value="">Svi klijenti</option>
+            </select>
+          </div>
         </div>
       </div>
-      <div class="d-flex justify-content-end gap-2 mb-2">
-        <small><span style="color: #f8d7da;">■</span> Visok prioritet</small>
-        <small><span style="color: #fff3cd;">■</span> Srednji prioritet</small>
-        <small><span style="color: #d1e7dd;">■</span> Nizak prioritet</small>
-        <small><span style="color: #e2e3e5;">■</span> Otkazan</small>
+
+      <!-- Priority Legend -->
+      <div class="priority-legend mb-3">
+        <span class="fw-bold me-2">Legenda:</span>
+        <div class="priority-legend-item">
+          <span class="priority-dot" style="background-color: #f8d7da;"></span>
+          <span>Visok prioritet</span>
+        </div>
+        <div class="priority-legend-item">
+          <span class="priority-dot" style="background-color: #fff3cd;"></span>
+          <span>Srednji prioritet</span>
+        </div>
+        <div class="priority-legend-item">
+          <span class="priority-dot" style="background-color: #d1e7dd;"></span>
+          <span>Nizak prioritet</span>
+        </div>
+        <div class="priority-legend-item">
+          <span class="priority-dot" style="background-color: #e2e3e5;"></span>
+          <span>Otkazan</span>
+        </div>
       </div>
-      <div class="table-responsive">
-        <table class="table table-hover align-middle">
-          <thead class="table-dark">
-            <tr>
-              <th scope="col">#</th>
-              <th>Naslov</th>
-              <th>Korisnik</th>
-              <th>Ime aparata</th>
-              <th>Serijski broj</th>
-              <th>Status</th>
-              <th>Datum kreiranja</th>
-              <th>Akcija</th>
-            </tr>
-          </thead>
-          <tbody id="ticketsBody"></tbody>
-        </table>
+
+      <!-- Table with border -->
+      <div class="table-container">
+        <div class="table-responsive">
+          <table class="table table-hover align-middle mb-0">
+            <thead>
+              <tr>
+                <th scope="col">#</th>
+                <th>Naslov</th>
+                <th>Korisnik</th>
+                <th>Aparat</th>
+                <th>Serijski br.</th>
+                <th>Status</th>
+                <th>Datum</th>
+                <th>Akcija</th>
+              </tr>
+            </thead>
+            <tbody id="ticketsBody"></tbody>
+          </table>
+        </div>
       </div>
     </div>
   </div>
@@ -448,9 +610,43 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
   <div class="modal fade" id="ticketModal" tabindex="-1">
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
-        <div class="modal-header bg-primary text-white">
+        <div class="modal-body">
+          <div class="mb-3">
+            <label for="new_ticket_client" class="form-label">Korisnik</label>
+            <select id="new_ticket_client" class="form-select"></select>
+          </div>
+          <div class="mb-3">
+            <label for="new_ticket_title" class="form-label">Naslov</label>
+            <input type="text" id="new_ticket_title" class="form-control">
+          </div>
+          <div class="row mb-3">
+            <div class="col-md-6">
+              <label for="new_ticket_device" class="form-label">Ime aparata</label>
+              <select id="new_ticket_device" class="form-select"></select>
+            </div>
+            <div class="col-md-6">
+              <label for="new_ticket_serial" class="form-label">Serijski broj</label>
+              <input type="text" id="new_ticket_serial" class="form-control">
+            </div>
+          </div>
+          <div class="mb-3">
+            <label for="new_ticket_description" class="form-label">Opis</label>
+            <textarea id="new_ticket_description" class="form-control" rows="4"></textarea>
+          </div>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zatvori</button>
+          <button type="button" class="btn btn-primary" onclick="createNewTicket()">Kreiraj ticket</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>-header bg-primary text-white">
           <h5 class="modal-title" id="modalTitle">Detalji ticketa</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <input type="hidden" id="ticket_id">
@@ -489,7 +685,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
             <textarea id="ticket_description" class="form-control" rows="4" style="word-wrap: break-word;"></textarea>
           </div>
           <h6 class="mt-4">📞 Podaci o korisniku</h6>
-          <div class="bg-light border rounded p-2">
+          <div class="bg-light border rounded p-3 mb-3">
             <p class="mb-1"><b>Ime:</b> <span id="ticket_user"></span></p>
             <p class="mb-1"><b>Email:</b> <span id="ticket_email"></span></p>
             <p class="mb-1"><b>Telefon:</b> <span id="ticket_phone"></span></p>
@@ -498,7 +694,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
             <p class="mb-0"><b>Razlog otkazivanja:</b> <span id="ticket_cancel_reason"></span></p>
           </div>
           <h6 class="mt-4">👤 Podaci o kreatoru zahtjeva</h6>
-          <div class="bg-light border rounded p-2">
+          <div class="bg-light border rounded p-3 mb-3">
             <p class="mb-1"><b>Osoba:</b> <span id="ticket_request_creator"></span></p>
             <p class="mb-0"><b>Kontakt:</b> <span id="ticket_creator_contact"></span></p>
           </div>
@@ -513,10 +709,8 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
           </div>
 
           <hr>
-          <div class="d-flex justify-content-between align-items-center">
-            <h6 class="mb-0">Pošaljite poruku vezanu za ovaj zahtjev</h6>
-          </div>
-          <div id="cusdis-container" class="mt-2"></div>
+          <h6 class="mb-2">💬 Poruke vezane za ovaj zahtjev</h6>
+          <div id="cusdis-container"></div>
         </div>
         <div class="modal-footer">
           <button class="btn btn-secondary" data-bs-dismiss="modal">Zatvori</button>
@@ -530,7 +724,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
   <div class="modal fade" id="newTicketModal" tabindex="-1">
     <div class="modal-dialog modal-lg">
       <div class="modal-content">
-        <div class="modal-header">
+        <div class="modal-header bg-primary text-white">
           <h5 class="modal-title">Kreiraj novi ticket</h5>
           <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
         </div>

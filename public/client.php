@@ -16,75 +16,170 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
   <style>
     body { background-color: #f8f9fa; }
     .navbar-brand { font-weight: 600; letter-spacing: 0.5px; }
-    .card { background-color: #f0ffff; border-radius: 10px; box-shadow: 0 2px 6px rgba(0,0,0,0.08); }
+    
+    /* Card styling - removed light blue background */
+    .card { 
+      background-color: #ffffff; 
+      border-radius: 12px; 
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+      border: 1px solid #e0e0e0;
+    }
+    
     textarea { resize: vertical; }
-    .tooltip-inner img { width: 300px; height: auto; }
-    .ticket-item { position: relative; }
-    .ticket-item:hover { background-color: #f1f1f1; cursor: pointer; transition: background 0.2s; }
-    .status-badge { font-size: 0.85rem; }
+    .ticket-item { position: relative; padding: 15px !important; }
+    .ticket-item:hover { 
+      background-color: #f1f3f5; 
+      cursor: pointer; 
+      transition: all 0.2s ease;
+      transform: translateY(-2px);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+    }
+    
+    .status-badge { font-size: 0.85rem; font-weight: 600; }
     .status-otvoren { background-color: #cfe2ff !important; color: #0d6efd !important; }
     .status-u-tijeku { background-color: #fff3cd !important; color: #664d03 !important; }
     .status-rijesen { background-color: #d1e7dd !important; color: #0f5132 !important; }
     .status-zatvoren { background-color: #e9ecef !important; color: #495057 !important; }
     .status-otkazan { background-color: #6c757d !important; color: #fff !important; }
+    
     .ticket-description-excerpt {
         display: -webkit-box;
-        -webkit-line-clamp: 4;
+        -webkit-line-clamp: 2;
         -webkit-box-orient: vertical;
         overflow: hidden;
         text-overflow: ellipsis;
+        line-height: 1.4;
     }
+    
     #modalDesc {
       white-space: pre-wrap;
       word-wrap: break-word;
     }
+    
     @media (min-width: 992px) {
       .modal-lg { max-width: 800px; }
     }
+    
     @media (max-width: 576px) {
       h1, h2 { font-size: 1.4rem; }
       .navbar-brand { font-size: 1rem; }
       .btn { font-size: 0.9rem; }
     }
+    
+    /* Tooltip for serial number image */
     #serialImageContainer {
+        position: absolute;
+        top: 100%;
+        right: 0;
+        margin-top: 10px;
         z-index: 1080;
         background-color: white;
-        border: 1px solid #ccc;
-        box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+        border: 2px solid #0d6efd;
+        box-shadow: 0 8px 16px rgba(0,0,0,0.2);
+        border-radius: .5rem;
+        padding: 10px;
+        max-width: 350px;
+        animation: slideIn 0.3s ease-out;
+    }
+    
+    @keyframes slideIn {
+        from {
+            opacity: 0;
+            transform: translateY(-10px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+    
+    #serialImageContainer img {
+        width: 100%;
+        height: auto;
+        display: block;
         border-radius: .3rem;
     }
+    
     #serialImageContainer .btn-close {
         position: absolute;
-        top: 5px;
-        right: 5px;
-        background-color: rgba(255, 255, 255, 0.8);
+        top: 15px;
+        right: 15px;
+        background-color: rgba(255, 255, 255, 0.95);
         border-radius: 50%;
-        padding: 4px;
-        width: 1em;
-        height: 1em;
+        padding: 8px;
+        width: 30px;
+        height: 30px;
+        box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        z-index: 10;
+        cursor: pointer;
+    }
+    
+    #serialImageContainer .btn-close:hover {
+        background-color: #dc3545;
+        color: white;
+    }
+    
+    .input-group {
+        position: relative;
+    }
+    
+    @media (max-width: 576px) {
+        #serialImageContainer {
+            right: auto;
+            left: 50%;
+            transform: translateX(-50%);
+            max-width: 90vw;
+        }
     }
 
-    /* Modal styling */
+    /* Modal styling with better Cusdis height */
     .modal.fade .modal-dialog {
       margin-top: 2rem;
       margin-bottom: 2rem;
-      height: calc(100% - 4rem);
+      max-height: calc(100vh - 4rem);
     }
+    
     .modal.fade .modal-content {
-      height: 100%;
+      max-height: 100%;
       display: flex;
       flex-direction: column;
     }
+    
     .modal.fade .modal-body {
       overflow-y: auto;
+      overflow-x: hidden;
       display: flex;
       flex-direction: column;
       flex-grow: 1;
+      flex-shrink: 1;
+      min-height: 0;
     }
+    
+    /* Cusdis container takes remaining space */
     #cusdis-container-client {
-      min-height: 250px; /* Fallback height */
-      max-height: 600px; /* Prevent excessive modal height */
+      flex-grow: 1;
+      flex-shrink: 1;
+      min-height: 300px;
+      display: flex;
+      flex-direction: column;
     }
+    
+    #cusdis-container-client iframe {
+      flex-grow: 1;
+      height: 100%;
+      min-height: 300px;
+    }
+    
+    /* Fix aria-hidden focus issue */
+    .modal.show {
+      overflow-y: auto;
+    }
+    
+    .modal-footer {
+      flex-shrink: 0;
+      z-index: 1;
+    }
+    
     .custom-file-upload-container {
       border: 1px solid #dee2e6;
       border-radius: .375rem;
@@ -92,6 +187,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
       display: flex;
       align-items: center;
     }
+    
     .custom-file-upload {
       background: #0d6efd;
       color: white;
@@ -102,6 +198,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
       margin-right: 10px;
       white-space: nowrap;
     }
+    
     #file-name-span {
       overflow: hidden;
       text-overflow: ellipsis;
@@ -114,6 +211,9 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
     const API = "../api/";
     const user = JSON.parse(localStorage.getItem("user") || "null");
     if (!user) window.location = "index.php";
+
+    let devicesList = [];
+    let hideTooltipTimeout;
 
     function logout() {
       localStorage.removeItem("user");
@@ -144,7 +244,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
         return;
       }
       if (data.length === 0) {
-        out.innerHTML = `<div class="text-muted text-center py-3">Nema ticketa za prikaz.</div>`;
+        out.innerHTML = `<div class="text-muted text-center py-4">Nema ticketa za prikaz.</div>`;
         return;
       }
 
@@ -161,27 +261,31 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
         }
 
         const li = document.createElement('li');
-        li.className = 'list-group-item ticket-item d-flex justify-content-between align-items-start flex-wrap';
+        li.className = 'list-group-item ticket-item';
         li.onclick = () => openDetails(t.id);
 
         const div = document.createElement('div');
-        div.innerHTML = `<b>#${t.id}</b> - `;
-        div.appendChild(document.createTextNode(t.title));
-        div.innerHTML += `<br><small class="text-muted">${t.device_name || ''} (${t.serial_number || '-'})</small><br>`;
+        div.innerHTML = `
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <div>
+              <b>#${t.id}</b> - ${escapeHTML(t.title)}
+            </div>
+            <span class='badge ${badgeClass} status-badge'>${t.status}</span>
+          </div>
+          <small class="text-muted d-block mb-1">
+            <strong>${t.device_name || ''}</strong> ${t.serial_number ? '(S/N: ' + t.serial_number + ')' : ''}
+          </small>
+        `;
 
-        const desc = document.createElement('small');
-        desc.className = 'text-muted ticket-description-excerpt';
-        desc.textContent = t.description || "";
-        div.appendChild(desc);
+        if (t.description) {
+          const desc = document.createElement('small');
+          desc.className = 'text-muted ticket-description-excerpt d-block mb-2';
+          desc.textContent = t.description;
+          div.appendChild(desc);
+        }
 
-        div.innerHTML += `<br><small class="text-secondary">📅 Kreirano: ${created}</small>`;
+        div.innerHTML += `<small class="text-secondary"><i class="bi bi-calendar3"></i> 📅 ${created}</small>`;
         li.appendChild(div);
-
-        const badgeDiv = document.createElement('div');
-        badgeDiv.className = 'position-absolute top-0 end-0 p-2';
-        badgeDiv.innerHTML = `<span class='badge ${badgeClass} status-badge'>${t.status}</span>`;
-        li.appendChild(badgeDiv);
-
         out.appendChild(li);
       });
     }
@@ -254,7 +358,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
       }
 
       const cusdisContainer = document.getElementById("cusdis-container-client");
-      cusdisContainer.innerHTML = ''; // Clear previous instance
+      cusdisContainer.innerHTML = '';
 
       const iframe = document.createElement('iframe');
       iframe.style.width = '100%';
@@ -344,13 +448,16 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
 
     async function addTicket() {
         const title = document.getElementById("title").value.trim();
-        const device_name = document.getElementById("device_name").value;
+        const device_id = document.getElementById("device_name").value;
         const serial_number = document.getElementById("serial_number").value.trim();
 
-        if (!title || !device_name || !serial_number) {
+        if (!title || !device_id || !serial_number) {
             alert("Molimo popunite sva obavezna polja: Naslov, Ime aparata i Serijski broj.");
             return;
         }
+
+        const device = devicesList.find(d => d.id == device_id);
+        const device_name = device ? device.name : '';
 
         const formData = new FormData();
         formData.append('title', title);
@@ -382,6 +489,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
             document.getElementById("request_creator").value = '';
             document.getElementById("creator_contact").value = '';
             document.getElementById("attachment").value = '';
+            hideTooltip();
             await getTickets();
         } else {
             alert("❌ " + (data.error || "Greška prilikom dodavanja ticketa."));
@@ -417,8 +525,8 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
 
         const data = await res.json();
         if (data.success) {
-            fileInput.value = ''; // Clear the file input
-            loadAttachments(ticket_id); // Reload the list of attachments
+            fileInput.value = '';
+            loadAttachments(ticket_id);
         } else {
             alert("❌ " + (data.error || "Greška prilikom dodavanja datoteke."));
         }
@@ -428,45 +536,60 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
         const select = document.getElementById("device_name");
         const tooltipBtn = document.getElementById("serialTooltipBtn");
         tooltipBtn.disabled = select.value === "";
+        
+        const container = document.getElementById("serialImageContainer");
+        if (!container.classList.contains("d-none")) {
+            container.classList.add("d-none");
+        }
     }
-
-    let hideTooltipTimeout;
 
     function showTooltip() {
         const select = document.getElementById("device_name");
-        const deviceName = select.value;
-        if (!deviceName) return;
+        const deviceId = select.value;
+        
+        console.log("Device ID selected:", deviceId);
+        
+        if (!deviceId) {
+            alert("Molimo prvo odaberite uređaj.");
+            return;
+        }
 
-        const imgMap = {
-            "Ulrich CT Motion": "../img/serial_ctmotion.jpg",
-            "Ulrich MAX2/3": "../img/serial_max.jpg",
-            "Vernacare Vortex AIR": "../img/serial_vortex.jpg",
-            "Vernacare Vortex+": "../img/serial_vortex.jpg",
-            "ACIST CVi": "../img/serial_acist.jpg",
-            "Eurosets ECMOLIFE": "../img/serial_ecmolife.jpg"
-        };
+        const device = devicesList.find(d => d.id == deviceId);
+        console.log("Device found:", device);
+        
+        if (!device) {
+            alert("Uređaj nije pronađen u listi.");
+            return;
+        }
 
-        const imgSrc = (imgMap[deviceName] || "../img/serial_location.jpg") + "?v=" + new Date().getTime();
+        let imgSrc;
+        if (device.image_path) {
+            const cleanPath = device.image_path.replace(/^\.\.\//, '');
+            imgSrc = cleanPath + "?v=" + new Date().getTime();
+        } else {
+            imgSrc = "img/serial_location.jpg?v=" + new Date().getTime();
+        }
+        
+        console.log("Image source:", imgSrc);
 
         const container = document.getElementById("serialImageContainer");
         const img = document.getElementById("serialImage");
 
         img.src = imgSrc;
+        img.alt = "Lokacija serijskog broja za " + device.name;
+        
         container.classList.remove("d-none");
-
-        container.addEventListener("mouseleave", () => hideTooltip(false));
-        container.addEventListener("mouseenter", () => clearTimeout(hideTooltipTimeout));
+        
+        if (hideTooltipTimeout) {
+            clearTimeout(hideTooltipTimeout);
+        }
     }
 
-    function hideTooltip(immediate = false) {
+    function hideTooltip() {
         const container = document.getElementById("serialImageContainer");
-        if (immediate) {
-            container.classList.add("d-none");
+        container.classList.add("d-none");
+        if (hideTooltipTimeout) {
             clearTimeout(hideTooltipTimeout);
-        } else {
-            hideTooltipTimeout = setTimeout(() => {
-                container.classList.add("d-none");
-            }, 5000);
         }
     }
 
@@ -479,10 +602,11 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
 
     async function loadDevices() {
         const res = await fetch(API + "getDevices.php");
-        const devices = await res.json();
+        devicesList = await res.json();
         const select = document.getElementById("device_name");
-        devices.forEach(d => {
-            select.innerHTML += `<option>${d.name}</option>`;
+        select.innerHTML = '<option value="">Odaberite uređaj...</option>';
+        devicesList.forEach(d => {
+            select.innerHTML += `<option value="${d.id}">${d.name}</option>`;
         });
     }
 
@@ -491,16 +615,38 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
       populateClientInfo();
       loadDevices();
 
-
       const ticketModal = document.getElementById('ticketModal');
+      
+      ticketModal.addEventListener('show.bs.modal', function (e) {
+          if (document.activeElement && document.activeElement.blur) {
+              document.activeElement.blur();
+          }
+      });
+
       ticketModal.addEventListener('hidden.bs.modal', function () {
           const fileInput = document.getElementById('new_attachment');
           if (fileInput) fileInput.value = '';
           document.getElementById('file-name-span').textContent = 'Nije izabran fajl';
-          if (document.activeElement) {
+          
+          if (document.activeElement && document.activeElement.blur) {
             document.activeElement.blur();
           }
+          
+          const backdrop = document.querySelector('.modal-backdrop');
+          if (backdrop) backdrop.remove();
+          
+          document.body.style.overflow = '';
+          document.body.classList.remove('modal-open');
       });
+
+      const cancelModal = document.getElementById('cancelModal');
+      if (cancelModal) {
+          cancelModal.addEventListener('show.bs.modal', function (e) {
+              if (document.activeElement && document.activeElement.blur) {
+                  document.activeElement.blur();
+              }
+          });
+      }
 
       const fileInput = document.getElementById('new_attachment');
       fileInput.addEventListener('change', function() {
@@ -540,10 +686,13 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
 
         <div class="input-group mb-2 position-relative">
           <input id="serial_number" class="form-control" placeholder="Serijski broj uređaja (obavezno)" />
-          <button id="serialTooltipBtn" class="btn btn-outline-secondary" type="button" onclick="showTooltip()" disabled>Gdje ga pronaći?</button>
-          <div id="serialImageContainer" class="position-absolute d-none p-2" style="top: 100%; right: 0;">
-            <img id="serialImage" src="" style="width: 300px; height: auto;">
-            <button type="button" class="btn-close" onclick="hideTooltip(true)"></button>
+          <button id="serialTooltipBtn" class="btn btn-outline-secondary" type="button" onclick="showTooltip()" disabled>
+            Gdje ga pronaći?
+          </button>
+          
+          <div id="serialImageContainer" class="d-none">
+            <button type="button" class="btn-close" onclick="hideTooltip()" aria-label="Zatvori"></button>
+            <img id="serialImage" src="" alt="Lokacija serijskog broja">
           </div>
         </div>
 
@@ -571,7 +720,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
       <div class="modal-content">
         <div class="modal-header bg-primary text-white">
           <h5 class="modal-title" id="modalTitle">Detalji ticketa</h5>
-          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <input type="hidden" id="ticket_id">
