@@ -132,26 +132,19 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
         }
     }
 
-    /* Modal styling with better Cusdis height */
+    /* Modal styling for full height */
     #ticketModal .modal-dialog {
-        max-height: 95vh;
-        margin-top: 2.5vh;
-        margin-bottom: 2.5vh;
+        height: calc(100vh - 40px);
+        margin: 20px auto;
     }
-    
-    .modal.fade .modal-content {
-      max-height: 100%;
-      display: flex;
-      flex-direction: column;
+    #ticketModal .modal-content {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
     }
-    
-    .modal.fade .modal-body {
-      overflow-x: hidden;
-      display: flex;
-      flex-direction: column;
-      flex-grow: 1;
-      flex-shrink: 1;
-      min-height: 0;
+    #ticketModal .modal-body {
+        overflow-y: auto;
+        flex-grow: 1;
     }
     
     /* Cusdis container takes remaining space */
@@ -328,6 +321,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
       document.getElementById("modalDesc").textContent = t.description || "-";
       document.getElementById("modalStatus").textContent = t.status;
       document.getElementById("modalDate").textContent = new Date(t.created_at).toLocaleString('hr-HR');
+      document.getElementById("modalRequestCreator").textContent = t.request_creator || "N/A";
       document.getElementById("modalCanceledAt").textContent = t.canceled_at ? new Date(t.canceled_at).toLocaleString('hr-HR') : "-";
       document.getElementById("modalCancelReason").textContent = t.cancel_reason || "-";
       document.getElementById("ticket_id").value = t.id;
@@ -688,7 +682,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
 
       <div class="mb-3">
         <input id="title" class="form-control mb-2" placeholder="Naslov ticketa (kratko opisati problem)" />
-        <input id="request_creator" class="form-control mb-2" placeholder="Osoba" />
+        <input id="request_creator" class="form-control mb-2" placeholder="Osoba koja otvara ticket" />
         <input id="creator_contact" class="form-control mb-2" placeholder="Kontakt (telefon ili email)" />
         <select id="device_name" class="form-select mb-2" onchange="onDeviceChange()">
           <option value="">Odaberite uređaj...</option>
@@ -738,7 +732,8 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
           <p><b>Serijski broj:</b> <span id="modalSerial"></span></p>
           <p><b>Opis:</b> <span id="modalDesc" style="word-wrap: break-word;"></span></p>
           <p><b>Status:</b> <span id="modalStatus"></span></p>
-          <p><b>Kreirano:</b> <span id="modalDate"></span></p>
+          <p><b>Otvoreno:</b> <span id="modalDate"></span></p>
+          <p><b>Ticket otvorio:</b> <span id="modalRequestCreator"></span></p>
           <p><b>Otkazano:</b> <span id="modalCanceledAt"></span></p>
           <p><b>Razlog otkazivanja:</b> <span id="modalCancelReason"></span></p>
 
@@ -749,7 +744,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
               <div id="addAttachmentSection" style="display:none;">
                   <h6 class="fs-6">Dodaj novu datoteku</h6>
                   <div class="custom-file-upload-container">
-                      <label for="new_attachment" class="custom-file-upload">Odaberi fajl</label>
+                      <label for="new_attachment" class="custom-file-upload">Odaberi datoteku</label>
                       <span id="file-name-span">Nije izabran fajl</span>
                       <input type="file" id="new_attachment" class="d-none">
                       <button class="btn btn-outline-primary btn-sm ms-auto" type="button" onclick="addAttachment()">Dodaj</button>

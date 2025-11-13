@@ -85,15 +85,19 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     .priority-dot { width: 18px; height: 18px; border-radius: 3px; display: inline-block; }
     #newTicketModal .modal-dialog,
     #ticketModal .modal-dialog {
-        max-height: 95vh;
-        margin-top: 2.5vh;
-        margin-bottom: 2.5vh;
+        height: calc(100vh - 40px);
+        margin: 20px auto;
     }
+    #newTicketModal .modal-content,
     #ticketModal .modal-content {
         height: 100%;
+        display: flex;
+        flex-direction: column;
     }
+    #newTicketModal .modal-body,
     #ticketModal .modal-body {
         overflow-y: auto;
+        flex-grow: 1;
     }
     .custom-file-upload-container {
       border: 1px solid #dee2e6;
