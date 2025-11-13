@@ -12,16 +12,12 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Upravljanje korisnicima - Ticketomat</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .navbar .btn { align-self: center; }
+    </style>
 </head>
 <body>
-    <nav class="navbar navbar-dark bg-dark mb-3">
-        <div class="container-fluid">
-            <a class="navbar-brand" href="admin.php">Admin - Ticketomat</a>
-            <div>
-                <a href="admin.php" class="btn btn-outline-light btn-sm">Nazad na tickete</a>
-            </div>
-        </div>
-    </nav>
+    <?php include 'nav.php'; ?>
 
     <div class="container-lg py-3">
         <div class="card p-3 p-sm-4">
