@@ -12,18 +12,27 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Podaci o tvrtki - Ticketomat</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        .navbar .btn { align-self: center; }
+        #logo-preview-container {
+            border: 2px dashed #ccc;
+            padding: 10px;
+            width: 424px; /* 400px + 2*10px padding + 2*2px border */
+            height: 124px; /* 100px + 2*10px padding + 2*2px border */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-top: 10px;
+        }
+        #logo-preview {
+            max-width: 400px;
+            max-height: 100px;
+            object-fit: contain;
+        }
+    </style>
 </head>
 <body>
-    <nav class="navbar navbar-dark bg-dark mb-3">
-        <div class="container-fluid">
-            <div>
-                <a class="navbar-brand" href="admin.php">Admin - Ticketomat</a>
-            </div>
-            <div>
-                <a href="admin.php" class="btn btn-outline-light btn-sm">Nazad na tickete</a>
-            </div>
-        </div>
-    </nav>
+    <?php include 'nav.php'; ?>
 
     <div class="container-lg py-3">
         <div class="card p-3 p-sm-4">
@@ -50,10 +59,10 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
                     <input type="email" class="form-control" id="company_email" name="company_email">
                 </div>
                 <div class="mb-3">
-                    <label for="company_logo" class="form-label">Logo (JPG format)</label>
-                    <input class="form-control" type="file" id="company_logo" name="company_logo" accept="image/jpeg">
-                    <div class="mt-2">
-                        <img id="logo-preview" src="" alt="Logo preview" style="max-height: 100px; display: none;">
+                    <label for="company_logo" class="form-label">Logo (JPG, PNG format, max 400x100)</label>
+                    <input class="form-control" type="file" id="company_logo" name="company_logo" accept="image/jpeg,image/png">
+                    <div id="logo-preview-container">
+                        <img id="logo-preview" src="#" alt="Logo preview" style="display: none;">
                     </div>
                 </div>
                 <button type="submit" class="btn btn-primary">Spremi promjene</button>

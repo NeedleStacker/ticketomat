@@ -133,10 +133,10 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
     }
 
     /* Modal styling with better Cusdis height */
-    .modal.fade .modal-dialog {
-      margin-top: 2rem;
-      margin-bottom: 2rem;
-      max-height: calc(100vh - 4rem);
+    #ticketModal .modal-dialog {
+        max-height: 95vh;
+        margin-top: 2.5vh;
+        margin-bottom: 2.5vh;
     }
     
     .modal.fade .modal-content {
@@ -146,7 +146,6 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
     }
     
     .modal.fade .modal-body {
-      overflow-y: auto;
       overflow-x: hidden;
       display: flex;
       flex-direction: column;
@@ -393,6 +392,18 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
               data-page-title="${escapeHTML(t.title)}"
               data-nickname="${`${user.first_name} ${user.last_name}`.trim() || user.username}"
             ></div>
+            <script>
+                window.addEventListener('message', (event) => {
+                    if (event.origin === 'https://cusdis.com' && event.data === 'cusdis:ready') {
+                        const style = document.createElement('style');
+                        style.innerHTML = \`
+                            .cusdis-form__meta { display: none !important; }
+                            .cusdis-textarea { min-height: 100px; }
+                        \`;
+                        document.head.appendChild(style);
+                    }
+                });
+            <\/script>
             <script async defer src="https://cusdis.com/js/cusdis.es.js"><\/script>
             <script>
               const parentViewportHeight = ${viewportHeight};
@@ -564,10 +575,9 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
 
         let imgSrc;
         if (device.image_path) {
-            const cleanPath = device.image_path.replace(/^\.\.\//, '');
-            imgSrc = cleanPath + "?v=" + new Date().getTime();
+            imgSrc = `../${device.image_path}?v=${new Date().getTime()}`;
         } else {
-            imgSrc = "img/serial_location.jpg?v=" + new Date().getTime();
+            imgSrc = "../img/serial_location.jpg?v=" + new Date().getTime();
         }
         
         console.log("Image source:", imgSrc);
@@ -626,7 +636,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
       ticketModal.addEventListener('hidden.bs.modal', function () {
           const fileInput = document.getElementById('new_attachment');
           if (fileInput) fileInput.value = '';
-          document.getElementById('file-name-span').textContent = 'Nije izabran fajl';
+          document.getElementById('file-name-span').textContent = 'Nije izabrana datoteka';
           
           if (document.activeElement && document.activeElement.blur) {
             document.activeElement.blur();
