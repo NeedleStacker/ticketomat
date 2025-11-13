@@ -325,8 +325,18 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     }
 
     async function createNewTicket() {
+      const title = document.getElementById("new_ticket_title").value.trim();
+      const device = document.getElementById("new_ticket_device").value;
+      const serial = document.getElementById("new_ticket_serial").value.trim();
+      const client = document.getElementById("new_ticket_client").value;
+
+      if (!client || !title || !device || !serial) {
+          alert("Molimo popunite sva obavezna polja: Korisnik, Naslov, Ime aparata i Serijski broj.");
+          return;
+      }
+
       const formData = new FormData();
-      formData.append('title', document.getElementById("new_ticket_title").value.trim());
+      formData.append('title', title);
       formData.append('description', document.getElementById("new_ticket_description").value.trim());
       formData.append('device_name', document.getElementById("new_ticket_device").value);
       formData.append('serial_number', document.getElementById("new_ticket_serial").value.trim());
