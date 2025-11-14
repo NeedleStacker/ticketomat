@@ -70,7 +70,13 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         </div>
     </div>
 
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script>
+        function logout() {
+          localStorage.removeItem("user");
+          window.location = "index.php";
+        }
+
         const API = "../api/";
 
         async function loadCompanyInfo() {

@@ -1,0 +1,79 @@
+<?php
+require_once("config.php");
+require_once("functions.php");
+session_start();
+
+if (!isset($_SESSION['user_id'])) {
+    http_response_code(401);
+    echo json_encode(["error" => "Unauthorized"]);
+    exit;
+}
+
+header('Content-Type: application/json');
+
+$data = json_decode(file_get_contents('php://input'), true);
+$ticket_id = $data['ticket_id'] ?? 0;
+$author_name = $data['author_name'] ?? '';
+$author_email = $data['author_email'] ?? '';
+$comment_text = $data['comment_text'] ?? '';
+$ip_address = $_SERVER['REMOTE_ADDR'];
+
+// Validation
+if ($ticket_id <= 0 || empty($author_name) || empty($comment_text) || !filter_var($author_email, FILTER_VALIDATE_EMAIL)) {
+    http_response_code(400);
+    echo json_encode(['error' => 'Molimo ispunite sva polja ispravno.']);
+    exit;
+}
+
+if (strlen($comment_text) > 2000) {
+    http_response_code(400);
+    echo json_encode(['error' => 'Komentar ne smije biti duži od 2000 znakova.']);
+    exit;
+}
+
+$conn = get_db_connection();
+
+// Rate Limiting (1 comment per 10 seconds per IP)
+$rate_limit_seconds = 10;
+$stmt = $conn->prepare("SELECT last_comment_timestamp FROM comment_rate_limits WHERE ip_address = ?");
+$stmt->bind_param("s", $ip_address);
+$stmt->execute();
+$result = $stmt->get_result();
+
+if ($result->num_rows > 0) {
+    $row = $result->fetch_assoc();
+    $last_comment_time = strtotime($row['last_comment_timestamp']);
+    if (time() - $last_comment_time < $rate_limit_seconds) {
+        http_response_code(429); // Too Many Requests
+        echo json_encode(['error' => 'Možete poslati samo jedan komentar svakih 10 sekundi.']);
+        $stmt->close();
+        $conn->close();
+        exit;
+    }
+}
+$stmt->close();
+
+// Sanitize input
+$author_name_sanitized = htmlspecialchars($author_name, ENT_QUOTES, 'UTF-8');
+$comment_text_sanitized = htmlspecialchars($comment_text, ENT_QUOTES, 'UTF-8');
+
+// Insert new comment
+$stmt = $conn->prepare("INSERT INTO ticket_comments (ticket_id, author_name, author_email, comment_text) VALUES (?, ?, ?, ?)");
+$stmt->bind_param("isss", $ticket_id, $author_name_sanitized, $author_email, $comment_text_sanitized);
+
+if ($stmt->execute()) {
+    // Update rate limit timestamp
+    $stmt_rate = $conn->prepare("INSERT INTO comment_rate_limits (ip_address, last_comment_timestamp) VALUES (?, NOW()) ON DUPLICATE KEY UPDATE last_comment_timestamp = NOW()");
+    $stmt_rate->bind_param("s", $ip_address);
+    $stmt_rate->execute();
+    $stmt_rate->close();
+
+    echo json_encode(['success' => true, 'message' => 'Komentar je uspješno dodan.']);
+} else {
+    http_response_code(500);
+    echo json_encode(['error' => 'Došlo je do greške prilikom spremanja komentara.']);
+}
+
+$stmt->close();
+$conn->close();
+?>

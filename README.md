@@ -35,7 +35,7 @@ Sustav je dizajniran s ciljem automatizacije i optimizacije procesa korisničke 
 - **Backend:** PHP
 - **Baza Podataka:** MySQL / MariaDB
 - **Frontend:** HTML, CSS, JavaScript
-- **Frameworks/Libraries:** Bootstrap 5, Cusdis (za sustav komentiranja)
+- **Frameworks/Libraries:** Bootstrap 5
 
 ---
 
