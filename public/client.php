@@ -134,8 +134,8 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
 
     /* Modal styling for full height */
     #ticketModal .modal-dialog {
-        height: calc(100vh - 40px);
-        margin: 20px auto;
+        height: calc(100vh - 80px);
+        margin: 40px auto;
     }
     #ticketModal .modal-content {
         height: 100%;
