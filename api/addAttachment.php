@@ -1,6 +1,5 @@
 <?php
 require_once("config.php");
-require_once("functions.php");
 session_start();
 if (!isset($_SESSION['user_id'])) {
     http_response_code(401);
@@ -31,9 +30,9 @@ if ($status !== 'Otvoren' && $status !== 'U tijeku') {
 }
 
 if (isset($_FILES['attachment']) && $_FILES['attachment']['error'] == 0) {
-    if ($_FILES['attachment']['size'] > 5 * 1024 * 1024) { // 5MB limit
+    if ($_FILES['attachment']['size'] > 10 * 1024 * 1024) { // 10MB limit
         http_response_code(400);
-        echo json_encode(["error" => "Datoteka je prevelika. Maksimalna veličina je 5MB."]);
+        echo json_encode(["error" => "Datoteka je prevelika. Maksimalna veličina je 10MB."]);
         exit;
     }
 

@@ -1,6 +1,5 @@
 <?php
 require_once("config.php");
-require_once("functions.php");
 session_start();
 
 if (!isset($_SESSION['user_id'])) {
@@ -26,20 +25,19 @@ if ($comment_id <= 0) {
     exit;
 }
 
-$conn = get_db_connection();
 $stmt = $conn->prepare("DELETE FROM ticket_comments WHERE id = ?");
 $stmt->bind_param("i", $comment_id);
 
 if ($stmt->execute()) {
     if ($stmt->affected_rows > 0) {
-        echo json_encode(['success' => true, 'message' => 'Komentar je uspješno obrisan.']);
+        echo json_encode(['success' => true, 'message' => 'Poruka je uspješno obrisana.']);
     } else {
         http_response_code(404);
-        echo json_encode(['error' => 'Komentar nije pronađen.']);
+        echo json_encode(['error' => 'Poruka nije pronađena.']);
     }
 } else {
     http_response_code(500);
-    echo json_encode(['error' => 'Došlo je do greške prilikom brisanja komentara.']);
+    echo json_encode(['error' => 'Došlo je do greške prilikom brisanja poruke.']);
 }
 
 $stmt->close();

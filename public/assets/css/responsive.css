@@ -1,0 +1,14 @@
+/* public/assets/css/responsive.css */
+
+@media (max-width: 576px) {
+    #logo-preview-container {
+        width: 100%;
+        height: auto;
+        padding: 5px;
+    }
+
+    #logo-preview {
+        max-width: 100%;
+        max-height: 80px;
+    }
+}
