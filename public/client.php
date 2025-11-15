@@ -13,6 +13,8 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <title>Korisnik - Ticketomat</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="assets/css/comments.css">
   <style>
     body { background-color: #f8f9fa; }
     .navbar-brand { font-weight: 600; letter-spacing: 0.5px; }
@@ -145,27 +147,11 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
     #ticketModal .modal-body {
         overflow-y: auto;
         flex-grow: 1;
-    }
-    
-    /* Cusdis container takes remaining space */
-    #cusdis-container-client {
-      flex-grow: 1;
-      flex-shrink: 1;
-      min-height: 300px;
-      display: flex;
-      flex-direction: column;
-    }
-    
-    #cusdis-container-client iframe {
-      flex-grow: 1;
-      height: 100%;
-      min-height: 300px;
+        display: flex;
+        flex-direction: column;
     }
     
     /* Fix aria-hidden focus issue */
-    .modal.show {
-      overflow-y: auto;
-    }
     
     .modal-footer {
       flex-shrink: 0;
@@ -283,30 +269,32 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
     }
 
     async function loadAttachments(ticketId) {
+        const attachmentSection = document.getElementById("attachmentSection");
         const attachmentList = document.getElementById("attachmentList");
+        attachmentSection.style.display = 'block'; // Always show the section
         attachmentList.innerHTML = '<div class="text-muted">Učitavanje...</div>';
 
         const res = await fetch(API + `getAttachments.php?ticket_id=${ticketId}`);
         const attachments = await res.json();
+        attachmentList.innerHTML = ""; // Clear loading message
 
-        attachmentList.innerHTML = "";
         if (attachments.error) {
-            attachmentList.innerHTML = `<div class="text-danger">${attachments.error}</div>`;
-            return;
+             attachmentList.innerHTML = `<div class="text-danger small">${attachments.error}</div>`;
+             return;
         }
+
         if (attachments.length === 0) {
             attachmentList.innerHTML = `<div class="text-muted small">Nema priloženih datoteka.</div>`;
-            return;
+        } else {
+            attachments.forEach(file => {
+                const link = document.createElement('a');
+                link.href = `${API}getAttachment.php?id=${file.id}`;
+                link.textContent = file.attachment_name;
+                link.className = 'btn btn-outline-secondary btn-sm me-2 mb-2';
+                link.target = '_blank';
+                attachmentList.appendChild(link);
+            });
         }
-
-        attachments.forEach(file => {
-            const link = document.createElement('a');
-            link.href = `${API}getAttachment.php?id=${file.id}`;
-            link.textContent = file.attachment_name;
-            link.className = 'btn btn-outline-secondary btn-sm me-2 mb-2';
-            link.target = '_blank';
-            attachmentList.appendChild(link);
-        });
     }
 
     async function openDetails(id) {
@@ -315,7 +303,14 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
       if (t.error) { alert(t.error); return; }
 
       const modal = document.getElementById('ticketModal');
-      document.getElementById("modalTitle").textContent = `Ticket #${t.id} – ${t.title}`;
+      const modalTitle = document.getElementById("modalTitle");
+
+      let titleHTML = `Ticket #${t.id} – ${escapeHTML(t.title)}`;
+      if (t.is_locked == 1) {
+          titleHTML += ' <i class="bi bi-lock-fill" title="Ovaj ticket je zaključen"></i>';
+      }
+      modalTitle.innerHTML = titleHTML;
+
       document.getElementById("modalDevice").textContent = t.device_name || "-";
       document.getElementById("modalSerial").textContent = t.serial_number || "-";
       document.getElementById("modalDesc").textContent = t.description || "-";
@@ -326,20 +321,36 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
       document.getElementById("modalCancelReason").textContent = t.cancel_reason || "-";
       document.getElementById("ticket_id").value = t.id;
 
-      loadAttachments(t.id);
-
-      const addAttachmentSection = document.getElementById("addAttachmentSection");
-      if (t.status === 'Otvoren' || t.status === 'U tijeku') {
-        addAttachmentSection.style.display = 'block';
+      if (t.status === 'Otkazan') {
+        document.getElementById('cancelDateRow').style.display = 'block';
+        document.getElementById('cancelReasonRow').style.display = 'block';
       } else {
-        addAttachmentSection.style.display = 'none';
+        document.getElementById('cancelDateRow').style.display = 'none';
+        document.getElementById('cancelReasonRow').style.display = 'none';
       }
 
+      loadAttachments(t.id);
+
+      document.getElementById("addAttachmentSection").style.display = 'block';
+
       const btnCancel = document.getElementById("cancelTicketBtn");
-      if (t.status === 'Otkazan' || t.status === 'Zatvoren' || t.status === 'Riješen') {
-        btnCancel.style.display = 'none';
+      const addAttachmentSection = document.getElementById("addAttachmentSection");
+      const commentsContainer = document.getElementById('comments-section-container');
+      const isLocked = t.is_locked == 1;
+
+      commentsContainer.style.display = 'block';
+      renderCommentUI(commentsContainer, t.id, false, isLocked); // false for isAdmin
+
+      if (isLocked) {
+          btnCancel.style.display = 'none';
+          addAttachmentSection.style.display = 'none';
       } else {
-        btnCancel.style.display = 'inline-block';
+          addAttachmentSection.style.display = 'block';
+          if (t.status === 'Otkazan' || t.status === 'Zatvoren' || t.status === 'Riješen') {
+              btnCancel.style.display = 'none';
+          } else {
+              btnCancel.style.display = 'inline-block';
+          }
       }
 
       if (t.status === 'Otkazan') {
@@ -349,85 +360,6 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
         modal.querySelector('.modal-header').classList.remove('bg-secondary');
         modal.querySelector('.modal-header').classList.add('bg-primary');
       }
-
-      const cusdisContainer = document.getElementById("cusdis-container-client");
-      cusdisContainer.innerHTML = '';
-
-      const iframe = document.createElement('iframe');
-      iframe.style.width = '100%';
-      iframe.style.border = 'none';
-      cusdisContainer.appendChild(iframe);
-
-      const viewportHeight = window.innerHeight;
-
-      const iframeContent = `
-        <html>
-          <head>
-            <link rel="stylesheet" href="assets/css/cusdis.css">
-            <base target="_parent">
-          </head>
-          <body style="margin: 0;">
-            <script>
-              window.CUSDIS_LOCALE = {
-                "powered_by": "Pokreće Cusdis", "post_comment": "Pošalji poruku", "loading": "Učitavanje...",
-                "nickname": "Ime", "email": "Email (opcionalno)", "reply_btn": "Odgovori",
-                "reply_placeholder": "Poruka...", "COMMENT_TEXTAREA_PLACEHOLDER": "Poruka...",
-                "SUBMIT_COMMENT_BUTTON": "Pošalji poruku", "mod_badge": "Admin",
-                "content_is_required": "Sadržaj je obavezan.",
-                "sending": "Slanje...",
-                "comment_has_been_sent": "Vaš komentar je poslan. Molimo pričekajte odobrenje."
-              }
-            <\/script>
-            <div id="cusdis_thread"
-              data-host="https://cusdis.com"
-              data-app-id="9195cf53-b951-405c-aa1a-2acccc1b57ce"
-              data-page-id="${t.id}"
-              data-page-url="${window.location.href.split('?')[0] + '?ticket=' + t.id}"
-              data-page-title="${escapeHTML(t.title)}"
-              data-nickname="${`${user.first_name} ${user.last_name}`.trim() || user.username}"
-            ></div>
-            <script>
-                window.addEventListener('message', (event) => {
-                    if (event.origin === 'https://cusdis.com' && event.data === 'cusdis:ready') {
-                        const style = document.createElement('style');
-                        style.innerHTML = \`
-                            .cusdis-form__meta { display: none !important; }
-                            .cusdis-textarea { min-height: 100px; }
-                        \`;
-                        document.head.appendChild(style);
-                    }
-                });
-            <\/script>
-            <script async defer src="https://cusdis.com/js/cusdis.es.js"><\/script>
-            <script>
-              const parentViewportHeight = ${viewportHeight};
-              const observer = new MutationObserver((mutationsList, observer) => {
-                const cusdisIframe = document.querySelector('#cusdis_thread > iframe');
-                if (cusdisIframe) {
-                  const dynamicHeight = Math.max(400, parentViewportHeight * 0.4);
-                  cusdisIframe.style.minHeight = \`\${dynamicHeight}px\`;
-                  observer.disconnect();
-                }
-              });
-              const targetNode = document.getElementById('cusdis_thread');
-              if (targetNode) {
-                observer.observe(targetNode, { childList: true });
-              }
-
-              window.addEventListener('message', event => {
-                if (event.origin === 'https://cusdis.com' && event.data && Array.isArray(event.data) && event.data[0] === 'comment:sent') {
-                  const cusdisContainer = document.getElementById('cusdis_thread');
-                  if(cusdisContainer) {
-                    cusdisContainer.innerHTML = '<div style="text-align: center; padding: 2rem; color: #0f5132; background-color: #d1e7dd; border: 1px solid #badbcc; border-radius: .375rem;">Hvala! Vaš komentar je poslan i čeka na odobrenje.</div>';
-                  }
-                }
-              });
-            <\/script>
-          </body>
-        </html>
-      `;
-
-      iframe.srcdoc = iframeContent;
 
       new bootstrap.Modal(modal).show();
     }
@@ -655,7 +587,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
       const fileInput = document.getElementById('new_attachment');
       fileInput.addEventListener('change', function() {
         const fileNameSpan = document.getElementById('file-name-span');
-        fileNameSpan.textContent = this.files.length > 0 ? this.files[0].name : 'Nije izabran fajl';
+        fileNameSpan.textContent = this.files.length > 0 ? this.files[0].name : 'Nije odabrana datoteka';
       });
     });
   </script>
@@ -722,9 +654,9 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
   <div class="modal fade" id="ticketModal" tabindex="-1">
     <div class="modal-dialog modal-xl">
       <div class="modal-content">
-        <div class="modal-header bg-primary text-white">
-          <h5 class="modal-title" id="modalTitle">Detalji ticketa</h5>
-          <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
+        <div class="modal-header bg-primary text-white d-flex justify-content-between">
+            <h5 class="modal-title" id="modalTitle">Detalji ticketa</h5>
+            <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
         </div>
         <div class="modal-body">
           <input type="hidden" id="ticket_id">
@@ -734,8 +666,8 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
           <p><b>Status:</b> <span id="modalStatus"></span></p>
           <p><b>Otvoreno:</b> <span id="modalDate"></span></p>
           <p><b>Ticket otvorio:</b> <span id="modalRequestCreator"></span></p>
-          <p><b>Otkazano:</b> <span id="modalCanceledAt"></span></p>
-          <p><b>Razlog otkazivanja:</b> <span id="modalCancelReason"></span></p>
+          <p id="cancelDateRow"><b>Otkazano:</b> <span id="modalCanceledAt"></span></p>
+          <p id="cancelReasonRow"><b>Razlog otkazivanja:</b> <span id="modalCancelReason"></span></p>
 
           <div id="attachmentSection">
               <hr>
@@ -751,12 +683,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
                   </div>
               </div>
           </div>
-
-          <hr>
-          <div class="d-flex justify-content-between align-items-center">
-            <h6 class="mb-0">Pošaljite poruku vezanu za ovaj zahtjev</h6>
-          </div>
-          <div id="cusdis-container-client" class="mt-2"></div>
+          <div id="comments-section-container"></div>
         </div>
         <div class="modal-footer">
           <button class="btn btn-danger me-auto" id="cancelTicketBtn" data-bs-toggle="modal" data-bs-target="#cancelModal">Otkaži zahtjev</button>
@@ -787,5 +714,6 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/js/comments.js"></script>
 </body>
 </html>

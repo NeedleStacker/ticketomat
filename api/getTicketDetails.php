@@ -49,6 +49,8 @@ echo json_encode(array(
   "email"         => $ticket["email"],
   "phone"         => $ticket["phone"],
   "request_creator" => $ticket["request_creator"],
-  "creator_contact" => $ticket["creator_contact"]
+  "creator_contact" => $ticket["creator_contact"],
+  "is_locked"       => $ticket["is_locked"],
+  "unlock_reason"   => $ticket["unlock_reason"]
 ));
 ?>

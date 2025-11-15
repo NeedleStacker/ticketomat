@@ -45,12 +45,17 @@ if ($check->num_rows == 0) {
     exit;
 }
 
+// Lock ticket if status is 'Riješen' or 'Otkazan'
+$is_locked = ($status === 'Riješen' || $status === 'Otkazan') ? 1 : 0;
+
+// If status is 'Otkazan', also update cancel_reason and canceled_at
 if ($status === 'Otkazan') {
-    $q = $conn->prepare("UPDATE tickets SET status=?, priority=?, description=?, device_name=?, serial_number=?, cancel_reason=?, canceled_at=NOW() WHERE id=?");
-    $q->bind_param("ssssssi", $status, $priority, $description, $device_name, $serial_number, $cancel_reason, $id);
+    $q = $conn->prepare("UPDATE tickets SET status=?, priority=?, description=?, device_name=?, serial_number=?, is_locked=?, cancel_reason=?, canceled_at=NOW() WHERE id=?");
+    $q->bind_param("sssssisi", $status, $priority, $description, $device_name, $serial_number, $is_locked, $cancel_reason, $id);
 } else {
-    $q = $conn->prepare("UPDATE tickets SET status=?, priority=?, description=?, device_name=?, serial_number=? WHERE id=?");
-    $q->bind_param("sssssi", $status, $priority, $description, $device_name, $serial_number, $id);
+    // For other statuses, ensure cancel_reason and canceled_at are cleared and ticket is unlocked
+    $q = $conn->prepare("UPDATE tickets SET status=?, priority=?, description=?, device_name=?, serial_number=?, is_locked=?, cancel_reason=NULL, canceled_at=NULL WHERE id=?");
+    $q->bind_param("sssssii", $status, $priority, $description, $device_name, $serial_number, $is_locked, $id);
 }
 
 if ($q->execute()) {
