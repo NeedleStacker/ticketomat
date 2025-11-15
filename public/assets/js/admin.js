@@ -346,6 +346,20 @@ document.addEventListener("DOMContentLoaded", () => {
     loadDevices();
     loadClients();
 
+    // Accessibility fix for modal focus
+    const ticketModal = document.getElementById('ticketModal');
+    const cancelModal = document.getElementById('adminCancelModal');
+
+    const modals = [ticketModal, cancelModal];
+
+    modals.forEach(modal => {
+        if(modal) {
+            modal.addEventListener('hidden.bs.modal', function () {
+                document.body.focus();
+            });
+        }
+    });
+
     const newTicketModal = document.getElementById('newTicketModal');
     newTicketModal.addEventListener('hidden.bs.modal', function () {
         document.getElementById('newTicketForm').reset();

@@ -49,7 +49,7 @@ if (isset($_FILES['attachment']) && $_FILES['attachment']['error'] == 0) {
     $null = NULL;
 
     $stmt = $conn->prepare("INSERT INTO ticket_attachments (ticket_id, user_id, attachment_name, attachment_type, attachment) VALUES (?, ?, ?, ?, ?)");
-    $stmt->bind_param("iis sb", $ticket_id, $user_id, $attachment_name, $attachment_type, $null);
+    $stmt->bind_param("iissb", $ticket_id, $user_id, $attachment_name, $attachment_type, $null);
     $stmt->send_long_data(4, $attachment);
 
     if ($stmt->execute()) {

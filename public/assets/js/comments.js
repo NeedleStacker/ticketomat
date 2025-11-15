@@ -160,7 +160,14 @@ async function deleteComment(commentId, ticketId) {
         const result = await res.json();
 
         if (result.success) {
-            loadComments(ticketId, true); // Reload with admin view
+            // More performant: remove the element directly instead of reloading all comments
+            const commentElement = document.querySelector(`.comment-item[data-comment-id='${commentId}']`);
+            if (commentElement) {
+                commentElement.remove();
+            } else {
+                // Fallback to reloading if the element isn't found for some reason
+                loadComments(ticketId, true);
+            }
         } else {
             alert('Greška: ' + (result.error || 'Nije moguće obrisati komentar.'));
         }

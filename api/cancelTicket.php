@@ -18,18 +18,29 @@ if (!$id) {
 }
 
 $user_id = $_SESSION['user_id'];
+$user_role = $_SESSION['user_role'];
 
-$q = $conn->prepare("
+$sql = "
   UPDATE tickets
      SET status='otkazan',
          is_locked=1,
          cancel_reason=?,
          canceled_at=NOW()
    WHERE id=?
-     AND user_id=?
-     AND status NOT IN ('zatvoren','riješen','otkazan')
-");
-$q->bind_param("sii", $reason, $id, $user_id);
+     AND status NOT IN ('zatvoren','riješen','otkazan')";
+
+if ($user_role != 'admin') {
+    $sql .= " AND user_id=?";
+}
+
+$q = $conn->prepare($sql);
+
+if ($user_role != 'admin') {
+    $q->bind_param("sii", $reason, $id, $user_id);
+} else {
+    $q->bind_param("si", $reason, $id);
+}
+
 $ok = $q->execute();
 
 if ($ok && $q->affected_rows > 0) {

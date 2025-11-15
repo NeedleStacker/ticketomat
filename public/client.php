@@ -14,6 +14,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
   <title>Korisnik - Ticketomat</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
+  <link rel="stylesheet" href="assets/css/main.css">
   <link rel="stylesheet" href="assets/css/comments.css">
   <link rel="stylesheet" href="assets/css/client.css">
 </head>
@@ -105,7 +106,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
                   <h6 class="fs-6">Dodaj novu datoteku</h6>
                   <div class="custom-file-upload-container">
                       <label for="new_attachment" class="custom-file-upload">Odaberi datoteku</label>
-                      <span id="file-name-span">Nije izabran fajl</span>
+                      <span id="file-name-span">Nije izabrana datoteka</span>
                       <input type="file" id="new_attachment" class="d-none">
                       <button class="btn btn-outline-primary btn-sm ms-auto" type="button" onclick="addAttachment()">Dodaj</button>
                   </div>

@@ -23,7 +23,6 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         <div class="card p-3 p-sm-4">
             <div class="d-flex justify-content-between align-items-center mb-3">
                 <h1 class="mb-0 fs-4">Sve datoteke</h1>
-                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#addFileModal">Dodaj datoteku</button>
             </div>
             <div class="table-responsive">
                 <table class="table table-hover align-middle">
@@ -44,39 +43,11 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         </div>
     </div>
 
-    <!-- Add File Modal -->
-    <div class="modal fade" id="addFileModal" tabindex="-1">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Dodaj novu datoteku</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <form id="addFileForm">
-                        <div class="mb-3">
-                            <label for="ticket_id_input" class="form-label">Ticket ID</label>
-                            <input type="number" class="form-control" id="ticket_id_input" required>
-                        </div>
-                        <div class="mb-3">
-                            <label for="file_input" class="form-label">Datoteka</label>
-                            <input class="form-control" type="file" id="file_input" required>
-                        </div>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zatvori</button>
-                    <button type="button" class="btn btn-primary" onclick="addFile()">Dodaj</button>
-                </div>
-            </div>
-        </div>
-    </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="assets/js/newTicket.js"></script>
     <script>
         const API = "../api/";
-        const addFileModal = new bootstrap.Modal(document.getElementById('addFileModal'));
 
         document.addEventListener('DOMContentLoaded', loadFiles);
 
@@ -122,34 +93,6 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
             });
         }
 
-        async function addFile() {
-            const ticketId = document.getElementById('ticket_id_input').value;
-            const fileInput = document.getElementById('file_input');
-            const file = fileInput.files[0];
-
-            if (!ticketId || !file) {
-                alert('Molimo popunite sva polja.');
-                return;
-            }
-
-            const formData = new FormData();
-            formData.append('ticket_id', ticketId);
-            formData.append('attachment', file);
-
-            const res = await fetch(API + 'addAttachment.php', {
-                method: 'POST',
-                body: formData
-            });
-
-            const result = await res.json();
-            if (result.success) {
-                addFileModal.hide();
-                document.getElementById('addFileForm').reset();
-                loadFiles();
-            } else {
-                alert('Greška: ' + result.error);
-            }
-        }
 
         async function deleteFile(id) {
             if (!confirm('Jeste li sigurni da želite obrisati ovu datoteku?')) return;
