@@ -19,6 +19,9 @@
                     <a class="nav-link" href="devices.php">Aparati</a>
                 </li>
                 <li class="nav-item">
+                    <a class="nav-link" href="files.php">Datoteke</a>
+                </li>
+                <li class="nav-item">
                     <a class="nav-link" href="users.php">Korisnici</a>
                 </li>
                 <li class="nav-item">

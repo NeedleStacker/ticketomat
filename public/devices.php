@@ -13,6 +13,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Upravljanje aparatima - Ticketomat</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="assets/css/main.css">
     <link rel="stylesheet" href="assets/css/devices.css">
 </head>
 <body class="bg-light">
@@ -21,15 +22,12 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
 
     <div class="container py-3">
         <div class="card p-3 p-sm-4">
-            <h1 class="mb-4 fs-4">Upravljanje aparatima</h1>
-            <div class="mb-3">
-                <div class="input-group">
-                    <input type="text" id="newDeviceName" class="form-control" placeholder="Unesite naziv novog aparata">
-                    <button class="btn btn-primary" onclick="addDevice()">Dodaj aparat</button>
-                </div>
+            <div class="d-flex justify-content-between align-items-center mb-3">
+                <h1 class="mb-0 fs-4">Upravljanje aparatima</h1>
+                <button class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editDeviceModal" onclick="prepareNewDeviceModal()">Dodaj aparat</button>
             </div>
             <div class="table-responsive">
-                <table class="table table-striped table-hover align-middle">
+                <table class="table table-hover align-middle">
                     <thead class="table-dark">
                         <tr>
                             <th>ID</th>
@@ -119,14 +117,28 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
 
                 const actionCell = row.insertCell();
                 const editBtn = document.createElement('button');
-                editBtn.className = 'btn btn-sm btn-outline-primary';
+                editBtn.className = 'btn btn-sm btn-outline-primary me-2';
                 editBtn.textContent = 'Uredi';
                 editBtn.onclick = () => openEditModal(d);
                 actionCell.appendChild(editBtn);
+
+                const deleteBtn = document.createElement('button');
+                deleteBtn.className = 'btn btn-sm btn-outline-danger';
+                deleteBtn.textContent = 'Obriši';
+                deleteBtn.onclick = () => deleteDevice(d.id);
+                actionCell.appendChild(deleteBtn);
             });
         }
 
+        function prepareNewDeviceModal() {
+            document.getElementById('editDeviceModal').querySelector('.modal-title').textContent = 'Dodaj aparat';
+            document.getElementById('editDeviceForm').reset();
+            document.getElementById('edit_device_id').value = '';
+            document.getElementById('edit_image_preview').classList.add('d-none');
+        }
+
         function openEditModal(device) {
+            document.getElementById('editDeviceModal').querySelector('.modal-title').textContent = 'Uredi aparat';
             document.getElementById('edit_device_id').value = device.id;
             document.getElementById('edit_device_name').value = device.name;
             const preview = document.getElementById('edit_image_preview');
@@ -144,6 +156,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
             const id = document.getElementById('edit_device_id').value;
             const name = document.getElementById('edit_device_name').value.trim();
             const imageFile = document.getElementById('edit_device_image').files[0];
+            const isNew = !id;
 
             if (!name) {
                 alert("Naziv aparata ne smije biti prazan.");
@@ -151,13 +164,15 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
             }
 
             const formData = new FormData();
-            formData.append('id', id);
+            if (id) formData.append('id', id);
             formData.append('name', name);
             if (imageFile) {
                 formData.append('image', imageFile);
             }
 
-            const res = await fetch(API + "updateDevice.php", {
+            const url = isNew ? "addDevice.php" : "updateDevice.php";
+
+            const res = await fetch(API + url, {
                 method: "POST",
                 body: formData
             });
@@ -171,24 +186,20 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
             }
         }
 
-        async function addDevice() {
-            const name = document.getElementById("newDeviceName").value.trim();
-            if (!name) {
-                alert("Naziv aparata ne smije biti prazan.");
-                return;
-            }
+        async function deleteDevice(id) {
+            if (!confirm('Jeste li sigurni da želite obrisati ovaj aparat?')) return;
 
-            const res = await fetch(API + "addDevice.php", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ name })
+            const res = await fetch(API + 'deleteDevice.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ id: id })
             });
-            const data = await res.json();
-            if (data.success) {
-                document.getElementById("newDeviceName").value = "";
+
+            const result = await res.json();
+            if (result.success) {
                 loadDevices();
             } else {
-                alert("Greška: " + (data.error || "Došlo je do pogreške."));
+                alert('Greška: ' + result.error);
             }
         }
 
