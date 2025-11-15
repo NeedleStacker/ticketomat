@@ -181,6 +181,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
       const res = await fetch(API + `getAttachments.php?ticket_id=${ticketId}`);
       const attachments = await res.json();
       attachmentList.innerHTML = ""; // Clear loading message
+      attachmentList.className = "d-flex flex-wrap"; // Set container to wrap items
 
       if (attachments.error) {
           attachmentList.innerHTML = `<div class="text-danger small">${attachments.error}</div>`;
@@ -188,22 +189,21 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
           return;
       }
 
-      if (attachments.length === 0) {
-          attachmentSection.style.display = 'none';
-      } else {
-          attachmentSection.style.display = 'block';
+      attachmentSection.style.display = 'block';
+
+      if (attachments.length > 0) {
           attachments.forEach(file => {
               const fileContainer = document.createElement('div');
-              fileContainer.className = 'd-flex align-items-center mb-2';
+              fileContainer.className = 'd-flex align-items-center me-2 mb-2';
 
               const link = document.createElement('a');
               link.href = `${API}getAttachment.php?id=${file.id}`;
               link.textContent = file.attachment_name;
-              link.className = 'btn btn-outline-secondary btn-sm me-2 attachment-link flex-grow-1';
+              link.className = 'btn btn-outline-secondary btn-sm attachment-link';
               link.target = '_blank';
 
               const deleteBtn = document.createElement('button');
-              deleteBtn.className = 'btn btn-outline-danger btn-sm';
+              deleteBtn.className = 'btn btn-outline-danger btn-sm ms-1';
               deleteBtn.innerHTML = '<i class="bi bi-trash"></i>';
               deleteBtn.onclick = () => deleteAttachment(file.id, ticketId);
 

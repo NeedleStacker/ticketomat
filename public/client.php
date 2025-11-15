@@ -263,6 +263,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
         const res = await fetch(API + `getAttachments.php?ticket_id=${ticketId}`);
         const attachments = await res.json();
         attachmentList.innerHTML = ""; // Clear loading message
+      attachmentList.className = "d-flex flex-wrap";
 
         if (attachments.error) {
              attachmentList.innerHTML = `<div class="text-danger small">${attachments.error}</div>`;
@@ -270,10 +271,9 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
              return;
         }
 
-        if (attachments.length === 0) {
-            attachmentSection.style.display = 'none';
-        } else {
-            attachmentSection.style.display = 'block';
+      attachmentSection.style.display = 'block';
+
+      if (attachments.length > 0) {
             attachments.forEach(file => {
                 const link = document.createElement('a');
                 link.href = `${API}getAttachment.php?id=${file.id}`;
