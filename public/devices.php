@@ -13,15 +13,11 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Upravljanje aparatima - Ticketomat</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .card { background-color: #f0ffff; }
-        .navbar .btn { align-self: center; }
-        .device-img-thumb { max-width: 100px; max-height: 50px; object-fit: contain; }
-        .device-img-preview { max-width: 100%; max-height: 200px; object-fit: contain; display: block; margin-top: 10px; }
-    </style>
+    <link rel="stylesheet" href="assets/css/devices.css">
 </head>
 <body class="bg-light">
     <?php include 'nav.php'; ?>
+    <?php include '_newTicketModal.php'; ?>
 
     <div class="container py-3">
         <div class="card p-3 p-sm-4">
@@ -79,6 +75,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/newTicket.js"></script>
     <script>
         const API = "../api/";
         let editDeviceModal;

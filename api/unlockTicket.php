@@ -1,6 +1,5 @@
 <?php
 require_once("config.php");
-require_once("functions.php");
 session_start();
 
 // Check if user is logged in
@@ -30,10 +29,9 @@ if (empty($password) || $ticket_id <= 0 || empty($unlock_reason)) {
 }
 
 $user_id = $_SESSION['user_id'];
-$conn = get_db_connection();
 
 // First, verify the admin's password
-$stmt = $conn->prepare("SELECT password FROM users WHERE id = ?");
+$stmt = $conn->prepare("SELECT password_hash FROM users WHERE id = ?");
 $stmt->bind_param("i", $user_id);
 $stmt->execute();
 $result = $stmt->get_result();
@@ -47,7 +45,7 @@ if ($result->num_rows === 0) {
 }
 
 $user = $result->fetch_assoc();
-$hashed_password = $user['password'];
+$hashed_password = $user['password_hash'];
 $stmt->close();
 
 if (!password_verify($password, $hashed_password)) {

@@ -1,0 +1,34 @@
+<!-- Modal: Novi ticket -->
+  <div class="modal fade" id="newTicketModal" tabindex="-1">
+    <div class="modal-dialog modal-xl">
+      <div class="modal-content">
+        <div class="modal-header bg-primary text-white">
+          <h5 class="modal-title">Kreiraj novi ticket</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <form id="newTicketForm">
+            <div class="mb-3"><label for="new_ticket_client" class="form-label">Korisnik</label><select id="new_ticket_client" class="form-select"></select></div>
+            <div class="mb-3"><label for="new_ticket_title" class="form-label">Naslov</label><input type="text" id="new_ticket_title" class="form-control"></div>
+            <div class="row mb-3">
+              <div class="col-md-6"><label for="new_ticket_device" class="form-label">Ime aparata</label><select id="new_ticket_device" class="form-select"></select></div>
+              <div class="col-md-6"><label for="new_ticket_serial" class="form-label">Serijski broj</label><input type="text" id="new_ticket_serial" class="form-control"></div>
+            </div>
+            <div class="mb-3"><label for="new_ticket_description" class="form-label">Opis</label><textarea id="new_ticket_description" class="form-control" rows="4"></textarea></div>
+            <div class="mb-3">
+              <label class="form-label">Dodaj datoteku</label>
+              <div class="custom-file-upload-container">
+                  <label for="new_ticket_attachment" class="custom-file-upload">Odaberi datoteku</label>
+                  <span id="file-name-span-new" class="text-muted">Nije izabrana datoteka</span>
+                  <input type="file" id="new_ticket_attachment" class="d-none">
+              </div>
+            </div>
+          </form>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Zatvori</button>
+          <button type="button" class="btn btn-primary" onclick="createNewTicket()">Kreiraj ticket</button>
+        </div>
+      </div>
+    </div>
+  </div>

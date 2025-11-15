@@ -587,7 +587,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
       const fileInput = document.getElementById('new_attachment');
       fileInput.addEventListener('change', function() {
         const fileNameSpan = document.getElementById('file-name-span');
-        fileNameSpan.textContent = this.files.length > 0 ? this.files[0].name : 'Nije izabran fajl';
+        fileNameSpan.textContent = this.files.length > 0 ? this.files[0].name : 'Nije odabrana datoteka';
       });
     });
   </script>

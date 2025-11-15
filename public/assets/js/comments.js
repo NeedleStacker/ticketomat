@@ -9,25 +9,17 @@
 function renderCommentUI(container, ticketId, isAdmin) {
     container.innerHTML = `
         <div class="comments-container">
-            <h6>Komentari</h6>
+            <h6>Poruke</h6>
             <div id="comments-list-container">
                 <div class="comments-loader">Učitavanje...</div>
                 <ul id="comments-list"></ul>
             </div>
             <form id="comment-form" class="comment-form">
-                <div class="row form-group">
-                    <div class="col-md-6">
-                        <input type="text" id="author_name" class="form-control" placeholder="Ime" required>
-                    </div>
-                    <div class="col-md-6">
-                        <input type="email" id="author_email" class="form-control" placeholder="Email" required>
-                    </div>
-                </div>
                 <div class="form-group">
-                    <textarea id="comment_text" class="form-control" placeholder="Napišite komentar..." required></textarea>
+                    <textarea id="comment_text" class="form-control" placeholder="Napišite poruku..." required></textarea>
                 </div>
                 <div class="text-end">
-                    <button type="submit" class="btn btn-primary">Pošalji komentar</button>
+                    <button type="submit" class="btn btn-primary">Pošalji poruku</button>
                 </div>
             </form>
         </div>
@@ -68,7 +60,7 @@ async function loadComments(ticketId, isAdmin) {
         }
 
         if (comments.length === 0) {
-            list.innerHTML = `<li class="text-muted small">Nema komentara za ovaj ticket.</li>`;
+            list.innerHTML = `<li class="text-muted small">Nema poruka za ovaj ticket.</li>`;
         } else {
             comments.forEach(comment => {
                 const li = document.createElement('li');
@@ -93,7 +85,7 @@ async function loadComments(ticketId, isAdmin) {
         }
     } catch (error) {
         loader.style.display = 'none';
-        list.innerHTML = `<li class="text-danger">Greška pri učitavanju komentara.</li>`;
+        list.innerHTML = `<li class="text-danger">Greška pri učitavanju poruka.</li>`;
         console.error('Error loading comments:', error);
     }
 }
@@ -104,12 +96,10 @@ async function loadComments(ticketId, isAdmin) {
  * @param {boolean} isAdmin - To reload comments with admin view after posting.
  */
 async function addComment(ticketId, isAdmin) {
-    const author_name = document.getElementById('author_name').value.trim();
-    const author_email = document.getElementById('author_email').value.trim();
     const comment_text = document.getElementById('comment_text').value.trim();
 
-    if (!author_name || !author_email || !comment_text) {
-        alert("Sva polja su obavezna.");
+    if (!comment_text) {
+        alert("Poruka ne može biti prazna.");
         return;
     }
 
@@ -121,7 +111,7 @@ async function addComment(ticketId, isAdmin) {
         const res = await fetch(`${API}addComment.php`, {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ ticket_id: ticketId, author_name, author_email, comment_text })
+            body: JSON.stringify({ ticket_id: ticketId, comment_text })
         });
         const result = await res.json();
 
@@ -136,7 +126,7 @@ async function addComment(ticketId, isAdmin) {
         console.error('Error adding comment:', error);
     } finally {
         submitBtn.disabled = false;
-        submitBtn.textContent = 'Pošalji komentar';
+        submitBtn.textContent = 'Pošalji poruku';
     }
 }
 
