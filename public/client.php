@@ -599,7 +599,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
 
   <div class="container py-3">
     <div class="card p-3 p-sm-4 mb-4">
-      <h1 class="mb-3 fs-4 text-center text-sm-start">Podaci o klijentu</h1>
+      <h1 class="mb-3 fs-4 text-center text-sm-start">Podaci o korisniku</h1>
       <p class="mb-1"><b>Ime i prezime:</b> <span id="clientName"></span></p>
       <p class="mb-1"><b>Korisničko ime:</b> <span id="clientUsername"></span></p>
     </div>
@@ -629,7 +629,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
         </div>
 
         <div class="mb-3">
-            <label class="form-label">Datoteka (Max 10MB)</label>
+            <label class="form-label" for="attachment">Datoteka (Max 10MB)</label>
             <div class="custom-file-upload-container">
                 <label for="attachment" class="custom-file-upload">Odaberi datoteku</label>
                 <span id="file-name-span-new-ticket" class="text-muted">Nije izabrana datoteka</span>

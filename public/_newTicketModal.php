@@ -16,7 +16,7 @@
             </div>
             <div class="mb-3"><label for="new_ticket_description" class="form-label">Opis</label><textarea id="new_ticket_description" class="form-control" rows="4"></textarea></div>
             <div class="mb-3">
-              <label class="form-label">Dodaj datoteku</label>
+              <label class="form-label" for="new_ticket_attachment">Dodaj datoteku</label>
               <div class="custom-file-upload-container">
                   <label for="new_ticket_attachment" class="custom-file-upload">Odaberi datoteku</label>
                   <span id="file-name-span-new" class="text-muted">Nije izabrana datoteka</span>

@@ -199,7 +199,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
               const link = document.createElement('a');
               link.href = `${API}getAttachment.php?id=${file.id}`;
               link.textContent = file.attachment_name;
-              link.className = 'btn btn-outline-secondary btn-sm me-2 attachment-link';
+              link.className = 'btn btn-outline-secondary btn-sm me-2 attachment-link flex-grow-1';
               link.target = '_blank';
 
               const deleteBtn = document.createElement('button');
@@ -407,7 +407,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         </div>
         <div class="col-md-4">
           <select id="clientFilter" class="form-select" onchange="loadTickets()">
-            <option value="">Svi klijenti</option>
+            <option value="">Svi korisnici</option>
           </select>
         </div>
       </div>
@@ -473,7 +473,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         <div class="modal-header bg-primary text-white">
             <h5 class="modal-title" id="modalTitle">Detalji ticketa</h5>
             <div class="ms-auto d-flex align-items-center">
-                <button type="button" id="lockButton" class="btn btn-sm text-white me-2"><i class="bi bi-lock-fill fs-5"></i></button>
+                <button type="button" id="lockButton" class="btn btn-sm me-2"><i class="bi bi-lock-fill fs-5"></i></button>
                 <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"></button>
             </div>
         </div>
@@ -508,7 +508,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
             </div>
           </div>
           <div class="mb-3" id="adminAttachmentSection">
-              <label class="form-label">Datoteke</label>
+              <label class="form-label" for="admin_new_attachment">Datoteke</label>
               <div id="attachmentListAdmin" class="mb-2"></div>
               <div class="custom-file-upload-container">
                   <label for="admin_new_attachment" class="custom-file-upload">Odaberi datoteku</label>
