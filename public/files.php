@@ -100,7 +100,8 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
                 const row = tableBody.insertRow();
                 row.setAttribute('data-bs-toggle', 'tooltip');
                 row.setAttribute('data-bs-placement', 'top');
-                row.setAttribute('title', `Ticket #${file.ticket_id}: ${file.ticket_title}`);
+                const tooltipTitle = `Ticket #${file.ticket_id}: ${file.ticket_title}\nUređaj: ${file.device_name || 'N/A'}\nS/N: ${file.serial_number || 'N/A'}\nKorisnik: ${file.ticket_user_first_name || ''} ${file.ticket_user_last_name || ''}`;
+                row.setAttribute('title', tooltipTitle);
 
                 row.innerHTML = `
                     <td>${file.id}</td>
