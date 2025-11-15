@@ -1,6 +1,5 @@
 <?php
 require_once("config.php");
-require_once("functions.php");
 session_start();
 if (!isset($_SESSION['user_id'])) {
     http_response_code(401);
@@ -23,6 +22,7 @@ $user_id = $_SESSION['user_id'];
 $q = $conn->prepare("
   UPDATE tickets
      SET status='otkazan',
+         is_locked=1,
          cancel_reason=?,
          canceled_at=NOW()
    WHERE id=?

@@ -16,111 +16,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="assets/css/comments.css">
-
-  <style>
-    body { background-color: #f8f9fa; }
-    .navbar-brand { font-weight: 600; }
-    .navbar .btn { align-self: center; } /* To align buttons */
-
-    .card { 
-      background-color: #ffffff; 
-      border-radius: 12px; 
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      border: 1px solid #e0e0e0;
-    }
-    .table-container {
-      border: 2px solid #dee2e6;
-      border-radius: 8px;
-      overflow: hidden;
-      background-color: #fff;
-    }
-    td, th { 
-      vertical-align: middle !important; 
-      border: 1px solid #dee2e6;
-      padding: 12px 8px;
-    }
-    thead th {
-      background-color: #343a40 !important;
-      color: white !important;
-      font-weight: 600;
-      border-color: #454d55 !important;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-    tbody tr:hover {
-      background-color: rgba(255, 255, 255, 0.5);
-      transition: background-color 0.2s ease;
-    }
-	.table-hover tbody tr.priority-high-row:hover,
-	.table-hover tbody tr.priority-medium-row:hover,
-	.table-hover tbody tr.priority-low-row:hover,
-	.table-hover tbody tr.status-otkazan-row:hover {
-	  filter: brightness(0.95);
-	}
-
-	.table-hover tbody tr.priority-high-row td,
-	.table-hover tbody tr.priority-medium-row td,
-	.table-hover tbody tr.priority-low-row td,
-	.table-hover tbody tr.status-otkazan-row td {
-	  background-color: inherit !important;
-	}
-	.priority-high-row { background-color: #f8d7da; }
-    .priority-medium-row { background-color: #fff3cd; }
-    .priority-low-row { background-color: #d1e7dd; }
-    .status-otkazan-row { background-color: #e2e3e5; }
-
-    .modal-priority-high .modal-header { background-color: #dc3545 !important; color: #fff; }
-    .modal-priority-medium .modal-header { background-color: #ffc107 !important; color: #000; }
-    .modal-priority-low .modal-header { background-color: #198754 !important; color: #fff; }
-    .modal-status-otkazan .modal-header { background-color: #6c757d !important; color: #fff; }
-
-    .filter-section { background-color: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
-
-    .priority-legend {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
-      align-items: center;
-      font-size: 0.875rem;
-    }
-    .priority-dot { width: 18px; height: 18px; border-radius: 3px; display: inline-block; }
-    #newTicketModal .modal-dialog,
-    #ticketModal .modal-dialog {
-        height: calc(100vh - 80px);
-        margin: 40px auto;
-    }
-    #newTicketModal .modal-content,
-    #ticketModal .modal-content {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-    }
-    #newTicketModal .modal-body,
-    #ticketModal .modal-body {
-        overflow-y: auto;
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-    }
-    .custom-file-upload-container {
-      border: 1px solid #dee2e6;
-      border-radius: .375rem;
-      padding: .375rem .75rem;
-      display: flex;
-      align-items: center;
-    }
-    .custom-file-upload {
-      background: #0d6efd;
-      color: white;
-      padding: 0.375rem 0.75rem;
-      border-radius: .375rem;
-      cursor: pointer;
-      font-size: 1rem;
-      margin-right: 10px;
-      white-space: nowrap;
-    }
-  </style>
+  <link rel="stylesheet" href="assets/css/admin.css">
 
   <script>
     const API = "../api/";
@@ -142,8 +38,53 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         if (attachmentButton) attachmentButton.disabled = disabled;
     }
 
+    async function lockTicket() {
+        const ticket_id = document.getElementById("ticket_id").value;
+        if (!confirm('Jeste li sigurni da želite zaključati ovaj ticket? Akcija je nepovratna bez otključavanja od strane administratora.')) return;
 
-    async function handleUnlockTicket() {
+        try {
+            const res = await fetch(API + 'lockTicket.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ ticket_id })
+            });
+            const data = await res.json();
+            if (data.success) {
+                alert('✅ Ticket uspješno zaključan.');
+                const currentModal = bootstrap.Modal.getInstance(document.getElementById('ticketModal'));
+                currentModal.hide();
+                showTicketDetails(ticket_id);
+            } else {
+                alert('❌ ' + (data.error || 'Greška prilikom zaključavanja.'));
+            }
+        } catch (error) {
+            console.error('Lock error:', error);
+            alert('Došlo je do greške na strani servera.');
+        }
+    }
+
+    async function deleteAttachment(attachmentId, ticketId) {
+        if (!confirm('Jeste li sigurni da želite obrisati ovu datoteku?')) return;
+
+        try {
+            const res = await fetch(API + 'deleteAttachment.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ attachment_id: attachmentId })
+            });
+            const data = await res.json();
+            if (data.success) {
+                loadAttachmentsAdmin(ticketId);
+            } else {
+                alert('❌ ' + (data.error || 'Greška prilikom brisanja datoteke.'));
+            }
+        } catch (error) {
+            console.error('Delete attachment error:', error);
+            alert('Došlo je do greške na strani servera.');
+        }
+    }
+
+    async function unlockTicket() {
         const ticket_id = document.getElementById("ticket_id").value;
         const password = prompt("Za otključavanje unesite svoju lozinku:");
         if (password === null) return;
@@ -180,13 +121,6 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     function logout() {
       localStorage.removeItem("user");
       window.location = "index.php";
-    }
-
-    function escapeHTML(str) {
-      if (typeof str !== 'string') return '';
-      return str.replace(/[&<>"']/g, function(match) {
-        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[match];
-      });
     }
 
     async function loadTickets() {
@@ -242,7 +176,6 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     async function loadAttachmentsAdmin(ticketId) {
       const attachmentSection = document.getElementById("adminAttachmentSection");
       const attachmentList = document.getElementById("attachmentListAdmin");
-      attachmentSection.style.display = 'block'; // Always show
       attachmentList.innerHTML = '<div class="text-muted">Učitavanje...</div>';
 
       const res = await fetch(API + `getAttachments.php?ticket_id=${ticketId}`);
@@ -251,19 +184,32 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
 
       if (attachments.error) {
           attachmentList.innerHTML = `<div class="text-danger small">${attachments.error}</div>`;
+          attachmentSection.style.display = 'block';
           return;
       }
 
       if (attachments.length === 0) {
-          attachmentList.innerHTML = `<div class="text-muted small">Nema priloženih datoteka.</div>`;
+          attachmentSection.style.display = 'none';
       } else {
+          attachmentSection.style.display = 'block';
           attachments.forEach(file => {
+              const fileContainer = document.createElement('div');
+              fileContainer.className = 'd-flex align-items-center mb-2';
+
               const link = document.createElement('a');
               link.href = `${API}getAttachment.php?id=${file.id}`;
               link.textContent = file.attachment_name;
-              link.className = 'btn btn-outline-secondary btn-sm me-2 mb-2 attachment-link';
+              link.className = 'btn btn-outline-secondary btn-sm me-2 attachment-link';
               link.target = '_blank';
-              attachmentList.appendChild(link);
+
+              const deleteBtn = document.createElement('button');
+              deleteBtn.className = 'btn btn-outline-danger btn-sm';
+              deleteBtn.innerHTML = '<i class="bi bi-trash"></i>';
+              deleteBtn.onclick = () => deleteAttachment(file.id, ticketId);
+
+              fileContainer.appendChild(link);
+              fileContainer.appendChild(deleteBtn);
+              attachmentList.appendChild(fileContainer);
           });
       }
     }
@@ -305,12 +251,21 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         icon.classList.remove('bi-unlock-fill');
         icon.classList.add('bi-lock-fill');
         lockButton.title = "Otključaj ovaj ticket";
-        lockButton.onclick = handleUnlockTicket;
+        lockButton.onclick = unlockTicket;
         unlockReasonContainer.style.display = 'none';
+        lockButton.style.display = 'inline-block';
       } else {
-        // Ticket is unlocked, so we don't need a button to lock it again. Hide it.
-        // But if it was unlocked, show the reason.
-        lockButton.style.display = 'none';
+        icon.classList.remove('bi-lock-fill');
+        icon.classList.add('bi-unlock-fill');
+        lockButton.title = "Zaključaj ovaj ticket";
+        lockButton.onclick = lockTicket;
+
+        if (t.status === 'Riješen' || t.status === 'Otkazan') {
+            lockButton.style.display = 'inline-block';
+        } else {
+            lockButton.style.display = 'none';
+        }
+
         if(t.unlock_reason) {
             unlockReasonContainer.style.display = 'block';
             unlockReasonText.textContent = t.unlock_reason;
@@ -318,8 +273,6 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
             unlockReasonContainer.style.display = 'none';
         }
       }
-       // Reset button visibility for next modal opening
-      lockButton.style.display = isLocked ? 'inline-block' : 'none';
 
       const btnCancel = document.getElementById("cancelTicketBtnAdmin");
       if (t.status === 'Otkazan' || t.status === 'Zatvoren' || t.status === 'Riješen') {
@@ -329,12 +282,8 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
       }
 
       const commentsContainer = document.getElementById('comments-section-container');
-      if (t.is_locked == 1) {
-          commentsContainer.style.display = 'none';
-      } else {
-          commentsContainer.style.display = 'block';
-          renderCommentUI(commentsContainer, t.id, true); // true for isAdmin
-      }
+      commentsContainer.style.display = 'block';
+      renderCommentUI(commentsContainer, t.id, true, isLocked); // true for isAdmin
 
       new bootstrap.Modal(modal).show();
     }
@@ -382,62 +331,6 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         bootstrap.Modal.getInstance(document.getElementById('ticketModal')).hide();
         loadTickets();
       } else alert("Greška: " + (data.error || JSON.stringify(data)));
-    }
-
-    async function loadDevices() {
-      const res = await fetch(API + "getDevices.php");
-      const devices = await res.json();
-      const selects = document.querySelectorAll("#ticket_device_name, #new_ticket_device");
-      selects.forEach(select => {
-        select.innerHTML = '<option value="">Odaberite uređaj...</option>';
-        devices.forEach(d => select.innerHTML += `<option>${d.name}</option>`);
-      });
-    }
-
-    async function loadClients() {
-      const res = await fetch(API + "getKorisnici.php");
-      const clients = await res.json();
-      const selects = document.querySelectorAll("#clientFilter, #new_ticket_client");
-      selects.forEach(select => {
-        select.innerHTML = '<option value="">Svi korisnici</option>';
-        clients.forEach(c => select.innerHTML += `<option value="${c.id}">${c.username} (${c.first_name} ${c.last_name})</option>`);
-      });
-    }
-
-    async function createNewTicket() {
-      const title = document.getElementById("new_ticket_title").value.trim();
-      const device = document.getElementById("new_ticket_device").value;
-      const serial = document.getElementById("new_ticket_serial").value.trim();
-      const client = document.getElementById("new_ticket_client").value;
-
-      if (!client || !title || !device || !serial) {
-          alert("Molimo popunite sva obavezna polja: Korisnik, Naslov, Ime aparata i Serijski broj.");
-          return;
-      }
-
-      const formData = new FormData();
-      formData.append('title', title);
-      formData.append('description', document.getElementById("new_ticket_description").value.trim());
-      formData.append('device_name', document.getElementById("new_ticket_device").value);
-      formData.append('serial_number', document.getElementById("new_ticket_serial").value.trim());
-      formData.append('user_id', document.getElementById("new_ticket_client").value);
-      formData.append('status', "Otvoren");
-      formData.append('request_creator', `${user.first_name} ${user.last_name} (Admin)`);
-      formData.append('creator_contact', user.email);
-
-      const attachment = document.getElementById("new_ticket_attachment").files[0];
-      if (attachment) {
-          formData.append('attachment', attachment);
-      }
-
-      const res = await fetch(API + "addTicket.php", { method: "POST", body: formData });
-      const data = await res.json();
-      if (data.success) {
-        alert("✅ Ticket uspješno kreiran.");
-        bootstrap.Modal.getInstance(document.getElementById('newTicketModal')).hide();
-        document.getElementById('newTicketForm').reset();
-        loadTickets();
-      } else alert("❌ " + (data.error || "Greška prilikom kreiranja ticketa."));
     }
 
     async function addAttachmentAdmin() {
@@ -589,16 +482,23 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
           <div id="unlockReasonContainer" class="alert alert-warning" style="display: none;">
               <strong>Ticket Otključan:</strong> <span id="unlockReasonText"></span>
           </div>
-          <div class="row mb-3">
-            <div class="col-md-4"><label class="form-label">Korisnik</label><p id="ticket_user" class="form-control-plaintext"></p></div>
-            <div class="col-md-4"><label class="form-label">Email</label><p id="ticket_email" class="form-control-plaintext"></p></div>
-            <div class="col-md-4"><label class="form-label">Telefon</label><p id="ticket_phone" class="form-control-plaintext"></p></div>
+          <div class="row">
+            <div class="col-lg-8">
+              <div class="row mb-3">
+                <div class="col-md-6"><label for="ticket_device_name" class="form-label">Uređaj</label><input type="text" id="ticket_device_name" class="form-control"></div>
+                <div class="col-md-6"><label for="ticket_serial_number" class="form-label">Serijski broj</label><input type="text" id="ticket_serial_number" class="form-control"></div>
+              </div>
+              <div class="mb-3"><label for="ticket_description" class="form-label">Opis</label><textarea id="ticket_description" class="form-control" rows="4"></textarea></div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card bg-light p-3">
+                    <h6 class="fs-6 fw-bold">Korisnik</h6>
+                    <p id="ticket_user" class="mb-1"></p>
+                    <p id="ticket_email" class="mb-1"></p>
+                    <p id="ticket_phone" class="mb-0"></p>
+                </div>
+            </div>
           </div>
-          <div class="row mb-3">
-            <div class="col-md-6"><label for="ticket_device_name" class="form-label">Uređaj</label><input type="text" id="ticket_device_name" class="form-control"></div>
-            <div class="col-md-6"><label for="ticket_serial_number" class="form-label">Serijski broj</label><input type="text" id="ticket_serial_number" class="form-control"></div>
-          </div>
-          <div class="mb-3"><label for="ticket_description" class="form-label">Opis</label><textarea id="ticket_description" class="form-control" rows="4"></textarea></div>
           <div class="row mb-3">
             <div class="col-md-4"><label for="ticket_status" class="form-label">Status</label>
               <select id="ticket_status" class="form-select"><option>Otvoren</option><option>U tijeku</option><option>Riješen</option><option>Zatvoren</option><option>Otkazan</option></select>
@@ -608,7 +508,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
             </div>
           </div>
           <div class="mb-3" id="adminAttachmentSection">
-              <label class="form-label">Prilozi</label>
+              <label class="form-label">Datoteke</label>
               <div id="attachmentListAdmin" class="mb-2"></div>
               <div class="custom-file-upload-container">
                   <label for="admin_new_attachment" class="custom-file-upload">Odaberi datoteku</label>
@@ -650,6 +550,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/js/newTicket.js"></script>
   <script src="assets/js/comments.js"></script>
 </body>
 </html>
