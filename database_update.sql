@@ -17,4 +17,7 @@ CREATE TABLE `comment_rate_limits` (
   `last_comment_timestamp` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
+ALTER TABLE `ticket_attachments` ADD `user_id` INT(10) UNSIGNED NULL AFTER `ticket_id`;
+ALTER TABLE `ticket_attachments` ADD `created_at` TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP AFTER `attachment`;
+
 -- End of script
