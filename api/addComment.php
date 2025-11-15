@@ -1,6 +1,5 @@
 <?php
 require_once("config.php");
-require_once("functions.php");
 session_start();
 
 if (!isset($_SESSION['user_id'])) {
@@ -13,25 +12,23 @@ header('Content-Type: application/json');
 
 $data = json_decode(file_get_contents('php://input'), true);
 $ticket_id = $data['ticket_id'] ?? 0;
-$author_name = $data['author_name'] ?? '';
-$author_email = $data['author_email'] ?? '';
 $comment_text = $data['comment_text'] ?? '';
+$author_name = $_SESSION['user_name'] ?? 'Nepoznat';
+$author_email = $_SESSION['user_email'] ?? 'nepoznat@example.com';
 $ip_address = $_SERVER['REMOTE_ADDR'];
 
 // Validation
-if ($ticket_id <= 0 || empty($author_name) || empty($comment_text) || !filter_var($author_email, FILTER_VALIDATE_EMAIL)) {
+if ($ticket_id <= 0 || empty($comment_text)) {
     http_response_code(400);
-    echo json_encode(['error' => 'Molimo ispunite sva polja ispravno.']);
+    echo json_encode(['error' => 'Poruka ne može biti prazna.']);
     exit;
 }
 
 if (strlen($comment_text) > 2000) {
     http_response_code(400);
-    echo json_encode(['error' => 'Komentar ne smije biti duži od 2000 znakova.']);
+    echo json_encode(['error' => 'Poruka ne smije biti duža od 2000 znakova.']);
     exit;
 }
-
-$conn = get_db_connection();
 
 // Rate Limiting (1 comment per 10 seconds per IP)
 $rate_limit_seconds = 10;
@@ -45,7 +42,7 @@ if ($result->num_rows > 0) {
     $last_comment_time = strtotime($row['last_comment_timestamp']);
     if (time() - $last_comment_time < $rate_limit_seconds) {
         http_response_code(429); // Too Many Requests
-        echo json_encode(['error' => 'Možete poslati samo jedan komentar svakih 10 sekundi.']);
+        echo json_encode(['error' => 'Možete poslati samo jednu poruku svakih 10 sekundi.']);
         $stmt->close();
         $conn->close();
         exit;
@@ -68,10 +65,10 @@ if ($stmt->execute()) {
     $stmt_rate->execute();
     $stmt_rate->close();
 
-    echo json_encode(['success' => true, 'message' => 'Komentar je uspješno dodan.']);
+    echo json_encode(['success' => true, 'message' => 'Poruka je uspješno dodana.']);
 } else {
     http_response_code(500);
-    echo json_encode(['error' => 'Došlo je do greške prilikom spremanja komentara.']);
+    echo json_encode(['error' => 'Došlo je do greške prilikom spremanja poruke.']);
 }
 
 $stmt->close();

@@ -16,111 +16,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
   <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css">
   <link rel="stylesheet" href="assets/css/comments.css">
-
-  <style>
-    body { background-color: #f8f9fa; }
-    .navbar-brand { font-weight: 600; }
-    .navbar .btn { align-self: center; } /* To align buttons */
-
-    .card { 
-      background-color: #ffffff; 
-      border-radius: 12px; 
-      box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-      border: 1px solid #e0e0e0;
-    }
-    .table-container {
-      border: 2px solid #dee2e6;
-      border-radius: 8px;
-      overflow: hidden;
-      background-color: #fff;
-    }
-    td, th { 
-      vertical-align: middle !important; 
-      border: 1px solid #dee2e6;
-      padding: 12px 8px;
-    }
-    thead th {
-      background-color: #343a40 !important;
-      color: white !important;
-      font-weight: 600;
-      border-color: #454d55 !important;
-      position: sticky;
-      top: 0;
-      z-index: 10;
-    }
-    tbody tr:hover {
-      background-color: rgba(255, 255, 255, 0.5);
-      transition: background-color 0.2s ease;
-    }
-	.table-hover tbody tr.priority-high-row:hover,
-	.table-hover tbody tr.priority-medium-row:hover,
-	.table-hover tbody tr.priority-low-row:hover,
-	.table-hover tbody tr.status-otkazan-row:hover {
-	  filter: brightness(0.95);
-	}
-
-	.table-hover tbody tr.priority-high-row td,
-	.table-hover tbody tr.priority-medium-row td,
-	.table-hover tbody tr.priority-low-row td,
-	.table-hover tbody tr.status-otkazan-row td {
-	  background-color: inherit !important;
-	}
-	.priority-high-row { background-color: #f8d7da; }
-    .priority-medium-row { background-color: #fff3cd; }
-    .priority-low-row { background-color: #d1e7dd; }
-    .status-otkazan-row { background-color: #e2e3e5; }
-
-    .modal-priority-high .modal-header { background-color: #dc3545 !important; color: #fff; }
-    .modal-priority-medium .modal-header { background-color: #ffc107 !important; color: #000; }
-    .modal-priority-low .modal-header { background-color: #198754 !important; color: #fff; }
-    .modal-status-otkazan .modal-header { background-color: #6c757d !important; color: #fff; }
-
-    .filter-section { background-color: #f8f9fa; padding: 1rem; border-radius: 8px; margin-bottom: 1rem; }
-
-    .priority-legend {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 15px;
-      align-items: center;
-      font-size: 0.875rem;
-    }
-    .priority-dot { width: 18px; height: 18px; border-radius: 3px; display: inline-block; }
-    #newTicketModal .modal-dialog,
-    #ticketModal .modal-dialog {
-        height: calc(100vh - 80px);
-        margin: 40px auto;
-    }
-    #newTicketModal .modal-content,
-    #ticketModal .modal-content {
-        height: 100%;
-        display: flex;
-        flex-direction: column;
-    }
-    #newTicketModal .modal-body,
-    #ticketModal .modal-body {
-        overflow-y: auto;
-        flex-grow: 1;
-        display: flex;
-        flex-direction: column;
-    }
-    .custom-file-upload-container {
-      border: 1px solid #dee2e6;
-      border-radius: .375rem;
-      padding: .375rem .75rem;
-      display: flex;
-      align-items: center;
-    }
-    .custom-file-upload {
-      background: #0d6efd;
-      color: white;
-      padding: 0.375rem 0.75rem;
-      border-radius: .375rem;
-      cursor: pointer;
-      font-size: 1rem;
-      margin-right: 10px;
-      white-space: nowrap;
-    }
-  </style>
+  <link rel="stylesheet" href="assets/css/admin.css">
 
   <script>
     const API = "../api/";
@@ -242,7 +138,6 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     async function loadAttachmentsAdmin(ticketId) {
       const attachmentSection = document.getElementById("adminAttachmentSection");
       const attachmentList = document.getElementById("attachmentListAdmin");
-      attachmentSection.style.display = 'block'; // Always show
       attachmentList.innerHTML = '<div class="text-muted">Učitavanje...</div>';
 
       const res = await fetch(API + `getAttachments.php?ticket_id=${ticketId}`);
@@ -251,12 +146,14 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
 
       if (attachments.error) {
           attachmentList.innerHTML = `<div class="text-danger small">${attachments.error}</div>`;
+          attachmentSection.style.display = 'block';
           return;
       }
 
       if (attachments.length === 0) {
-          attachmentList.innerHTML = `<div class="text-muted small">Nema priloženih datoteka.</div>`;
+          attachmentSection.style.display = 'none';
       } else {
+          attachmentSection.style.display = 'block';
           attachments.forEach(file => {
               const link = document.createElement('a');
               link.href = `${API}getAttachment.php?id=${file.id}`;
@@ -382,62 +279,6 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         bootstrap.Modal.getInstance(document.getElementById('ticketModal')).hide();
         loadTickets();
       } else alert("Greška: " + (data.error || JSON.stringify(data)));
-    }
-
-    async function loadDevices() {
-      const res = await fetch(API + "getDevices.php");
-      const devices = await res.json();
-      const selects = document.querySelectorAll("#ticket_device_name, #new_ticket_device");
-      selects.forEach(select => {
-        select.innerHTML = '<option value="">Odaberite uređaj...</option>';
-        devices.forEach(d => select.innerHTML += `<option>${d.name}</option>`);
-      });
-    }
-
-    async function loadClients() {
-      const res = await fetch(API + "getKorisnici.php");
-      const clients = await res.json();
-      const selects = document.querySelectorAll("#clientFilter, #new_ticket_client");
-      selects.forEach(select => {
-        select.innerHTML = '<option value="">Svi korisnici</option>';
-        clients.forEach(c => select.innerHTML += `<option value="${c.id}">${c.username} (${c.first_name} ${c.last_name})</option>`);
-      });
-    }
-
-    async function createNewTicket() {
-      const title = document.getElementById("new_ticket_title").value.trim();
-      const device = document.getElementById("new_ticket_device").value;
-      const serial = document.getElementById("new_ticket_serial").value.trim();
-      const client = document.getElementById("new_ticket_client").value;
-
-      if (!client || !title || !device || !serial) {
-          alert("Molimo popunite sva obavezna polja: Korisnik, Naslov, Ime aparata i Serijski broj.");
-          return;
-      }
-
-      const formData = new FormData();
-      formData.append('title', title);
-      formData.append('description', document.getElementById("new_ticket_description").value.trim());
-      formData.append('device_name', document.getElementById("new_ticket_device").value);
-      formData.append('serial_number', document.getElementById("new_ticket_serial").value.trim());
-      formData.append('user_id', document.getElementById("new_ticket_client").value);
-      formData.append('status', "Otvoren");
-      formData.append('request_creator', `${user.first_name} ${user.last_name} (Admin)`);
-      formData.append('creator_contact', user.email);
-
-      const attachment = document.getElementById("new_ticket_attachment").files[0];
-      if (attachment) {
-          formData.append('attachment', attachment);
-      }
-
-      const res = await fetch(API + "addTicket.php", { method: "POST", body: formData });
-      const data = await res.json();
-      if (data.success) {
-        alert("✅ Ticket uspješno kreiran.");
-        bootstrap.Modal.getInstance(document.getElementById('newTicketModal')).hide();
-        document.getElementById('newTicketForm').reset();
-        loadTickets();
-      } else alert("❌ " + (data.error || "Greška prilikom kreiranja ticketa."));
     }
 
     async function addAttachmentAdmin() {
@@ -607,8 +448,8 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
               <select id="ticket_priority" class="form-select"><option value="low">Nizak</option><option value="medium">Srednji</option><option value="high">Visok</option></select>
             </div>
           </div>
-          <div class="mb-3" id="adminAttachmentSection">
-              <label class="form-label">Prilozi</label>
+          <div class="mb-3 d-none" id="adminAttachmentSection">
+              <label class="form-label">Datoteke</label>
               <div id="attachmentListAdmin" class="mb-2"></div>
               <div class="custom-file-upload-container">
                   <label for="admin_new_attachment" class="custom-file-upload">Odaberi datoteku</label>
@@ -650,6 +491,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
   </div>
 
   <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+  <script src="assets/js/newTicket.js"></script>
   <script src="assets/js/comments.js"></script>
 </body>
 </html>

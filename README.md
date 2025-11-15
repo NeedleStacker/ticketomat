@@ -14,8 +14,8 @@ Sustav je dizajniran s ciljem automatizacije i optimizacije procesa korisničke 
 - **Sigurna Prijava:** Korisnici se mogu prijaviti u sustav sa svojim jedinstvenim vjerodajnicama.
 - **Kreiranje Ticketa:** Jednostavan obrazac za prijavu problema s poljima za naslov, detaljan opis, odabir uređaja, serijski broj i mogućnost dodavanja datoteke (privitka).
 - **Pregled Ticketa:** Korisnici mogu vidjeti popis svih svojih prijavljenih ticketa s jasno naznačenim statusom (Otvoren, U tijeku, Riješen, Otkazan).
-- **Detalji Ticketa:** Klikom na ticket otvara se detaljan prikaz s komentarima i svim relevantnim informacijama.
-- **Komentiranje:** Mogućnost ostavljanja komentara na ticketu za direktnu komunikaciju s administratorom.
+- **Detalji Ticketa:** Klikom na ticket otvara se detaljan prikaz s porukama i svim relevantnim informacijama.
+- **Slanje Poruka:** Mogućnost ostavljanja poruka na ticketu za direktnu komunikaciju s administratorom.
 - **Dodavanje Privitaka:** Korisnici mogu dodavati datoteke na otvorene tickete.
 - **Otkazivanje Ticketa:** Korisnici mogu samostalno otkazati svoje tickete ako problem više nije relevantan.
 
@@ -26,7 +26,7 @@ Sustav je dizajniran s ciljem automatizacije i optimizacije procesa korisničke 
 - **Upravljanje Korisnicima:** Mogućnost dodavanja, uređivanja i brisanja korisničkih računa.
 - **Upravljanje Uređajima:** Administratori mogu dodavati i uređivati listu uređaja dostupnih za odabir prilikom kreiranja ticketa.
 - **Kreiranje Ticketa u Ime Klijenata:** Mogućnost otvaranja novog ticketa u ime postojećeg klijenta.
-- **Pregled Komentara:** Administratori vide sve komentare i mogu odgovarati na njih.
+- **Pregled Poruka:** Administratori vide sve poruke i mogu odgovarati na njih.
 
 ---
 

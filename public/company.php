@@ -12,24 +12,8 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Podaci o tvrtki - Ticketomat</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <style>
-        .navbar .btn { align-self: center; }
-        #logo-preview-container {
-            border: 2px dashed #ccc;
-            padding: 10px;
-            width: 424px; /* 400px + 2*10px padding + 2*2px border */
-            height: 124px; /* 100px + 2*10px padding + 2*2px border */
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            margin-top: 10px;
-        }
-        #logo-preview {
-            max-width: 400px;
-            max-height: 100px;
-            object-fit: contain;
-        }
-    </style>
+    <link rel="stylesheet" href="assets/css/responsive.css">
+    <link rel="stylesheet" href="assets/css/company.css">
 </head>
 <body>
     <?php include 'nav.php'; ?>
@@ -38,6 +22,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         <div class="card p-3 p-sm-4">
             <h1 class="mb-4 fs-4">Podaci o tvrtki</h1>
             <form id="company-form" enctype="multipart/form-data">
+    <?php include '_newTicketModal.php'; ?>
                 <div class="mb-3">
                     <label for="company_name" class="form-label">Naziv tvrtke</label>
                     <input type="text" class="form-control" id="company_name" name="company_name">
@@ -71,6 +56,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="assets/js/newTicket.js"></script>
     <script>
         function logout() {
           localStorage.removeItem("user");

@@ -1,0 +1,22 @@
+/* public/assets/css/company.css */
+
+.navbar .btn {
+    align-self: center;
+}
+
+#logo-preview-container {
+    border: 2px dashed #ccc;
+    padding: 10px;
+    width: 424px; /* 400px + 2*10px padding + 2*2px border */
+    height: 124px; /* 100px + 2*10px padding + 2*2px border */
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 10px;
+}
+
+#logo-preview {
+    max-width: 400px;
+    max-height: 100px;
+    object-fit: contain;
+}

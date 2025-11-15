@@ -1,6 +1,5 @@
 <?php
 require_once("config.php");
-require_once("functions.php");
 session_start();
 
 if (!isset($_SESSION['user_id'])) {
@@ -19,7 +18,6 @@ if ($ticket_id <= 0) {
     exit;
 }
 
-$conn = get_db_connection();
 $stmt = $conn->prepare("SELECT id, author_name, author_email, comment_text, created_at FROM ticket_comments WHERE ticket_id = ? ORDER BY created_at ASC");
 $stmt->bind_param("i", $ticket_id);
 $stmt->execute();
