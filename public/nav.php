@@ -5,14 +5,26 @@
             <span class="navbar-toggler-icon"></span>
         </button>
         <div class="collapse navbar-collapse" id="adminNavbar">
-            <div class="navbar-nav ms-auto">
-                <button class="btn btn-outline-light btn-sm me-2" data-bs-toggle="modal" data-bs-target="#newTicketModal">Novi ticket</button>
-                <a href="admin.php" class="btn btn-outline-light btn-sm me-2">Ticketi</a>
-                <a href="company.php" class="btn btn-outline-light btn-sm me-2">Tvrtka</a>
-                <a href="devices.php" class="btn btn-outline-light btn-sm me-2">Aparati</a>
-                <a href="users.php" class="btn btn-outline-light btn-sm me-2">Korisnici</a>
-                <button class="btn btn-outline-light btn-sm" onclick="logout()">Odjava</button>
-            </div>
+            <ul class="navbar-nav ms-auto mb-2 mb-lg-0">
+                <li class="nav-item">
+                    <a class="nav-link" href="#" data-bs-toggle="modal" data-bs-target="#newTicketModal">Novi ticket</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="admin.php">Ticketi</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="company.php">Tvrtka</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="devices.php">Aparati</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="users.php">Korisnici</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" href="#" onclick="logout()">Odjava</a>
+                </li>
+            </ul>
         </div>
     </div>
 </nav>
