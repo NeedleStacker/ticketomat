@@ -5,8 +5,24 @@
  * @param {HTMLElement} container - The element to render the UI into.
  * @param {number} ticketId - The ID of the current ticket.
  * @param {boolean} isAdmin - Flag to determine if admin controls should be shown.
+ * @param {boolean} isLocked - Flag to determine if the ticket is locked.
  */
-function renderCommentUI(container, ticketId, isAdmin) {
+function renderCommentUI(container, ticketId, isAdmin, isLocked) {
+    let formHtml = `
+        <form id="comment-form" class="comment-form">
+            <div class="form-group">
+                <textarea id="comment_text" class="form-control" placeholder="Napišite poruku..." required></textarea>
+            </div>
+            <div class="text-end">
+                <button type="submit" class="btn btn-primary">Pošalji poruku</button>
+            </div>
+        </form>
+    `;
+
+    if (isLocked) {
+        formHtml = `<div class="alert alert-secondary text-center small"><i class="bi bi-lock-fill"></i> Ticket je zaključen. Nije moguće dodavati nove poruke.</div>`;
+    }
+
     container.innerHTML = `
         <div class="comments-container">
             <h6>Poruke</h6>
@@ -14,24 +30,19 @@ function renderCommentUI(container, ticketId, isAdmin) {
                 <div class="comments-loader">Učitavanje...</div>
                 <ul id="comments-list"></ul>
             </div>
-            <form id="comment-form" class="comment-form">
-                <div class="form-group">
-                    <textarea id="comment_text" class="form-control" placeholder="Napišite poruku..." required></textarea>
-                </div>
-                <div class="text-end">
-                    <button type="submit" class="btn btn-primary">Pošalji poruku</button>
-                </div>
-            </form>
+            ${formHtml}
         </div>
     `;
 
     loadComments(ticketId, isAdmin);
 
-    const form = container.querySelector('#comment-form');
-    form.addEventListener('submit', (e) => {
-        e.preventDefault();
-        addComment(ticketId, isAdmin);
-    });
+    if (!isLocked) {
+        const form = container.querySelector('#comment-form');
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            addComment(ticketId, isAdmin);
+        });
+    }
 }
 
 

@@ -336,16 +336,16 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
       const btnCancel = document.getElementById("cancelTicketBtn");
       const addAttachmentSection = document.getElementById("addAttachmentSection");
       const commentsContainer = document.getElementById('comments-section-container');
+      const isLocked = t.is_locked == 1;
 
-      if (t.is_locked == 1) {
+      commentsContainer.style.display = 'block';
+      renderCommentUI(commentsContainer, t.id, false, isLocked); // false for isAdmin
+
+      if (isLocked) {
           btnCancel.style.display = 'none';
           addAttachmentSection.style.display = 'none';
-          commentsContainer.style.display = 'none';
       } else {
           addAttachmentSection.style.display = 'block';
-          commentsContainer.style.display = 'block';
-          renderCommentUI(commentsContainer, t.id, false); // false for isAdmin
-
           if (t.status === 'Otkazan' || t.status === 'Zatvoren' || t.status === 'Riješen') {
               btnCancel.style.display = 'none';
           } else {

@@ -257,12 +257,8 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
       }
 
       const commentsContainer = document.getElementById('comments-section-container');
-      if (t.is_locked == 1) {
-          commentsContainer.style.display = 'none';
-      } else {
-          commentsContainer.style.display = 'block';
-          renderCommentUI(commentsContainer, t.id, true); // true for isAdmin
-      }
+      commentsContainer.style.display = 'block';
+      renderCommentUI(commentsContainer, t.id, true, isLocked); // true for isAdmin
 
       new bootstrap.Modal(modal).show();
     }
