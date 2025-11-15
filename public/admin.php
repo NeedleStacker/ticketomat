@@ -63,6 +63,27 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
         }
     }
 
+    async function deleteAttachment(attachmentId, ticketId) {
+        if (!confirm('Jeste li sigurni da želite obrisati ovu datoteku?')) return;
+
+        try {
+            const res = await fetch(API + 'deleteAttachment.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ attachment_id: attachmentId })
+            });
+            const data = await res.json();
+            if (data.success) {
+                loadAttachmentsAdmin(ticketId);
+            } else {
+                alert('❌ ' + (data.error || 'Greška prilikom brisanja datoteke.'));
+            }
+        } catch (error) {
+            console.error('Delete attachment error:', error);
+            alert('Došlo je do greške na strani servera.');
+        }
+    }
+
     async function unlockTicket() {
         const ticket_id = document.getElementById("ticket_id").value;
         const password = prompt("Za otključavanje unesite svoju lozinku:");
@@ -100,13 +121,6 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
     function logout() {
       localStorage.removeItem("user");
       window.location = "index.php";
-    }
-
-    function escapeHTML(str) {
-      if (typeof str !== 'string') return '';
-      return str.replace(/[&<>"']/g, function(match) {
-        return { '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[match];
-      });
     }
 
     async function loadTickets() {
@@ -179,12 +193,23 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
       } else {
           attachmentSection.style.display = 'block';
           attachments.forEach(file => {
+              const fileContainer = document.createElement('div');
+              fileContainer.className = 'd-flex align-items-center mb-2';
+
               const link = document.createElement('a');
               link.href = `${API}getAttachment.php?id=${file.id}`;
               link.textContent = file.attachment_name;
-              link.className = 'btn btn-outline-secondary btn-sm me-2 mb-2 attachment-link';
+              link.className = 'btn btn-outline-secondary btn-sm me-2 attachment-link';
               link.target = '_blank';
-              attachmentList.appendChild(link);
+
+              const deleteBtn = document.createElement('button');
+              deleteBtn.className = 'btn btn-outline-danger btn-sm';
+              deleteBtn.innerHTML = '<i class="bi bi-trash"></i>';
+              deleteBtn.onclick = () => deleteAttachment(file.id, ticketId);
+
+              fileContainer.appendChild(link);
+              fileContainer.appendChild(deleteBtn);
+              attachmentList.appendChild(fileContainer);
           });
       }
     }
@@ -457,16 +482,23 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
           <div id="unlockReasonContainer" class="alert alert-warning" style="display: none;">
               <strong>Ticket Otključan:</strong> <span id="unlockReasonText"></span>
           </div>
-          <div class="row mb-3">
-            <div class="col-md-4"><label class="form-label">Korisnik</label><p id="ticket_user" class="form-control-plaintext"></p></div>
-            <div class="col-md-4"><label class="form-label">Email</label><p id="ticket_email" class="form-control-plaintext"></p></div>
-            <div class="col-md-4"><label class="form-label">Telefon</label><p id="ticket_phone" class="form-control-plaintext"></p></div>
+          <div class="row">
+            <div class="col-lg-8">
+              <div class="row mb-3">
+                <div class="col-md-6"><label for="ticket_device_name" class="form-label">Uređaj</label><input type="text" id="ticket_device_name" class="form-control"></div>
+                <div class="col-md-6"><label for="ticket_serial_number" class="form-label">Serijski broj</label><input type="text" id="ticket_serial_number" class="form-control"></div>
+              </div>
+              <div class="mb-3"><label for="ticket_description" class="form-label">Opis</label><textarea id="ticket_description" class="form-control" rows="4"></textarea></div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card bg-light p-3">
+                    <h6 class="fs-6 fw-bold">Korisnik</h6>
+                    <p id="ticket_user" class="mb-1"></p>
+                    <p id="ticket_email" class="mb-1"></p>
+                    <p id="ticket_phone" class="mb-0"></p>
+                </div>
+            </div>
           </div>
-          <div class="row mb-3">
-            <div class="col-md-6"><label for="ticket_device_name" class="form-label">Uređaj</label><input type="text" id="ticket_device_name" class="form-control"></div>
-            <div class="col-md-6"><label for="ticket_serial_number" class="form-label">Serijski broj</label><input type="text" id="ticket_serial_number" class="form-control"></div>
-          </div>
-          <div class="mb-3"><label for="ticket_description" class="form-label">Opis</label><textarea id="ticket_description" class="form-control" rows="4"></textarea></div>
           <div class="row mb-3">
             <div class="col-md-4"><label for="ticket_status" class="form-label">Status</label>
               <select id="ticket_status" class="form-select"><option>Otvoren</option><option>U tijeku</option><option>Riješen</option><option>Zatvoren</option><option>Otkazan</option></select>
@@ -475,7 +507,7 @@ if (!isset($_SESSION['user_role']) || $_SESSION['user_role'] != 'admin') {
               <select id="ticket_priority" class="form-select"><option value="low">Nizak</option><option value="medium">Srednji</option><option value="high">Visok</option></select>
             </div>
           </div>
-          <div class="mb-3 d-none" id="adminAttachmentSection">
+          <div class="mb-3" id="adminAttachmentSection">
               <label class="form-label">Datoteke</label>
               <div id="attachmentListAdmin" class="mb-2"></div>
               <div class="custom-file-upload-container">

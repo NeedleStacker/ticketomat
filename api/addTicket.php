@@ -1,6 +1,5 @@
 <?php
 require_once("config.php");
-require_once("functions.php");
 session_start();
 if (!isset($_SESSION['user_id'])) {
     http_response_code(401);
@@ -41,10 +40,10 @@ if ($q->execute()) {
 
     // 2. If there is an attachment, insert it into the new table
     if (isset($_FILES['attachment']) && $_FILES['attachment']['error'] == 0) {
-        if ($_FILES['attachment']['size'] > 5 * 1024 * 1024) { // 5MB limit
+        if ($_FILES['attachment']['size'] > 10 * 1024 * 1024) { // 10MB limit
             // Note: The ticket is already created, but the attachment is rejected. This is an acceptable trade-off.
             http_response_code(400);
-            echo json_encode(["error" => "Datoteka je prevelika. Maksimalna veličina je 5MB.", "ticket_id" => $ticket_id]);
+            echo json_encode(["error" => "Datoteka je prevelika. Maksimalna veličina je 10MB.", "ticket_id" => $ticket_id]);
             exit;
         }
 

@@ -26,11 +26,11 @@ function renderCommentUI(container, ticketId, isAdmin, isLocked) {
     container.innerHTML = `
         <div class="comments-container">
             <h6>Poruke</h6>
+            ${formHtml}
             <div id="comments-list-container">
                 <div class="comments-loader">Učitavanje...</div>
                 <ul id="comments-list"></ul>
             </div>
-            ${formHtml}
         </div>
     `;
 
@@ -84,11 +84,11 @@ async function loadComments(ticketId, isAdmin) {
                     <div class="comment-avatar">${initials}</div>
                     <div class="comment-body">
                         <div class="comment-header">
-                            <span class="comment-author">${escapeHTML(comment.author_name)}</span>
+                            <span class="comment-author">${comment.author_name}</span>
                             <span class="comment-date">${new Date(comment.created_at).toLocaleString('hr-HR')}</span>
                             ${isAdmin ? `<div class="comment-actions"><button class="btn-delete-comment" onclick="deleteComment(${comment.id}, ${ticketId})">&times; Obriši</button></div>` : ''}
                         </div>
-                        <div class="comment-text">${escapeHTML(comment.comment_text)}</div>
+                        <div class="comment-text">${comment.comment_text}</div>
                     </div>
                 `;
                 list.appendChild(li);

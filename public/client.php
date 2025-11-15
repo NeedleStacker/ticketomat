@@ -198,19 +198,6 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
       window.location = "index.php";
     }
 
-    function escapeHTML(str) {
-      if (typeof str !== 'string') return '';
-      return str.replace(/[&<>"']/g, function(match) {
-        return {
-          '&': '&amp;',
-          '<': '&lt;',
-          '>': '&gt;',
-          '"': '&quot;',
-          "'": '&#39;'
-        }[match];
-      });
-    }
-
     async function getTickets() {
       const res = await fetch(API + `getTickets.php?user_id=${user.id}&role=${user.role}`);
       const data = await res.json();
@@ -246,7 +233,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
         div.innerHTML = `
           <div class="d-flex justify-content-between align-items-start mb-2">
             <div>
-              <b>#${t.id}</b> - ${escapeHTML(t.title)}
+              <b>#${t.id}</b> - ${t.title}
             </div>
             <span class='badge ${badgeClass} status-badge'>${t.status}</span>
           </div>
@@ -271,7 +258,6 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
     async function loadAttachments(ticketId) {
         const attachmentSection = document.getElementById("attachmentSection");
         const attachmentList = document.getElementById("attachmentList");
-        attachmentSection.style.display = 'block'; // Always show the section
         attachmentList.innerHTML = '<div class="text-muted">Učitavanje...</div>';
 
         const res = await fetch(API + `getAttachments.php?ticket_id=${ticketId}`);
@@ -280,12 +266,14 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
 
         if (attachments.error) {
              attachmentList.innerHTML = `<div class="text-danger small">${attachments.error}</div>`;
+             attachmentSection.style.display = 'block';
              return;
         }
 
         if (attachments.length === 0) {
-            attachmentList.innerHTML = `<div class="text-muted small">Nema priloženih datoteka.</div>`;
+            attachmentSection.style.display = 'none';
         } else {
+            attachmentSection.style.display = 'block';
             attachments.forEach(file => {
                 const link = document.createElement('a');
                 link.href = `${API}getAttachment.php?id=${file.id}`;
@@ -305,7 +293,7 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
       const modal = document.getElementById('ticketModal');
       const modalTitle = document.getElementById("modalTitle");
 
-      let titleHTML = `Ticket #${t.id} – ${escapeHTML(t.title)}`;
+      let titleHTML = `Ticket #${t.id} – ${t.title}`;
       if (t.is_locked == 1) {
           titleHTML += ' <i class="bi bi-lock-fill" title="Ovaj ticket je zaključen"></i>';
       }
@@ -348,8 +336,10 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
           addAttachmentSection.style.display = 'block';
           if (t.status === 'Otkazan' || t.status === 'Zatvoren' || t.status === 'Riješen') {
               btnCancel.style.display = 'none';
+              addAttachmentSection.style.display = 'none';
           } else {
               btnCancel.style.display = 'inline-block';
+              addAttachmentSection.style.display = 'block';
           }
       }
 
@@ -589,6 +579,12 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
         const fileNameSpan = document.getElementById('file-name-span');
         fileNameSpan.textContent = this.files.length > 0 ? this.files[0].name : 'Nije odabrana datoteka';
       });
+
+      const newTicketAttachment = document.getElementById('attachment');
+        newTicketAttachment.addEventListener('change', function() {
+            const fileNameSpan = document.getElementById('file-name-span-new-ticket');
+            fileNameSpan.textContent = this.files.length > 0 ? this.files[0].name : 'Nije izabrana datoteka';
+        });
     });
   </script>
 </head>
@@ -633,8 +629,12 @@ if (isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin') {
         </div>
 
         <div class="mb-3">
-            <label for="attachment" class="form-label">Datoteka (Max 5MB)</label>
-            <input class="form-control" type="file" id="attachment">
+            <label class="form-label">Datoteka (Max 10MB)</label>
+            <div class="custom-file-upload-container">
+                <label for="attachment" class="custom-file-upload">Odaberi datoteku</label>
+                <span id="file-name-span-new-ticket" class="text-muted">Nije izabrana datoteka</span>
+                <input type="file" id="attachment" class="d-none">
+            </div>
         </div>
 
         <textarea id="desc" class="form-control mb-2" rows="3" placeholder="Detaljan opis problema (opcionalno)"></textarea>
