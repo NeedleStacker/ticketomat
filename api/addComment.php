@@ -13,9 +13,22 @@ header('Content-Type: application/json');
 $data = json_decode(file_get_contents('php://input'), true);
 $ticket_id = $data['ticket_id'] ?? 0;
 $comment_text = $data['comment_text'] ?? '';
-$author_name = $_SESSION['user_name'] ?? 'Nepoznat';
-$author_email = $_SESSION['user_email'] ?? 'nepoznat@example.com';
+$user_id = $_SESSION['user_id'];
 $ip_address = $_SERVER['REMOTE_ADDR'];
+
+// Fetch user details from the database
+$stmt_user = $conn->prepare("SELECT first_name, last_name, email FROM users WHERE id = ?");
+$stmt_user->bind_param("i", $user_id);
+$stmt_user->execute();
+$result_user = $stmt_user->get_result();
+$user = $result_user->fetch_assoc();
+$stmt_user->close();
+
+$author_name = trim(($user['first_name'] ?? '') . ' ' . ($user['last_name'] ?? ''));
+if (empty($author_name)) {
+    $author_name = 'Nepoznat';
+}
+$author_email = $user['email'] ?? 'nepoznat@example.com';
 
 // Validation
 if ($ticket_id <= 0 || empty($comment_text)) {
